@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name="member")
@@ -12,8 +13,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member extends Actor
+public class Member
 {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
@@ -37,4 +42,7 @@ public class Member extends Actor
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExternToMemberOverVCR_Payment> externToMemberOverVcr_Payments;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Member_PaymentInfo> member_PaymentInfo;
 }

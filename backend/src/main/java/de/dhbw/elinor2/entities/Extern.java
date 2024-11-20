@@ -12,9 +12,16 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Extern extends Actor
+public class Extern
 {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
     private String name;
+
+    @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Extern_PaymentInfo> extern_PaymentInfos;
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberToExternOverVCR_Payment> memberToExternOverVcr_Payments;
