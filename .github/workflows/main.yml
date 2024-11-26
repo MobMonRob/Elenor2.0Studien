@@ -25,7 +25,6 @@ jobs:
           --health-interval=30s
           --health-timeout=10s
           --health-retries=5
-          --health-start_period=30s
 
     steps:
     - name: Checkout code
