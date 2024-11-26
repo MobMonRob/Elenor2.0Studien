@@ -22,9 +22,10 @@ jobs:
           MARIADB_PASSWORD: myuserpassword
         options: >-
           --health-cmd="mysqladmin ping --host=localhost --user=root --password=my-secret-password"
-          --health-interval=10s
-          --health-timeout=5s
+          --health-interval=30s
+          --health-timeout=10s
           --health-retries=5
+          --health-start_period=30s
 
     steps:
     - name: Checkout code
