@@ -4,21 +4,61 @@ on:
   push:
     branches:
       - main
+      - pipeline
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        container_name: elinor2-database
+        ports:
+          - 3306:3306
+        env:
+          MARIADB_ROOT_PASSWORD: my-secret-password
+          MARIADB_DATABASE: elinor2
+          MARIADB_USER: myuser
+          MARIADB_PASSWORD: myuserpassword
+        options: >-
+          --health-cmd="mysqladmin ping --host=localhost --user=root --password=my-secret-password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Build and start services
-        run: |
-          docker-compose up --build -d
+    - name: Cache Maven dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
 
-      - name: Tear down services
-        if: always()
-        run: docker-compose down
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'adoptopenjdk'
+        java-version: '11'
+
+    - name: Build the backend application with Maven
+      run: mvn clean install -DskipTests
+
+    - name: Run tests using Docker Compose
+      run: |
+        # Erstellen und Starten der Docker-Container
+        docker-compose -f docker-compose.yml up -d
+        
+        # Führen Sie die Spring Boot-Anwendungstests aus
+        docker-compose exec -T app mvn test
+
+        # Stoppen und Entfernen der Docker-Container
+        docker-compose down
+
