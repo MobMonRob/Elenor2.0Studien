@@ -19,7 +19,7 @@ jobs:
         id: db-container
         run: |
           # MariaDB-Docker-Container starten
-          docker run --name mariadb-container -e MYSQL_ROOT_PASSWORD=my-secret-password -e MYSQL_DATABASE=elinor2 -p 3306:3306 -d mariadb:latest
+          docker run --name mariadb-container -e MYSQL_ROOT_PASSWORD=my-secret-password -e MYSQL_DATABASE=elinor2 -e MYSQL_USER=myuser -e MYSQL_PASSWORD=myuserpassword -p 3306:3306 -d mariadb:latest
           # Warten, bis MariaDB bereit ist
           echo "Waiting for MariaDB to start..."
           sleep 15 # Anpassen je nach Bedarf
@@ -38,6 +38,7 @@ jobs:
           java-version: '21'
 
       - name: Build with Maven
+        working-directory: ./backend
         run: |
           mvn clean install -DskipTests
 
