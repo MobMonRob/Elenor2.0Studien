@@ -10,8 +10,6 @@ on:
 jobs:
   setup-db:
     runs-on: ubuntu-latest
-    outputs:
-      db_container_name: ${{ steps.db-container.outputs.name }}
       
     steps:
       - name: Checkout code
@@ -31,10 +29,10 @@ jobs:
     needs: setup-db
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Java 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
 
@@ -47,10 +45,10 @@ jobs:
     needs: build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Java 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
 
