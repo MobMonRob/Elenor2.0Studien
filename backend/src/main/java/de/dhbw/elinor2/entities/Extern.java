@@ -1,13 +1,18 @@
 package de.dhbw.elinor2.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="extern")
+@Table(name = "extern")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,11 +26,14 @@ public class Extern
     private String name;
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Extern_PaymentInfo> extern_PaymentInfos;
+    @JsonIgnore
+    private List<Extern_PaymentInfo> extern_PaymentInfos = new ArrayList<>();
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberToExternOverVCR_Payment> memberToExternOverVcr_Payments;
+    @JsonIgnore
+    private List<UserToExternOverVCR_Payment> userToExternOverVcr_Payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExternToMemberOverVCR_Payment> externToMemberOverVcr_Payments;
+    @JsonIgnore
+    private List<ExternToUserOverVCR_Payment> externToUserOverVcr_Payments = new ArrayList<>();
 }

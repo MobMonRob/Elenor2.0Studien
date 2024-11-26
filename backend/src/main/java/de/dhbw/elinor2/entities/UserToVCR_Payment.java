@@ -1,28 +1,27 @@
 package de.dhbw.elinor2.entities;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.*;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name="member_to_extern_over_vcr_payment")
+@Table(name = "user_to_vcr_payment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberToExternOverVCR_Payment extends Payment
+public class UserToVCR_Payment extends Payment
 {
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "vcr_id", nullable = false)
     private VirtualCashRegister virtualCashRegister;
-
-    @ManyToOne
-    @JoinColumn(name = "extern_id", nullable = false)
-    private Extern extern;
 }

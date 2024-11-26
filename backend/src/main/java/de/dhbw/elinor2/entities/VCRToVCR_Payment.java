@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="vcr_to_vcr_payment")
+@Table(name = "vcr_to_vcr_payment")
 @Getter
 @Setter
 @NoArgsConstructor

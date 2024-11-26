@@ -1,13 +1,17 @@
 package de.dhbw.elinor2.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="payment_info")
+@Table(name = "payment_info")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,12 +23,14 @@ public class PaymentInfo
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @OneToMany(mappedBy = "paymentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Member_PaymentInfo> member_PaymentInfo;
+    @JsonIgnore
+    private List<User_PaymentInfo> user_PaymentInfo;
 
     @OneToMany(mappedBy = "paymentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Extern_PaymentInfo> extern_PaymentInfo;
 }

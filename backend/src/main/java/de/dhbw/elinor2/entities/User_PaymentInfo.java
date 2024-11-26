@@ -7,18 +7,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "extern_payment_info")
-@IdClass(Extern_PaymentInfo_Id.class)
+@Table(name = "user_payment_info")
+@IdClass(User_PaymentInfo_Id.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Extern_PaymentInfo
+public class User_PaymentInfo
 {
     @Id
     @ManyToOne
-    @JoinColumn(name = "extern_id", nullable = false)
-    private Extern extern;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Id
     @ManyToOne

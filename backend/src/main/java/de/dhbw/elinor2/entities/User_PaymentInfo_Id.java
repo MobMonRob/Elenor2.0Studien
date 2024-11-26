@@ -2,18 +2,18 @@ package de.dhbw.elinor2.entities;
 
 import java.io.Serializable;
 
-public class Extern_PaymentInfo_Id implements Serializable
+public class User_PaymentInfo_Id implements Serializable
 {
-    private Extern extern;
+    private User user;
     private PaymentInfo paymentInfo;
 
-    public Extern_PaymentInfo_Id()
+    public User_PaymentInfo_Id()
     {
     }
 
-    public Extern_PaymentInfo_Id(Extern extern, PaymentInfo paymentInfo)
+    public User_PaymentInfo_Id(User user, PaymentInfo paymentInfo)
     {
-        this.extern = extern;
+        this.user = user;
         this.paymentInfo = paymentInfo;
     }
 
@@ -22,14 +22,14 @@ public class Extern_PaymentInfo_Id implements Serializable
     {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        Extern_PaymentInfo_Id that = (Extern_PaymentInfo_Id) obj;
-        return extern.getId().equals(that.extern.getId())
+        User_PaymentInfo_Id that = (User_PaymentInfo_Id) obj;
+        return user.getId().equals(that.user.getId())
                 && paymentInfo.getId().equals(that.paymentInfo.getId());
     }
 
     @Override
     public int hashCode()
     {
-        return extern.getId().hashCode() + paymentInfo.getId().hashCode();
+        return user.getId().hashCode() + paymentInfo.getId().hashCode();
     }
 }

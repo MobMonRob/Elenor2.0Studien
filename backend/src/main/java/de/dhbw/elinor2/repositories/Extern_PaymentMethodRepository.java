@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IExtern_PaymentMethodRepository extends JpaRepository<Extern_PaymentInfo, Extern_PaymentInfo_Id>
+public interface Extern_PaymentMethodRepository extends JpaRepository<Extern_PaymentInfo, Extern_PaymentInfo_Id>
 {
 }
