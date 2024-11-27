@@ -19,11 +19,16 @@ jobs:
           MYSQL_DATABASE: elinor2
           MYSQL_USER: myuser
           MYSQL_PASSWORD: myuserpassword
-        options: --health-cmd="mysqladmin ping --silent" --health-start-period=30s
+        options: >-
+          --health-cmd="mysqladmin --host=127.0.0.1 --user=root --password=my-secret-password ping --silent"
+          --health-start-period=60s
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Prüfe MariaDB Logs
+        run: docker logs ${{ job.services.mariadb.id }}
 
   build-test:
     runs-on: ubuntu-latest
