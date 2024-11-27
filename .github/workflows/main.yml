@@ -3,7 +3,6 @@ name: backend-build-test
 on:
   push:
     branches:
-      - main
       - pipeline
 
 
