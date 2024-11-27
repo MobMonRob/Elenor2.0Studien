@@ -3,36 +3,31 @@ name: backend-build-test
 on:
   push:
     branches:
+      - main
       - pipeline
 
 
 jobs:
   setup-db:
     runs-on: ubuntu-latest
-
     services:
-     mariadb:
-       image: mariadb:latest
-       ports:
-         - 3306:3306
-       env:
-         MYSQL_ROOT_PASSWORD: my-secret-password
-         MYSQL_DATABASE: elinor2
-         MYSQL_USER: myuser
-         MYSQL_PASSWORD: myuserpassword
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: my-secret-password
+          MYSQL_DATABASE: elinor2
+          MYSQL_USER: myuser
+          MYSQL_PASSWORD: myuserpassword
 
     steps:
-      # Checkout Code
       - name: Checkout code
         uses: actions/checkout@v4
 
-
-      # Optional: Check MariaDB Logs
-      - name: Check MariaDB Logs
-        run: docker logs mariadb
-
   build-test:
     runs-on: ubuntu-latest
+    needs: setup-db
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,11 +47,14 @@ jobs:
         working-directory: ./backend
         run: mvn test
 
+      
+
   cleanup:
     runs-on: ubuntu-latest
+    needs: [setup-db, build-test]
+    if: always()
     steps:
       - name: Remove MariaDB container
-        if: ${{ always() }}
         run: |
           # Stoppen und Entfernen des MariaDB Containers
           docker stop mariadb
