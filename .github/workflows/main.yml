@@ -47,6 +47,24 @@ jobs:
         working-directory: ./backend
         run: mvn test
 
+      - name: Ping port 3306
+        run: |
+          if nc -zv localhost 3306; then
+            echo "Port 3306 is open."
+          else
+          echo "Port 3306 is closed."
+            exit 1
+          fi
+
+      - name: Ping port 3307
+        run: |
+          if nc -zv localhost 3307; then
+            echo "Port 3307 is open."
+          else
+          echo "Port 3307 is closed."
+            exit 1
+          fi
+
       
 
   cleanup:
