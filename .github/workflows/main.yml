@@ -27,21 +27,6 @@ jobs:
             -p 3306:3306 \
             mariadb:latest
 
-      # Wait for MariaDB to be Ready
-      - name: Wait for MariaDB to be ready
-        run: |
-          for i in {1..10}; do
-            if docker exec mariadb mysqladmin ping -u root -pmy-secret-password --silent; then
-              echo "MariaDB is ready!"
-              exit 0
-            fi
-            echo "Waiting for MariaDB..."
-            sleep 5
-          done
-          echo "MariaDB did not become ready in time!"
-          docker logs mariadb
-          exit 1
-
       # Optional: Check MariaDB Logs
       - name: Check MariaDB Logs
         run: docker logs mariadb
