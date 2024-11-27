@@ -21,10 +21,10 @@ public class UserController
     private UserService userService;
 
     @PostMapping("")
-    public UUID createUser(@RequestBody User user)
+    public ResponseEntity<User> createUser(@RequestBody User user)
     {
         User savedUser = userService.createUser(user);
-        return savedUser.getId();
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     @GetMapping("")
@@ -82,16 +82,16 @@ public class UserController
     }
 
     @PostMapping("/{userId}/paymentinfos/{paymentInfoId}")
-    public ResponseEntity<User_PaymentInfo> addPaymentInfo(@PathVariable UUID userId, @PathVariable UUID paymentInfoId, @RequestBody String paymentValue)
+    public ResponseEntity<User_PaymentInfo> addPaymentInfo(@PathVariable UUID userId, @PathVariable UUID paymentInfoId, @RequestBody String paymentAddress)
     {
-        User_PaymentInfo userPaymentInfo = userService.createUserPaymentInfo(userId, paymentInfoId, paymentValue);
+        User_PaymentInfo userPaymentInfo = userService.createUserPaymentInfo(userId, paymentInfoId, paymentAddress);
         return new ResponseEntity<>(userPaymentInfo, HttpStatus.CREATED);
     }
 
     @PutMapping("/{userId}/paymentinfos/{paymentInfoId}")
-    public ResponseEntity<User_PaymentInfo> updatePaymentInfo(@PathVariable UUID userId, @PathVariable UUID paymentInfoId, @RequestBody String paymentValue)
+    public ResponseEntity<User_PaymentInfo> updatePaymentInfo(@PathVariable UUID userId, @PathVariable UUID paymentInfoId, @RequestBody String paymentAddress)
     {
-        Optional<User_PaymentInfo> userPaymentInfo = userService.updateUserPaymentInfo(userId, paymentInfoId, paymentValue);
+        Optional<User_PaymentInfo> userPaymentInfo = userService.updateUserPaymentInfo(userId, paymentInfoId, paymentAddress);
 
         if (userPaymentInfo.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Payment Info not found");

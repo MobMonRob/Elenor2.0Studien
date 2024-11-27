@@ -73,7 +73,7 @@ public class UserService
     }
 
     @Transactional
-    public User_PaymentInfo createUserPaymentInfo(UUID userId, UUID paymentInfoId, String value)
+    public User_PaymentInfo createUserPaymentInfo(UUID userId, UUID paymentInfoId, String paymentAddress)
     {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new IllegalArgumentException("User not found"));
@@ -83,17 +83,17 @@ public class UserService
         User_PaymentInfo userPaymentInfo = new User_PaymentInfo();
         userPaymentInfo.setUser(user);
         userPaymentInfo.setPaymentInfo(paymentInfo);
-        userPaymentInfo.setValue(value);
+        userPaymentInfo.setPaymentAddress(paymentAddress);
         userPaymentInfoRepository.save(userPaymentInfo);
         return userPaymentInfo;
     }
 
     @Transactional
-    public Optional<User_PaymentInfo> updateUserPaymentInfo(UUID userId, UUID paymentInfoId, String value)
+    public Optional<User_PaymentInfo> updateUserPaymentInfo(UUID userId, UUID paymentInfoId, String paymentAddress)
     {
         return userPaymentInfoRepository.findByUserIdAndPaymentInfoId(userId, paymentInfoId).map(userPaymentInfo ->
         {
-            userPaymentInfo.setValue(value);
+            userPaymentInfo.setPaymentAddress(paymentAddress);
             return userPaymentInfoRepository.save(userPaymentInfo);
         });
     }

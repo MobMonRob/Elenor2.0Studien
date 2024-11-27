@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,9 +29,9 @@ public class PaymentInfo
 
     @OneToMany(mappedBy = "paymentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<User_PaymentInfo> user_PaymentInfo;
+    private List<User_PaymentInfo> user_PaymentInfo = new ArrayList<>();
 
     @OneToMany(mappedBy = "paymentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Extern_PaymentInfo> extern_PaymentInfo;
+    private List<Extern_PaymentInfo> extern_PaymentInfo = new ArrayList<>();
 }

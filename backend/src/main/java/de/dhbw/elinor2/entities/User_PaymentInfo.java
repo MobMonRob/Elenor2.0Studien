@@ -26,7 +26,7 @@ public class User_PaymentInfo
     private PaymentInfo paymentInfo;
 
     @Column(nullable = false)
-    private String value;
+    private String paymentAddress;
 }
 
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,25 +28,25 @@ public class VirtualCashRegister
     private String name;
 
     @Column(nullable = false)
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<VCRToVCR_Payment> sender_vcrToVcr_Payments;
+    private List<VCRToVCR_Payment> sender_vcrToVcr_Payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<VCRToVCR_Payment> receiver_vcrToVcr_Payments;
+    private List<VCRToVCR_Payment> receiver_vcrToVcr_Payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToVCR_Payment> userToVcr_Payments;
+    private List<UserToVCR_Payment> userToVcr_Payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToExternOverVCR_Payment> userToExternOverVcr_Payments;
+    private List<UserToExternOverVCR_Payment> userToExternOverVcr_Payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<ExternToUserOverVCR_Payment> externToUserOverVcr_Payments;
+    private List<ExternToUserOverVCR_Payment> externToUserOverVcr_Payments = new ArrayList<>();
 }
