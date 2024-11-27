@@ -10,27 +10,30 @@ jobs:
   setup-db:
     runs-on: ubuntu-latest
 
+    services:
+     mariadb:
+       image: mariadb:latest
+       ports:
+         - 3306:3306
+       env:
+         MYSQL_ROOT_PASSWORD: my-secret-password
+         MYSQL_DATABASE: elinor2
+         MYSQL_USER: myuser
+         MYSQL_PASSWORD: myuserpassword
+
     steps:
       # Checkout Code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Start MariaDB Container
-      - name: Start MariaDB Container
-        run: |
-          docker run -d \
-            --name mariadb \
-            -e MYSQL_ROOT_PASSWORD=my-secret-password \
-            -e MYSQL_DATABASE=elinor2 \
-            -e MYSQL_USER=myuser \
-            -e MYSQL_PASSWORD=myuserpassword \
-            -p 3306:3306 \
-            mariadb:latest
 
       # Optional: Check MariaDB Logs
       - name: Check MariaDB Logs
         run: docker logs mariadb
 
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -49,6 +52,9 @@ jobs:
         working-directory: ./backend
         run: mvn test
 
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
       - name: Remove MariaDB container
         if: ${{ always() }}
         run: |
