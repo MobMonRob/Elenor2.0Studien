@@ -1,6 +1,7 @@
 package de.dhbw.elinor2.controller;
 
 import de.dhbw.elinor2.entities.Extern;
+import de.dhbw.elinor2.entities.Extern_PaymentInfo;
 import de.dhbw.elinor2.services.ExternService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,57 +9,62 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/externs")
-public class ExternController
+@RequestMapping("api/externs")
+public class ExternController extends GenericController<Extern, UUID>
 {
 
     @Autowired
     private ExternService externService;
 
-    @PostMapping("")
-    public ResponseEntity<Extern> createExtern(@RequestBody Extern extern)
+    @Autowired
+    public ExternController(ExternService service)
     {
-        Extern savedExtern = externService.createExtern(extern);
-        return new ResponseEntity<>(savedExtern, HttpStatus.CREATED);
+        super(service);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Extern> getExternById(@PathVariable UUID id)
+
+    @GetMapping("/{externId}/paymentinfos")
+    public ResponseEntity<Iterable<Extern_PaymentInfo>> getPaymentInfos(@PathVariable UUID externId)
     {
-        Optional<Extern> extern = externService.getExternById(id);
-        if (extern.isPresent())
-        {
-            return new ResponseEntity<>(extern.get(), HttpStatus.OK);
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Extern not found");
+        return ResponseEntity.ok(externService.getExternPaymentInfoFields(externId));
     }
 
-    @GetMapping("")
-    public List<Extern> getAllExtern()
+    @GetMapping("/{externId}/paymentinfos/{paymentInfoId}")
+    public ResponseEntity<Extern_PaymentInfo> getPaymentInfo(@PathVariable UUID externId, @PathVariable UUID paymentInfoId)
     {
-        return externService.getAllExtern();
+        Optional<Extern_PaymentInfo> externPaymentInfo = externService.getExternPaymentInfoField(externId, paymentInfoId);
+
+        if (externPaymentInfo.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Extern Payment Info not found");
+
+        return ResponseEntity.ok(externPaymentInfo.get());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Extern> updateExtern(@PathVariable UUID id, @RequestBody Extern externDetails)
+    @PostMapping("/{externId}/paymentinfos/{paymentInfoId}")
+    public ResponseEntity<Extern_PaymentInfo> addPaymentInfo(@PathVariable UUID externId, @PathVariable UUID paymentInfoId, @RequestBody String paymentAddress)
     {
-        Optional<Extern> updatedExtern = externService.updateExtern(id, externDetails);
-        if (updatedExtern.isPresent())
-        {
-            return new ResponseEntity<>(updatedExtern.get(), HttpStatus.OK);
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Extern not found");
+        Extern_PaymentInfo externPaymentInfo = externService.createExternPaymentInfo(externId, paymentInfoId, paymentAddress);
+        return new ResponseEntity<>(externPaymentInfo, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExtern(@PathVariable UUID id)
+    @PutMapping("/{externId}/paymentinfos/{paymentInfoId}")
+    public ResponseEntity<Extern_PaymentInfo> updatePaymentInfo(@PathVariable UUID externId, @PathVariable UUID paymentInfoId, @RequestBody String paymentAddress)
     {
-        externService.deleteExtern(id);
-        return ResponseEntity.ok().build();
+        Optional<Extern_PaymentInfo> externPaymentInfo = externService.updateExternPaymentInfo(externId, paymentInfoId, paymentAddress);
+
+        if (externPaymentInfo.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Extern Payment Info not found");
+
+        return new ResponseEntity<>(externPaymentInfo.get(), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{externId}/paymentinfos/{paymentInfoId}")
+    public void deletePaymentInfo(@PathVariable UUID externId, @PathVariable UUID paymentInfoId)
+    {
+        externService.deleteExternPaymentInfo(externId, paymentInfoId);
     }
 }

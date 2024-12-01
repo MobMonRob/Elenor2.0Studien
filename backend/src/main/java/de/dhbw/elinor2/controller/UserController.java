@@ -2,6 +2,7 @@ package de.dhbw.elinor2.controller;
 
 import de.dhbw.elinor2.entities.User;
 import de.dhbw.elinor2.entities.User_PaymentInfo;
+import de.dhbw.elinor2.services.IGenericService;
 import de.dhbw.elinor2.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,55 +14,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
-public class UserController
+@RequestMapping("api/users")
+public class UserController extends GenericController<User, UUID>
 {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping("")
-    public ResponseEntity<User> createUser(@RequestBody User user)
+    @Autowired
+    public UserController(IGenericService<User, UUID> service)
     {
-        User savedUser = userService.createUser(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-    }
-
-    @GetMapping("")
-    public ResponseEntity<Iterable<User>> getUsers()
-    {
-        return ResponseEntity.ok(userService.getUsers());
-    }
-
-    @GetMapping("/{userId}")
-    public User getUsers(@PathVariable UUID userId)
-    {
-        Optional<User> user = userService.getUserById(userId);
-        if (user.isPresent())
-        {
-            return user.get();
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-    }
-
-    @PutMapping("/{userId}")
-    public void updateUser(@PathVariable UUID userId, @RequestBody User userToUpdate)
-    {
-        Optional<User> existingUser = userService.getUserById(userId);
-
-        if (existingUser.isEmpty())
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-
-        userService.updateUser(userId, userToUpdate).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-    }
-
-    @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable UUID userId)
-    {
-        userService.deleteUser(userId);
+        super(service);
     }
 
     @GetMapping("/{userId}/paymentinfos")

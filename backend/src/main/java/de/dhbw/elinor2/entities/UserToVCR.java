@@ -10,22 +10,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "extern_to_user_over_vcr_payment")
+@Table(name = "user_to_vcr_payment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExternToUserOverVCR_Payment extends Payment
+public class UserToVCR extends Payment
 {
     @ManyToOne
-    @JoinColumn(name = "extern_id", nullable = false)
-    private Extern extern;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "vcr_id", nullable = false)
     private VirtualCashRegister virtualCashRegister;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }

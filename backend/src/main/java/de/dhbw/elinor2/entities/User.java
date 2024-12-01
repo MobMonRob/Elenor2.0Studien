@@ -38,23 +38,27 @@ public class User
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToUser_Payment> sender_UserToUser_Payments = new ArrayList<>();
+    private List<UserToUser> sender_UserToUser = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToUser_Payment> receiver_UserToUser_Payments = new ArrayList<>();
+    private List<UserToUser> receiver_UserToUser = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToVCR_Payment> userToVcr_Payments = new ArrayList<>();
+    private List<UserToVCR> userToVcr = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToExternOverVCR_Payment> userToExternOverVcr_Payments = new ArrayList<>();
+    private List<VCRToUser> vcrToUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<ExternToUserOverVCR_Payment> externToUserOverVcr_Payments = new ArrayList<>();
+    private List<UserToExtern> userToExternOverVcr = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ExternToUser> externToUserOverVcr = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

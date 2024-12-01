@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserService
+public class UserService extends GenericService<User, UUID>
 {
 
     @Autowired
@@ -25,39 +25,10 @@ public class UserService
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
-    @Transactional
-    public User createUser(User user)
+    @Autowired
+    public UserService(UserRepository repository)
     {
-        return userRepository.save(user);
-    }
-
-    public Optional<User> getUserById(UUID userId)
-    {
-        return userRepository.findById(userId);
-    }
-
-    public Iterable<User> getUsers()
-    {
-        return userRepository.findAll();
-    }
-
-    @Transactional
-    public Optional<User> updateUser(UUID userId, User userDetails)
-    {
-        return userRepository.findById(userId).map(user ->
-        {
-            user.setUsername(userDetails.getUsername());
-            user.setFirstName(userDetails.getFirstName());
-            user.setLastName(userDetails.getLastName());
-            user.setDebt(userDetails.getDebt());
-            return userRepository.save(user);
-        });
-    }
-
-    @Transactional
-    public void deleteUser(UUID userId)
-    {
-        userRepository.deleteById(userId);
+        super(repository);
     }
 
     @Transactional

@@ -1,4 +1,5 @@
 package de.dhbw.elinor2;
+
 import de.dhbw.elinor2.entities.PaymentInfo;
 import de.dhbw.elinor2.entities.User;
 import de.dhbw.elinor2.entities.User_PaymentInfo;
@@ -7,7 +8,10 @@ import de.dhbw.elinor2.repositories.PaymentInfoRepository;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.User_PaymentInfoRepository;
 import de.dhbw.elinor2.services.UserService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -31,6 +35,8 @@ public class UserPaymentInfoTest
 
     private User_PaymentInfo existingUser_PaymentInfo;
 
+    private String BASE_URL;
+
     @BeforeEach
     public void addTestData()
     {
@@ -48,6 +54,8 @@ public class UserPaymentInfoTest
                 responseUser.getId(),
                 responsePaymentInfo.getId(),
                 "testPaymentAddress");
+
+        BASE_URL = "http://localhost:8080/api/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos";
     }
 
     @AfterEach
@@ -63,7 +71,7 @@ public class UserPaymentInfoTest
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
         ResponseEntity<User_PaymentInfo> response =
-            restTemplate.getForEntity("http://localhost:8080/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
+                restTemplate.getForEntity(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(existingUser_PaymentInfo.getPaymentAddress(), response.getBody().getPaymentAddress());
@@ -74,7 +82,7 @@ public class UserPaymentInfoTest
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
         ResponseEntity<User_PaymentInfo[]> response =
-            restTemplate.getForEntity("http://localhost:8080/users/"+ existingUser_PaymentInfo.getUser().getId() +"/paymentinfos", User_PaymentInfo[].class);
+                restTemplate.getForEntity(BASE_URL, User_PaymentInfo[].class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(1, response.getBody().length);
@@ -95,7 +103,7 @@ public class UserPaymentInfoTest
 
         TestRestTemplate restTemplate = new TestRestTemplate();
         ResponseEntity<User_PaymentInfo> response =
-            restTemplate.postForEntity("http://localhost:8080/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos/" + responsePaymentInfo.getId(), user_paymentInfo.getPaymentAddress(), User_PaymentInfo.class);
+                restTemplate.postForEntity(BASE_URL + "/" + responsePaymentInfo.getId(), user_paymentInfo.getPaymentAddress(), User_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(user_paymentInfo.getPaymentAddress(), response.getBody().getPaymentAddress());
@@ -106,8 +114,8 @@ public class UserPaymentInfoTest
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
         String newPaymentAddress = "newTestPaymentAddress";
-        restTemplate.put("http://localhost:8080/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos/" + existingUser_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
-        ResponseEntity<User_PaymentInfo> response = restTemplate.getForEntity("http://localhost:8080/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
+        restTemplate.put(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
+        ResponseEntity<User_PaymentInfo> response = restTemplate.getForEntity(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
 
         // Verify the response
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -119,7 +127,7 @@ public class UserPaymentInfoTest
     void deleteRequest()
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
-        restTemplate.delete("http://localhost:8080/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos/" + existingUser_PaymentInfo.getPaymentInfo().getId());
+        restTemplate.delete(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId());
         User_PaymentInfo_Id user_paymentInfo_id = new User_PaymentInfo_Id(
                 existingUser_PaymentInfo.getUser(),
                 existingUser_PaymentInfo.getPaymentInfo());

@@ -31,9 +31,9 @@ public class Extern
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToExternOverVCR_Payment> userToExternOverVcr_Payments = new ArrayList<>();
+    private List<UserToExtern> userToExternOverVcr = new ArrayList<>();
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<ExternToUserOverVCR_Payment> externToUserOverVcr_Payments = new ArrayList<>();
+    private List<ExternToUser> externToUserOverVcr = new ArrayList<>();
 }

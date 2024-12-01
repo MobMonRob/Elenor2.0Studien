@@ -1,89 +1,51 @@
 package de.dhbw.elinor2;
+
 import de.dhbw.elinor2.entities.PaymentInfo;
 import de.dhbw.elinor2.repositories.PaymentInfoRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import de.dhbw.elinor2.utils.TestObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class PaymentInfoTest
+public class PaymentInfoTest extends GenericTest<PaymentInfo, UUID>
 {
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
-    private PaymentInfo existingPaymentInfo;
+    private final String BASE_URL = "http://localhost:8080/api/paymentinfos";
 
-    @BeforeEach
-    public void addTestData()
+    @Override
+    public String getObjectAssertionIdentification(PaymentInfo paymentInfo)
     {
-        PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setName("testName");
-        existingPaymentInfo = paymentInfoRepository.save(paymentInfo);
+        return  paymentInfo.getName();
     }
 
-    @AfterEach
-    public void deleteTestData()
+    @Override
+    public TestObject<PaymentInfo, UUID> initTestObject()
     {
-        paymentInfoRepository.deleteAll();
-    }
+        TestObject<PaymentInfo, UUID> testObject = new TestObject<>();
+        testObject.setBaseUrl(BASE_URL);
+        testObject.setRepository(paymentInfoRepository);
+        testObject.setEntityClass(PaymentInfo.class);
+        testObject.setEntityArrayClass(PaymentInfo[].class);
 
-    @Test
-    void getRequest_Single()
-    {
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        ResponseEntity<PaymentInfo> response =
-            restTemplate.getForEntity("http://localhost:8080/paymentinfos/" + existingPaymentInfo.getId(), PaymentInfo.class);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(existingPaymentInfo.getName(), response.getBody().getName());
-    }
+        PaymentInfo initPaymentInfo = new PaymentInfo();
+        initPaymentInfo.setName("testName");
+        initPaymentInfo = paymentInfoRepository.save(initPaymentInfo);
+        testObject.setInitPathId(initPaymentInfo.getId());
+        testObject.setInitEntity(initPaymentInfo);
 
-    @Test
-    void getRequest_All()
-    {
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        ResponseEntity<PaymentInfo[]> response =
-            restTemplate.getForEntity("http://localhost:8080/paymentinfos", PaymentInfo[].class);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(1, response.getBody().length);
-        Assertions.assertEquals(existingPaymentInfo.getName(), response.getBody()[0].getName());
-    }
+        PaymentInfo updatePaymentInfo = new PaymentInfo();
+        updatePaymentInfo.setName("updatedName");
+        updatePaymentInfo.setId(initPaymentInfo.getId());
+        testObject.setUpdateEntity(updatePaymentInfo);
 
-    @Test
-    void postRequest()
-    {
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setName("newTestName");
-        ResponseEntity<PaymentInfo> response =
-            restTemplate.postForEntity("http://localhost:8080/paymentinfos", paymentInfo, PaymentInfo.class);
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(paymentInfo.getName(), response.getBody().getName());
-    }
+        PaymentInfo newPaymentInfo = new PaymentInfo();
+        newPaymentInfo.setName("newTestName");
+        testObject.setNewEntity(newPaymentInfo);
 
-    @Test
-    void putRequest()
-    {
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        existingPaymentInfo.setName("newTestName");
-        restTemplate.put("http://localhost:8080/paymentinfos/" + existingPaymentInfo.getId(), existingPaymentInfo);
-        PaymentInfo updatedPaymentInfo = paymentInfoRepository.findById(existingPaymentInfo.getId()).get();
-        Assertions.assertEquals(existingPaymentInfo.getName(), updatedPaymentInfo.getName());
-    }
-
-    @Test
-    void deleteRequest()
-    {
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        restTemplate.delete("http://localhost:8080/paymentinfos/" + existingPaymentInfo.getId());
-        Assertions.assertFalse(paymentInfoRepository.existsById(existingPaymentInfo.getId()));
+        return testObject;
     }
 }

@@ -24,7 +24,7 @@ public class VirtualCashRegister
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)
@@ -32,21 +32,25 @@ public class VirtualCashRegister
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<VCRToVCR_Payment> sender_vcrToVcr_Payments = new ArrayList<>();
+    private List<VCRToVCR> sender_vcrToVcr = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<VCRToVCR_Payment> receiver_vcrToVcr_Payments = new ArrayList<>();
+    private List<VCRToVCR> receiver_vcrToVcr = new ArrayList<>();
 
     @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToVCR_Payment> userToVcr_Payments = new ArrayList<>();
+    private List<UserToVCR> userToVcr = new ArrayList<>();
 
     @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UserToExternOverVCR_Payment> userToExternOverVcr_Payments = new ArrayList<>();
+    private List<VCRToUser> vcrToUser = new ArrayList<>();
 
     @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<ExternToUserOverVCR_Payment> externToUserOverVcr_Payments = new ArrayList<>();
+    private List<UserToExtern> userToExtern = new ArrayList<>();
+
+    @OneToMany(mappedBy = "virtualCashRegister", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ExternToUser> externToUser = new ArrayList<>();
 }
