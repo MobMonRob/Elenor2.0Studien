@@ -2,6 +2,7 @@ package de.dhbw.elinor2;
 
 import de.dhbw.elinor2.entities.User;
 import de.dhbw.elinor2.repositories.UserRepository;
+import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.TestObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserTest extends GenericTest<User, UUID>
+public class UserTest extends GenericTest<User, User, UUID>
 {
     @Autowired
     private UserRepository userRepository;
@@ -18,15 +19,21 @@ public class UserTest extends GenericTest<User, UUID>
 
 
     @Override
-    public String getObjectAssertionIdentification(User user)
+    public String getObjectAssertionIdentificationSavedEntity(User user)
     {
         return user.getUsername() + user.getFirstName() + user.getLastName();
     }
 
     @Override
-    public TestObject<User, UUID> initTestObject()
+    public String getObjectAssertionIdentificationReceivedEntity(User user)
     {
-        TestObject<User, UUID> testObject = new TestObject<>();
+        return getObjectAssertionIdentificationSavedEntity(user);
+    }
+
+    @Override
+    public TestObject<User, User, UUID> initTestObject()
+    {
+        TestObject<User, User, UUID> testObject = new TestObject<>();
         testObject.setEntityClass(User.class);
         testObject.setEntityArrayClass(User[].class);
         testObject.setRepository(userRepository);
@@ -37,8 +44,8 @@ public class UserTest extends GenericTest<User, UUID>
         user.setFirstName("testFirstname");
         user.setLastName("testLastname");
         user = userRepository.save(user);
-        testObject.setInitEntity(user);
-        testObject.setInitPathId(user.getId());
+        testObject.setInitSavedEntity(user);
+        testObject.setInitSavedEntityId(user.getId());
 
         User updated = new User();
         updated.setUsername("updatedUsername");

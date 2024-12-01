@@ -24,7 +24,7 @@ public class UserToUserService extends PaymentService<PaymentLight, UserToUser, 
     }
 
     @Override
-    public UserToUser convertToEntity(PaymentLight paymentLight)
+    public UserToUser convertToEntity(PaymentLight paymentLight, UUID id)
     {
         User userSender = userRepository.findById(paymentLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("User-Sender not found"));
@@ -36,6 +36,7 @@ public class UserToUserService extends PaymentService<PaymentLight, UserToUser, 
         userToUser.setSender(userSender);
         userToUser.setReceiver(userReceiver);
         userToUser.setAmount(paymentLight.getAmount());
+        if (id != null) userToUser.setId(id);
 
         return userToUser;
     }

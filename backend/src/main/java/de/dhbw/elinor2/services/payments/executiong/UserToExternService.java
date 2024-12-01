@@ -34,7 +34,7 @@ public class UserToExternService extends PaymentService<PaymentOverVCRLight, Use
     }
 
     @Override
-    public UserToExtern convertToEntity(PaymentOverVCRLight paymentOverVCRLight)
+    public UserToExtern convertToEntity(PaymentOverVCRLight paymentOverVCRLight, UUID id)
     {
         User userSender = userRepository.findById(paymentOverVCRLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("User not found"));
@@ -50,6 +50,7 @@ public class UserToExternService extends PaymentService<PaymentOverVCRLight, Use
         userToExtern.setExtern(externReceiver);
         userToExtern.setAmount(paymentOverVCRLight.getAmount());
         userToExtern.setVirtualCashRegister(vcr);
+        if (id != null) userToExtern.setId(id);
 
         return userToExtern;
     }

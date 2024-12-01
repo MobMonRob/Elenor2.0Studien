@@ -2,6 +2,7 @@ package de.dhbw.elinor2;
 
 import de.dhbw.elinor2.entities.Extern;
 import de.dhbw.elinor2.repositories.ExternRepository;
+import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.TestObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,23 +10,30 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class ExternTest extends GenericTest<Extern, UUID>
+public class ExternTest extends GenericTest<Extern, Extern, UUID>
 {
     @Autowired
     private ExternRepository externRepository;
 
     private String BASE_URL = "http://localhost:8080/api/externs";
 
+
     @Override
-    public String getObjectAssertionIdentification(Extern extern)
+    public String getObjectAssertionIdentificationSavedEntity(Extern extern)
     {
         return extern.getName();
     }
 
     @Override
-    public TestObject<Extern, UUID> initTestObject()
+    public String getObjectAssertionIdentificationReceivedEntity(Extern extern)
     {
-        TestObject<Extern, UUID> testObject = new TestObject<>();
+        return getObjectAssertionIdentificationSavedEntity(extern);
+    }
+
+    @Override
+    public TestObject<Extern, Extern, UUID> initTestObject()
+    {
+        TestObject<Extern, Extern, UUID> testObject = new TestObject<>();
         testObject.setRepository(externRepository);
         testObject.setBaseUrl(BASE_URL);
         testObject.setEntityClass(Extern.class);
@@ -35,8 +43,8 @@ public class ExternTest extends GenericTest<Extern, UUID>
         extern.setName("testName");
         extern = externRepository.save(extern);
 
-        testObject.setInitEntity(extern);
-        testObject.setInitPathId(extern.getId());
+        testObject.setInitSavedEntity(extern);
+        testObject.setInitSavedEntityId(extern.getId());
 
         Extern updated = new Extern();
         updated.setName("updatedName");

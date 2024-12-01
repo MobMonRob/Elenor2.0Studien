@@ -8,32 +8,32 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class TestObject<Entity, Id>
+public class TestObject<ReceivedEntity, SavedEntity, Id>
 {
+    private ReceivedEntity updateEntity;
+
+    private ReceivedEntity newEntity;
+
     private String baseUrl;
 
-    private JpaRepository<Entity, Id> repository;
+    private JpaRepository<SavedEntity, Id> repository;
 
-    private Entity initEntity;
+    private SavedEntity initSavedEntity;
 
-    private Id initEntityId;
+    private Id initSavedEntityId;
 
     private UUID initPathId;
 
-    private Entity updateEntity;
+    private Class<SavedEntity> entityClass;
 
-    private Entity newEntity;
-
-    private Class<Entity> entityClass;
-
-    private Class<Entity[]> entityArrayClass;
+    private Class<SavedEntity[]> entityArrayClass;
 
 
     public UUID getInitPathId()
     {
-        if(initPathId == null)
+        if (initPathId == null)
         {
-            return initEntityId instanceof UUID ? (UUID) initEntityId : null;
+            return initSavedEntityId instanceof UUID ? (UUID) initSavedEntityId : null;
         }
         return initPathId;
     }

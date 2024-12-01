@@ -24,7 +24,7 @@ public class VCRToVCRService extends PaymentService<PaymentLight, VCRToVCR, UUID
     }
 
     @Override
-    public VCRToVCR convertToEntity(PaymentLight paymentLight)
+    public VCRToVCR convertToEntity(PaymentLight paymentLight, UUID id)
     {
         VirtualCashRegister sender = vcrRepository.findById(paymentLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("Sender not found"));
@@ -36,6 +36,7 @@ public class VCRToVCRService extends PaymentService<PaymentLight, VCRToVCR, UUID
         vcrToVCR.setAmount(paymentLight.getAmount());
         vcrToVCR.setSender(sender);
         vcrToVCR.setReceiver(receiver);
+        if (id != null) vcrToVCR.setId(id);
         return vcrToVCR;
     }
 

@@ -18,7 +18,7 @@ public abstract class PaymentService<PaymentPattern, Entity, Id> implements IPay
     @Override
     public Entity create(PaymentPattern paymentPattern)
     {
-        Entity entity = convertToEntity(paymentPattern);
+        Entity entity = convertToEntity(paymentPattern, null);
         executePayment(entity);
         return repository.save(entity);
     }
@@ -38,15 +38,15 @@ public abstract class PaymentService<PaymentPattern, Entity, Id> implements IPay
     @Override
     public Optional<Entity> update(Id id, PaymentPattern paymentPattern)
     {
-        Entity updatedEntity = convertToEntity(paymentPattern);
+        Entity updatedEntity = convertToEntity(paymentPattern, id);
         Entity oldEntity = repository.findById(id).orElseThrow(()
                 -> new IllegalArgumentException("Entity not found"));
 
-        Optional<Entity> response = repository.findById(id).map(entity ->
-                repository.save(updatedEntity));
-
         undoPayment(oldEntity);
         executePayment(updatedEntity);
+
+        Optional<Entity> response = repository.findById(id).map(entity ->
+                repository.save(updatedEntity));
 
         return response;
     }
@@ -66,7 +66,7 @@ public abstract class PaymentService<PaymentPattern, Entity, Id> implements IPay
         return repository.existsById(id);
     }
 
-    public abstract Entity convertToEntity(PaymentPattern paymentPattern);
+    public abstract Entity convertToEntity(PaymentPattern paymentPattern, Id id);
 
     public abstract void executePayment(Entity entity);
 

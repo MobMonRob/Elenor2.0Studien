@@ -1,6 +1,5 @@
-package de.dhbw.elinor2;
+package de.dhbw.elinor2.utils;
 
-import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,18 +8,19 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public abstract class GenericTest<Entity, Id> implements IGenericTest
+public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IGenericTest
 {
-    private TestObject<Entity, Id> testObject;
+    protected TestObject<ReceivedEntity, SavedEntity, Id> testObject;
 
-    private Entity existingEntity;
+    private SavedEntity existingEntity;
+
 
     @Override
     @BeforeEach
     public void addTestData()
     {
         testObject = initTestObject();
-        existingEntity = testObject.getRepository().save(testObject.getInitEntity());
+        existingEntity = testObject.getRepository().save(testObject.getInitSavedEntity());
     }
 
     @Override
@@ -35,12 +35,12 @@ public abstract class GenericTest<Entity, Id> implements IGenericTest
     public void getRequest_Single()
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
-        ResponseEntity<Entity> response =
+        ResponseEntity<SavedEntity> response =
                 restTemplate.getForEntity(testObject.getBaseUrl() + "/" +
                         testObject.getInitPathId(), testObject.getEntityClass());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(getObjectAssertionIdentification(existingEntity), getObjectAssertionIdentification(response.getBody()));
+        Assertions.assertEquals(getObjectAssertionIdentificationSavedEntity(existingEntity), getObjectAssertionIdentificationSavedEntity(response.getBody()));
     }
 
     @Override
@@ -48,12 +48,12 @@ public abstract class GenericTest<Entity, Id> implements IGenericTest
     public void getRequest_All()
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
-        ResponseEntity<Entity[]> response =
+        ResponseEntity<SavedEntity[]> response =
                 restTemplate.getForEntity(testObject.getBaseUrl(), testObject.getEntityArrayClass());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(1, response.getBody().length);
-        Assertions.assertEquals(getObjectAssertionIdentification(existingEntity), getObjectAssertionIdentification(response.getBody()[0]));
+        Assertions.assertEquals(getObjectAssertionIdentificationSavedEntity(existingEntity), getObjectAssertionIdentificationSavedEntity(response.getBody()[0]));
     }
 
     @Override
@@ -61,10 +61,10 @@ public abstract class GenericTest<Entity, Id> implements IGenericTest
     public void postRequest()
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
-        ResponseEntity<Entity> response = restTemplate.postForEntity(testObject.getBaseUrl(), testObject.getNewEntity(), testObject.getEntityClass());
+        ResponseEntity<SavedEntity> response = restTemplate.postForEntity(testObject.getBaseUrl(), testObject.getNewEntity(), testObject.getEntityClass());
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(getObjectAssertionIdentification(testObject.getNewEntity()), getObjectAssertionIdentification(response.getBody()));
+        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(testObject.getNewEntity()), getObjectAssertionIdentificationSavedEntity(response.getBody()));
     }
 
     @Override
@@ -77,12 +77,12 @@ public abstract class GenericTest<Entity, Id> implements IGenericTest
         restTemplate.put(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getUpdateEntity());
 
         // Send a GET request to retrieve the updated Extern
-        ResponseEntity<Entity> response = restTemplate.getForEntity(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getEntityClass());
+        ResponseEntity<SavedEntity> response = restTemplate.getForEntity(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getEntityClass());
 
         // Verify the response
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(getObjectAssertionIdentification(testObject.getUpdateEntity()), getObjectAssertionIdentification(response.getBody()));
+        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(testObject.getUpdateEntity()), getObjectAssertionIdentificationSavedEntity(response.getBody()));
     }
 
     @Override
@@ -91,10 +91,12 @@ public abstract class GenericTest<Entity, Id> implements IGenericTest
     {
         TestRestTemplate restTemplate = new TestRestTemplate();
         restTemplate.delete(testObject.getBaseUrl() + "/" + testObject.getInitPathId());
-        Assertions.assertFalse(testObject.getRepository().existsById(testObject.getInitEntityId()));
+        Assertions.assertFalse(testObject.getRepository().existsById(testObject.getInitSavedEntityId()));
     }
 
-    public abstract String getObjectAssertionIdentification(Entity entity);
+    public abstract String getObjectAssertionIdentificationSavedEntity(SavedEntity entity);
 
-    public abstract TestObject<Entity, Id> initTestObject();
+    public abstract String getObjectAssertionIdentificationReceivedEntity(ReceivedEntity entity);
+
+    public abstract TestObject<ReceivedEntity, SavedEntity, Id> initTestObject();
 }

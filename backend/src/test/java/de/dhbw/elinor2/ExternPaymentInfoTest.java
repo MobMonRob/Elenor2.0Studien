@@ -1,10 +1,13 @@
 package de.dhbw.elinor2;
 
-import de.dhbw.elinor2.entities.*;
-import de.dhbw.elinor2.repositories.*;
+import de.dhbw.elinor2.entities.Extern;
+import de.dhbw.elinor2.entities.Extern_PaymentInfo;
+import de.dhbw.elinor2.entities.Extern_PaymentInfo_Id;
+import de.dhbw.elinor2.entities.PaymentInfo;
+import de.dhbw.elinor2.repositories.ExternRepository;
+import de.dhbw.elinor2.repositories.Extern_PaymentInfoRepository;
+import de.dhbw.elinor2.repositories.PaymentInfoRepository;
 import de.dhbw.elinor2.services.ExternService;
-import de.dhbw.elinor2.services.ExternService;
-import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

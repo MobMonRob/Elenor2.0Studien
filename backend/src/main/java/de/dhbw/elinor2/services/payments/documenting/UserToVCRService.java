@@ -29,7 +29,7 @@ public class UserToVCRService extends PaymentService<PaymentLight, UserToVCR, UU
     }
 
     @Override
-    public UserToVCR convertToEntity(PaymentLight paymentLight)
+    public UserToVCR convertToEntity(PaymentLight paymentLight, UUID id)
     {
         User userSender = userRepository.findById(paymentLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("User not found"));
@@ -41,6 +41,7 @@ public class UserToVCRService extends PaymentService<PaymentLight, UserToVCR, UU
         userToVCR.setUser(userSender);
         userToVCR.setVirtualCashRegister(vcrReceiver);
         userToVCR.setAmount(paymentLight.getAmount());
+        if (id != null) userToVCR.setId(id);
 
         return userToVCR;
     }

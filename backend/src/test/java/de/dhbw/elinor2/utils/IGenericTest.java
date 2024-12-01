@@ -1,4 +1,4 @@
-package de.dhbw.elinor2;
+package de.dhbw.elinor2.utils;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

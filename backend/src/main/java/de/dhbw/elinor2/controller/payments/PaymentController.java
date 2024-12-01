@@ -58,7 +58,7 @@ public abstract class PaymentController<PaymentPattern, Entity, Id> implements I
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(Id id)
+    public ResponseEntity<Void> deleteById(@PathVariable Id id)
     {
         service.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
