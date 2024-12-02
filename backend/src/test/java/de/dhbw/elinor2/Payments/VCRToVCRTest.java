@@ -4,10 +4,13 @@ import de.dhbw.elinor2.entities.VCRToVCR;
 import de.dhbw.elinor2.entities.VirtualCashRegister;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.VCRToVCRRepository;
+import de.dhbw.elinor2.services.payments.documenting.VCRToVCRService;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.PaymentLight;
 import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -21,9 +24,14 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
     private VCRToVCRRepository vcrToVCRRepository;
 
     @Autowired
+    private VCRToVCRService vcrToVCRService;
+
+    @Autowired
     private VirtualCashRegisterRepository virtualCashRegisterRepository;
 
-    private String BASE_URL = "http://localhost:8080/api/payments/doc/vcrtovcrs";
+    private VirtualCashRegister sender;
+
+    private VirtualCashRegister receiver;
 
     @Override
     @AfterEach
@@ -56,21 +64,21 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
         testObject.setEntityClass(VCRToVCR.class);
         testObject.setEntityArrayClass(VCRToVCR[].class);
         testObject.setRepository(vcrToVCRRepository);
-        testObject.setBaseUrl(BASE_URL);
+        testObject.setBaseUrl("http://localhost:8080/api/payments/doc/vcrtovcrs");
 
-        VirtualCashRegister sender = new VirtualCashRegister();
+        sender = new VirtualCashRegister();
         sender.setName("Sender");
         sender = virtualCashRegisterRepository.save(sender);
 
-        VirtualCashRegister receiver = new VirtualCashRegister();
+        receiver = new VirtualCashRegister();
         receiver.setName("Receiver");
         receiver = virtualCashRegisterRepository.save(receiver);
 
-        VCRToVCR vcrToVCR = new VCRToVCR();
-        vcrToVCR.setSender(sender);
-        vcrToVCR.setReceiver(receiver);
-        vcrToVCR.setAmount(new BigDecimal(100));
-        vcrToVCR = vcrToVCRRepository.save(vcrToVCR);
+        PaymentLight paymentLight = new PaymentLight();
+        paymentLight.setSenderId(sender.getId());
+        paymentLight.setReceiverId(receiver.getId());
+        paymentLight.setAmount(new BigDecimal(100));
+        VCRToVCR vcrToVCR = vcrToVCRService.create(paymentLight);
         testObject.setInitSavedEntity(vcrToVCR);
         testObject.setInitSavedEntityId(vcrToVCR.getId());
 
@@ -87,5 +95,41 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
         testObject.setNewEntity(newPaymentLight);
 
         return testObject;
+    }
+
+    @Override
+    @Test
+    public void postRequest()
+    {
+        super.postRequest();
+        VirtualCashRegister sender = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
+        VirtualCashRegister receiver = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
+
+        Assertions.assertEquals(-400, sender.getBalance().intValue());
+        Assertions.assertEquals(400, receiver.getBalance().intValue());
+    }
+
+    @Override
+    @Test
+    public void putRequest()
+    {
+        super.putRequest();
+        VirtualCashRegister sender = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
+        VirtualCashRegister receiver = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
+
+        Assertions.assertEquals(-200, sender.getBalance().intValue());
+        Assertions.assertEquals(200, receiver.getBalance().intValue());
+    }
+
+    @Override
+    @Test
+    public void deleteRequest()
+    {
+        super.deleteRequest();
+        VirtualCashRegister sender = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
+        VirtualCashRegister receiver = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
+
+        Assertions.assertEquals(0, sender.getBalance().intValue());
+        Assertions.assertEquals(0, receiver.getBalance().intValue());
     }
 }

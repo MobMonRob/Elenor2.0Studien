@@ -12,7 +12,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
 {
     protected TestObject<ReceivedEntity, SavedEntity, Id> testObject;
 
-    private SavedEntity existingEntity;
+    protected SavedEntity existingEntity;
 
 
     @Override

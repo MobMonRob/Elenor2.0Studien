@@ -6,10 +6,13 @@ import de.dhbw.elinor2.entities.VirtualCashRegister;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.VCRToUserRepository;
+import de.dhbw.elinor2.services.payments.documenting.VCRToUserService;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.PaymentLight;
 import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -23,12 +26,17 @@ public class VCRToUserTest extends GenericTest<PaymentLight, VCRToUser, UUID>
     private VCRToUserRepository vcrToUserRepository;
 
     @Autowired
+    private VCRToUserService vcrToUserService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private VirtualCashRegisterRepository virtualCashRegisterRepository;
 
-    private String BASE_URL = "http://localhost:8080/api/payments/doc/vcrtousers";
+    private User user;
+
+    private VirtualCashRegister virtualCashRegister;
 
     @Override
     @AfterEach
@@ -62,23 +70,23 @@ public class VCRToUserTest extends GenericTest<PaymentLight, VCRToUser, UUID>
         testObject.setEntityClass(VCRToUser.class);
         testObject.setEntityArrayClass(VCRToUser[].class);
         testObject.setRepository(vcrToUserRepository);
-        testObject.setBaseUrl(BASE_URL);
+        testObject.setBaseUrl("http://localhost:8080/api/payments/doc/vcrtousers");
 
-        User user = new User();
+        user = new User();
         user.setUsername("testUsername");
         user.setFirstName("testFirstName");
         user.setLastName("testLastName");
         user = userRepository.save(user);
 
-        VirtualCashRegister virtualCashRegister = new VirtualCashRegister();
+        virtualCashRegister = new VirtualCashRegister();
         virtualCashRegister.setName("testVCR");
         virtualCashRegister = virtualCashRegisterRepository.save(virtualCashRegister);
 
-        VCRToUser vcrToUser = new VCRToUser();
-        vcrToUser.setUser(user);
-        vcrToUser.setVirtualCashRegister(virtualCashRegister);
-        vcrToUser.setAmount(BigDecimal.valueOf(100));
-        vcrToUser = vcrToUserRepository.save(vcrToUser);
+        PaymentLight paymentLight = new PaymentLight();
+        paymentLight.setSenderId(virtualCashRegister.getId());
+        paymentLight.setReceiverId(user.getId());
+        paymentLight.setAmount(BigDecimal.valueOf(100));
+        VCRToUser vcrToUser = vcrToUserService.create(paymentLight);
         testObject.setInitSavedEntity(vcrToUser);
         testObject.setInitSavedEntityId(vcrToUser.getId());
 
@@ -95,5 +103,41 @@ public class VCRToUserTest extends GenericTest<PaymentLight, VCRToUser, UUID>
         testObject.setNewEntity(newPaymentLight);
 
         return testObject;
+    }
+
+    @Override
+    @Test
+    public void postRequest()
+    {
+        super.postRequest();
+        VirtualCashRegister virtualCashRegister = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
+        User user = userRepository.findById(this.user.getId()).orElseThrow();
+
+        Assertions.assertEquals(-400, virtualCashRegister.getBalance().intValue());
+        Assertions.assertEquals(-400, user.getDebt().intValue());
+    }
+
+    @Override
+    @Test
+    public void putRequest()
+    {
+        super.putRequest();
+        VirtualCashRegister virtualCashRegister = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
+        User user = userRepository.findById(this.user.getId()).orElseThrow();
+
+        Assertions.assertEquals(-200, virtualCashRegister.getBalance().intValue());
+        Assertions.assertEquals(-200, user.getDebt().intValue());
+    }
+
+    @Override
+    @Test
+    public void deleteRequest()
+    {
+        super.deleteRequest();
+        VirtualCashRegister virtualCashRegister = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
+        User user = userRepository.findById(this.user.getId()).orElseThrow();
+
+        Assertions.assertEquals(0, virtualCashRegister.getBalance().intValue());
+        Assertions.assertEquals(0, user.getDebt().intValue());
     }
 }
