@@ -1,6 +1,9 @@
 package de.dhbw.elinor2.services.payments;
 
+import de.dhbw.elinor2.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -10,16 +13,19 @@ public abstract class PaymentService<PaymentPattern, Entity, Id> implements IPay
 {
     private final JpaRepository<Entity, Id> repository;
 
+    @Autowired
+    protected UserService userService;
+
     public PaymentService(JpaRepository<Entity, Id> repository)
     {
         this.repository = repository;
     }
 
     @Override
-    public Entity create(PaymentPattern paymentPattern)
+    public Entity create(PaymentPattern paymentPattern, Jwt jwt)
     {
         Entity entity = convertToEntity(paymentPattern, null);
-        executePayment(entity);
+        executePayment(entity, jwt);
         return repository.save(entity);
     }
 
@@ -36,27 +42,25 @@ public abstract class PaymentService<PaymentPattern, Entity, Id> implements IPay
     }
 
     @Override
-    public Optional<Entity> update(Id id, PaymentPattern paymentPattern)
+    public Optional<Entity> update(Id id, PaymentPattern paymentPattern, Jwt jwt)
     {
         Entity updatedEntity = convertToEntity(paymentPattern, id);
         Entity oldEntity = repository.findById(id).orElseThrow(()
                 -> new IllegalArgumentException("Entity not found"));
 
-        undoPayment(oldEntity);
-        executePayment(updatedEntity);
+        undoPayment(oldEntity, jwt);
+        executePayment(updatedEntity, jwt);
 
-        Optional<Entity> response = repository.findById(id).map(entity ->
+        return repository.findById(id).map(entity ->
                 repository.save(updatedEntity));
-
-        return response;
     }
 
     @Override
-    public void deleteById(Id id)
+    public void deleteById(Id id, Jwt jwt)
     {
         Entity entity = repository.findById(id).orElseThrow(()
                 -> new IllegalArgumentException("Entity not found"));
-        undoPayment(entity);
+        undoPayment(entity, jwt);
         repository.deleteById(id);
     }
 
@@ -68,7 +72,7 @@ public abstract class PaymentService<PaymentPattern, Entity, Id> implements IPay
 
     public abstract Entity convertToEntity(PaymentPattern paymentPattern, Id id);
 
-    public abstract void executePayment(Entity entity);
+    public abstract void executePayment(Entity entity, Jwt jwt);
 
-    public abstract void undoPayment(Entity entity);
+    public abstract void undoPayment(Entity entity, Jwt jwt);
 }

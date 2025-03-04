@@ -5,6 +5,7 @@ import de.dhbw.elinor2.entities.VirtualCashRegister;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.VCRToVCRRepository;
 import de.dhbw.elinor2.services.payments.documenting.VCRToVCRService;
+import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.PaymentLight;
 import de.dhbw.elinor2.utils.TestObject;
@@ -78,7 +79,7 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
         paymentLight.setSenderId(sender.getId());
         paymentLight.setReceiverId(receiver.getId());
         paymentLight.setAmount(new BigDecimal(100));
-        VCRToVCR vcrToVCR = vcrToVCRService.create(paymentLight);
+        VCRToVCR vcrToVCR = vcrToVCRService.create(paymentLight, DefaultUser.getJwtToken());
         testObject.setInitSavedEntity(vcrToVCR);
         testObject.setInitSavedEntityId(vcrToVCR.getId());
 

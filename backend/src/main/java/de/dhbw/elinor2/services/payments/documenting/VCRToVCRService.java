@@ -7,6 +7,7 @@ import de.dhbw.elinor2.repositories.payments.VCRToVCRRepository;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.PaymentLight;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class VCRToVCRService extends PaymentService<PaymentLight, VCRToVCR, UUID
     }
 
     @Override
-    public void executePayment(VCRToVCR vcrToVCR)
+    public void executePayment(VCRToVCR vcrToVCR, Jwt jwt)
     {
         VirtualCashRegister sender = vcrToVCR.getSender();
         VirtualCashRegister receiver = vcrToVCR.getReceiver();
@@ -52,7 +53,7 @@ public class VCRToVCRService extends PaymentService<PaymentLight, VCRToVCR, UUID
     }
 
     @Override
-    public void undoPayment(VCRToVCR vcrToVCR)
+    public void undoPayment(VCRToVCR vcrToVCR, Jwt jwt)
     {
         VirtualCashRegister sender = vcrToVCR.getSender();
         VirtualCashRegister receiver = vcrToVCR.getReceiver();

@@ -2,6 +2,7 @@ package de.dhbw.elinor2;
 
 import de.dhbw.elinor2.entities.User;
 import de.dhbw.elinor2.repositories.UserRepository;
+import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.TestObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,7 @@ public class UserTest extends GenericTest<User, User, UUID>
         testObject.setRepository(userRepository);
         testObject.setBaseUrl(BASE_URL);
 
-        User user = new User();
-        user.setUsername("testUsername");
-        user.setFirstName("testFirstname");
-        user.setLastName("testLastname");
+        User user = DefaultUser.getDefaultUser();
         user = userRepository.save(user);
         testObject.setInitSavedEntity(user);
         testObject.setInitSavedEntityId(user.getId());

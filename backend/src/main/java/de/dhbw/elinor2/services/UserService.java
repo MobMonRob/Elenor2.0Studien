@@ -7,6 +7,7 @@ import de.dhbw.elinor2.repositories.PaymentInfoRepository;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.User_PaymentInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class UserService extends GenericService<User, UUID>
 
     @Autowired
     private User_PaymentInfoRepository userPaymentInfoRepository;
+
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
@@ -73,5 +75,35 @@ public class UserService extends GenericService<User, UUID>
     public void deleteUserPaymentInfo(UUID userId, UUID paymentInfoId)
     {
         userPaymentInfoRepository.deleteByUserIdAndPaymentInfoId(userId, paymentInfoId);
+    }
+
+    public void setupUpdateUser(Jwt jwt)
+    {
+        UUID jwtUserId = UUID.fromString(jwt.getSubject());
+
+        User user = new User();
+        user.setId(jwtUserId);
+        user.setFirstName(jwt.getClaim("given_name"));
+        user.setLastName(jwt.getClaim("family_name"));
+        user.setUsername(jwt.getClaim("preferred_username"));
+
+        create(user);
+    }
+
+    public void checkUserAuthorization(UUID userId, Jwt jwt)
+    {
+        setupUpdateUser(jwt);
+        if(!userId.equals(UUID.fromString(jwt.getSubject())))
+            throw new IllegalArgumentException("User " + jwt.getClaim("preferred_username") + " not authorized to perform this action");
+    }
+
+    public void checkUserAuthorization(User[] users, Jwt jwt)
+    {
+        setupUpdateUser(jwt);
+        for(User user : users){
+            if(user.getId().equals(UUID.fromString(jwt.getSubject())))
+                return;
+        }
+        throw new IllegalArgumentException("User " + jwt.getClaim("preferred_username") + " not authorized to perform this action");
     }
 }

@@ -5,6 +5,7 @@ import de.dhbw.elinor2.entities.UserToUser;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.payments.UserToUserRepository;
 import de.dhbw.elinor2.services.payments.executiong.UserToUserService;
+import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.PaymentLight;
 import de.dhbw.elinor2.utils.TestObject;
@@ -66,13 +67,11 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
         testObject.setRepository(userToUserRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments/exec/usertousers");
 
-        sender = new User();
-        sender.setUsername("testSender");
-        sender.setFirstName("testFirstname");
-        sender.setLastName("testLastname");
+        sender = DefaultUser.getDefaultUser();
         sender = userRepository.save(sender);
 
         receiver = new User();
+        receiver.setId(UUID.randomUUID());
         receiver.setUsername("testReceiver");
         receiver.setFirstName("testFirstname");
         receiver.setLastName("testLastname");
@@ -82,7 +81,7 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
         initialPayment.setSenderId(sender.getId());
         initialPayment.setReceiverId(receiver.getId());
         initialPayment.setAmount(BigDecimal.valueOf(100));
-        UserToUser userToUser = userToUserService.create(initialPayment);
+        UserToUser userToUser = userToUserService.create(initialPayment, DefaultUser.getJwtToken());
         testObject.setInitSavedEntity(userToUser);
         testObject.setInitSavedEntityId(userToUser.getId());
 

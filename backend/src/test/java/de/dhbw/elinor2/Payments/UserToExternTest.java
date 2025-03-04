@@ -9,6 +9,7 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.UserToExternRepository;
 import de.dhbw.elinor2.services.payments.executiong.UserToExternService;
+import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.PaymentOverVCRLight;
 import de.dhbw.elinor2.utils.TestObject;
@@ -80,10 +81,7 @@ public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExt
         testObject.setRepository(userToExternRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments/exec/usertoexterns");
 
-        user = new User();
-        user.setUsername("testUsername");
-        user.setFirstName("testFirstName");
-        user.setLastName("testLastName");
+        user = DefaultUser.getDefaultUser();
         user = userRepository.save(user);
 
         Extern extern = new Extern();
@@ -99,7 +97,7 @@ public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExt
         initialPayment.setReceiverId(extern.getId());
         initialPayment.setVcrId(virtualCashRegister.getId());
         initialPayment.setAmount(BigDecimal.valueOf(100));
-        UserToExtern userToExtern = userToExternService.create(initialPayment);
+        UserToExtern userToExtern = userToExternService.create(initialPayment, DefaultUser.getJwtToken());
         testObject.setInitSavedEntity(userToExtern);
         testObject.setInitSavedEntityId(userToExtern.getId());
 

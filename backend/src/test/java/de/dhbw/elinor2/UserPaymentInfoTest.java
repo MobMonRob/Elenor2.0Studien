@@ -8,6 +8,8 @@ import de.dhbw.elinor2.repositories.PaymentInfoRepository;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.User_PaymentInfoRepository;
 import de.dhbw.elinor2.services.UserService;
+import de.dhbw.elinor2.utils.DefaultUser;
+import de.dhbw.elinor2.utils.TestSecurityConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+@Import(TestSecurityConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UserPaymentInfoTest
 {
@@ -40,10 +44,7 @@ public class UserPaymentInfoTest
     @BeforeEach
     public void addTestData()
     {
-        User user = new User();
-        user.setUsername("testUsername");
-        user.setFirstName("testFirstname");
-        user.setLastName("testLastname");
+        User user = DefaultUser.getDefaultUser();
         User responseUser = userRepository.save(user);
 
         PaymentInfo paymentInfo = new PaymentInfo();
@@ -69,7 +70,7 @@ public class UserPaymentInfoTest
     @Test
     void getRequest_Single()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User_PaymentInfo> response =
                 restTemplate.getForEntity(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -80,7 +81,7 @@ public class UserPaymentInfoTest
     @Test
     void getRequest_All()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User_PaymentInfo[]> response =
                 restTemplate.getForEntity(BASE_URL, User_PaymentInfo[].class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -101,7 +102,7 @@ public class UserPaymentInfoTest
         user_paymentInfo.setPaymentInfo(responsePaymentInfo);
         user_paymentInfo.setPaymentAddress("newTestPaymentAddress");
 
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User_PaymentInfo> response =
                 restTemplate.postForEntity(BASE_URL + "/" + responsePaymentInfo.getId(), user_paymentInfo.getPaymentAddress(), User_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -112,7 +113,7 @@ public class UserPaymentInfoTest
     @Test
     void putRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         String newPaymentAddress = "newTestPaymentAddress";
         restTemplate.put(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
         ResponseEntity<User_PaymentInfo> response = restTemplate.getForEntity(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
@@ -126,7 +127,7 @@ public class UserPaymentInfoTest
     @Test
     void deleteRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         restTemplate.delete(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId());
         User_PaymentInfo_Id user_paymentInfo_id = new User_PaymentInfo_Id(
                 existingUser_PaymentInfo.getUser(),

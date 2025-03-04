@@ -26,7 +26,7 @@ public class Extern_PaymentInfo
     private PaymentInfo paymentInfo;
 
     @Column(nullable = false)
-    private String paymentAddress;
+    private String paymentAddress = "";
 }
 
 

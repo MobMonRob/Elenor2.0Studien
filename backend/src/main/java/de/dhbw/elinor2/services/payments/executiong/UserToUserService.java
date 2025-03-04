@@ -7,6 +7,7 @@ import de.dhbw.elinor2.repositories.payments.UserToUserRepository;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.PaymentLight;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -42,8 +43,11 @@ public class UserToUserService extends PaymentService<PaymentLight, UserToUser, 
     }
 
     @Override
-    public void executePayment(UserToUser userToUser)
+    public void executePayment(UserToUser userToUser, Jwt jwt)
     {
+        User[] users = {userToUser.getSender(), userToUser.getReceiver()};
+        userService.checkUserAuthorization(users, jwt);
+
         User sender = userToUser.getSender();
         sender.setDebt(sender.getDebt().subtract(userToUser.getAmount()));
         userRepository.save(sender);
@@ -54,8 +58,11 @@ public class UserToUserService extends PaymentService<PaymentLight, UserToUser, 
     }
 
     @Override
-    public void undoPayment(UserToUser userToUser)
+    public void undoPayment(UserToUser userToUser, Jwt jwt)
     {
+        User[] users = {userToUser.getSender(), userToUser.getReceiver()};
+        userService.checkUserAuthorization(users, jwt);
+
         User sender = userToUser.getSender();
         sender.setDebt(sender.getDebt().add(userToUser.getAmount()));
         userRepository.save(sender);

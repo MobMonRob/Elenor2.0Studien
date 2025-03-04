@@ -7,6 +7,7 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.UserToVCRRepository;
 import de.dhbw.elinor2.services.payments.documenting.UserToVCRService;
+import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.PaymentLight;
 import de.dhbw.elinor2.utils.TestObject;
@@ -72,10 +73,7 @@ public class UserToVCRTest extends GenericTest<PaymentLight, UserToVCR, UUID>
         testObject.setRepository(userToVCRRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments/doc/usertovcrs");
 
-        user = new User();
-        user.setUsername("testUsername");
-        user.setFirstName("testFirstName");
-        user.setLastName("testLastName");
+        user = DefaultUser.getDefaultUser();
         user = userRepository.save(user);
 
         virtualCashRegister = new VirtualCashRegister();
@@ -87,7 +85,7 @@ public class UserToVCRTest extends GenericTest<PaymentLight, UserToVCR, UUID>
         paymentLight.setSenderId(user.getId());
         paymentLight.setReceiverId(virtualCashRegister.getId());
         paymentLight.setAmount(BigDecimal.valueOf(100));
-        UserToVCR userToVCR = userToVCRService.create(paymentLight);
+        UserToVCR userToVCR = userToVCRService.create(paymentLight, DefaultUser.getJwtToken());
         testObject.setInitSavedEntity(userToVCR);
         testObject.setInitSavedEntityId(userToVCR.getId());
 

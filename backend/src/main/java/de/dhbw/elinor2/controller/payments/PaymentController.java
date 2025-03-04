@@ -3,6 +3,8 @@ package de.dhbw.elinor2.controller.payments;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -19,9 +21,9 @@ public abstract class PaymentController<PaymentPattern, Entity, Id> implements I
 
     @Override
     @PostMapping("")
-    public ResponseEntity<Entity> create(@RequestBody PaymentPattern paymentPattern)
+    public ResponseEntity<Entity> create(@RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        Entity savedEntity = service.create(paymentPattern);
+        Entity savedEntity = service.create(paymentPattern, jwt);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
     }
 
@@ -46,9 +48,9 @@ public abstract class PaymentController<PaymentPattern, Entity, Id> implements I
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<Entity> update(@PathVariable Id id, @RequestBody PaymentPattern paymentPattern)
+    public ResponseEntity<Entity> update(@PathVariable Id id, @RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        Optional<Entity> savedEntity = service.update(id, paymentPattern);
+        Optional<Entity> savedEntity = service.update(id, paymentPattern, jwt);
         if (savedEntity.isPresent())
         {
             return new ResponseEntity<>(savedEntity.get(), HttpStatus.OK);
@@ -58,9 +60,9 @@ public abstract class PaymentController<PaymentPattern, Entity, Id> implements I
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Id id)
+    public ResponseEntity<Void> deleteById(@PathVariable Id id, @AuthenticationPrincipal Jwt jwt)
     {
-        service.deleteById(id);
+        service.deleteById(id, jwt);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

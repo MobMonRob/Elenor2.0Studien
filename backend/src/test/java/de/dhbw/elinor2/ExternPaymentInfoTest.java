@@ -8,6 +8,8 @@ import de.dhbw.elinor2.repositories.ExternRepository;
 import de.dhbw.elinor2.repositories.Extern_PaymentInfoRepository;
 import de.dhbw.elinor2.repositories.PaymentInfoRepository;
 import de.dhbw.elinor2.services.ExternService;
+import de.dhbw.elinor2.utils.DefaultUser;
+import de.dhbw.elinor2.utils.TestSecurityConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+@Import(TestSecurityConfig.class)
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Extern_PaymentInfo_Id>
@@ -67,7 +72,7 @@ public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Ext
     @Test
     void getRequest_Single()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<Extern_PaymentInfo> response =
                 restTemplate.getForEntity(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), Extern_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -78,7 +83,7 @@ public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Ext
     @Test
     void getRequest_All()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<Extern_PaymentInfo[]> response =
                 restTemplate.getForEntity(BASE_URL, Extern_PaymentInfo[].class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -99,7 +104,7 @@ public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Ext
         extern_paymentInfo.setPaymentInfo(responsePaymentInfo);
         extern_paymentInfo.setPaymentAddress("newTestPaymentAddress");
 
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<Extern_PaymentInfo> response =
                 restTemplate.postForEntity(BASE_URL + "/" + responsePaymentInfo.getId(), extern_paymentInfo.getPaymentAddress(), Extern_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -110,7 +115,7 @@ public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Ext
     @Test
     void putRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         String newPaymentAddress = "newTestPaymentAddress";
         restTemplate.put(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
         ResponseEntity<Extern_PaymentInfo> response = restTemplate.getForEntity(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), Extern_PaymentInfo.class);
@@ -124,78 +129,11 @@ public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Ext
     @Test
     void deleteRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         restTemplate.delete(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId());
         Extern_PaymentInfo_Id extern_paymentInfo_id = new Extern_PaymentInfo_Id(
                 existingExtern_PaymentInfo.getExtern(),
                 existingExtern_PaymentInfo.getPaymentInfo());
         Assertions.assertFalse(extern_paymentInfoRepository.existsById(extern_paymentInfo_id));
     }
-
-    /*
-    @Override
-    @AfterEach
-    public void deleteTestData()
-    {
-        extern_paymentInfoRepository.deleteAll();
-        externRepository.deleteAll();
-        paymentInfoRepository.deleteAll();
-    }
-
-    @Override
-    public String getObjectAssertionIdentification(Extern_PaymentInfo externPaymentInfo)
-    {
-        return externPaymentInfo.getPaymentAddress() +
-                externPaymentInfo.getExtern().getName() +
-                externPaymentInfo.getPaymentInfo().getName();
-    }
-
-    @Override
-    public TestObject<Extern_PaymentInfo, Extern_PaymentInfo_Id> initTestObject()
-    {
-        Extern extern = new Extern();
-        extern.setName("testName");
-        Extern responseExtern = externRepository.save(extern);
-
-        PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setName("testName");
-        PaymentInfo responsePaymentInfo = paymentInfoRepository.save(paymentInfo);
-
-        BASE_URL = "http://localhost:8080/api/externs/" + extern.getId() + "/paymentinfos";
-
-        TestObject<Extern_PaymentInfo, Extern_PaymentInfo_Id> testObject = new TestObject<>();
-        testObject.setRepository(extern_paymentInfoRepository);
-        testObject.setBaseUrl(BASE_URL);
-        testObject.setEntityClass(Extern_PaymentInfo.class);
-        testObject.setEntityArrayClass(Extern_PaymentInfo[].class);
-
-        Extern_PaymentInfo extern_paymentInfo = externService.createExternPaymentInfo(
-                responseExtern.getId(),
-                responsePaymentInfo.getId(),
-                "testPaymentAddress");
-        testObject.setInitEntity(extern_paymentInfo);
-
-        Extern_PaymentInfo_Id extern_paymentInfo_id = new Extern_PaymentInfo_Id(
-                extern_paymentInfo.getExtern(),
-                extern_paymentInfo.getPaymentInfo());
-        testObject.setInitPathId(paymentInfo.getId());
-
-        Extern_PaymentInfo updateExtern_PaymentInfo = new Extern_PaymentInfo();
-        updateExtern_PaymentInfo.setExtern(extern);
-        updateExtern_PaymentInfo.setPaymentInfo(paymentInfo);
-        updateExtern_PaymentInfo.setPaymentAddress("updatedPaymentAddress");
-        testObject.setUpdateEntity(updateExtern_PaymentInfo);
-
-        PaymentInfo newPaymentInfo = new PaymentInfo();
-        newPaymentInfo.setName("newTestName");
-        paymentInfoRepository.save(newPaymentInfo);
-
-        Extern_PaymentInfo newExtern_PaymentInfo = new Extern_PaymentInfo();
-        newExtern_PaymentInfo.setExtern(extern);
-        newExtern_PaymentInfo.setPaymentInfo(newPaymentInfo);
-        newExtern_PaymentInfo.setPaymentAddress("newPaymentAddress");
-        testObject.setNewEntity(newExtern_PaymentInfo);
-
-        return testObject;
-    }*/
 }

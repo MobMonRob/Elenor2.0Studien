@@ -11,6 +11,7 @@ import de.dhbw.elinor2.repositories.payments.ExternToUserRepository;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.PaymentOverVCRLight;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -55,8 +56,10 @@ public class ExternToUserService extends PaymentService<PaymentOverVCRLight, Ext
     }
 
     @Override
-    public void executePayment(ExternToUser externToUser)
+    public void executePayment(ExternToUser externToUser, Jwt jwt)
     {
+        userService.checkUserAuthorization(externToUser.getUser().getId(), jwt);
+
         User user = externToUser.getUser();
         user.setDebt(user.getDebt().add(externToUser.getAmount()));
         userRepository.save(user);
@@ -67,8 +70,10 @@ public class ExternToUserService extends PaymentService<PaymentOverVCRLight, Ext
     }
 
     @Override
-    public void undoPayment(ExternToUser externToUser)
+    public void undoPayment(ExternToUser externToUser, Jwt jwt)
     {
+        userService.checkUserAuthorization(externToUser.getUser().getId(), jwt);
+
         User user = externToUser.getUser();
         user.setDebt(user.getDebt().subtract(externToUser.getAmount()));
         userRepository.save(user);

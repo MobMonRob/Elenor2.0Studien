@@ -5,15 +5,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
 
+@Import(TestSecurityConfig.class)
 public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IGenericTest
 {
     protected TestObject<ReceivedEntity, SavedEntity, Id> testObject;
 
     protected SavedEntity existingEntity;
 
+    protected static Jwt jwt;
 
     @Override
     @BeforeEach
@@ -34,7 +38,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     @Test
     public void getRequest_Single()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<SavedEntity> response =
                 restTemplate.getForEntity(testObject.getBaseUrl() + "/" +
                         testObject.getInitPathId(), testObject.getEntityClass());
@@ -47,7 +51,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     @Test
     public void getRequest_All()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<SavedEntity[]> response =
                 restTemplate.getForEntity(testObject.getBaseUrl(), testObject.getEntityArrayClass());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -60,7 +64,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     @Test
     public void postRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<SavedEntity> response = restTemplate.postForEntity(testObject.getBaseUrl(), testObject.getNewEntity(), testObject.getEntityClass());
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
@@ -71,7 +75,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     @Test
     public void putRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
 
         // Send a PUT request to update the Extern
         restTemplate.put(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getUpdateEntity());
@@ -89,7 +93,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     @Test
     public void deleteRequest()
     {
-        TestRestTemplate restTemplate = new TestRestTemplate();
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         restTemplate.delete(testObject.getBaseUrl() + "/" + testObject.getInitPathId());
         Assertions.assertFalse(testObject.getRepository().existsById(testObject.getInitSavedEntityId()));
     }
