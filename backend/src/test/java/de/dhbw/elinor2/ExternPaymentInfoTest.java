@@ -22,9 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Import(TestSecurityConfig.class)
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class ExternPaymentInfoTest //extends GenericTest<Extern_PaymentInfo, Extern_PaymentInfo_Id>
+public class ExternPaymentInfoTest
 {
     @Autowired
     private ExternService externService;

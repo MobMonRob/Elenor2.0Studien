@@ -81,12 +81,20 @@ public class UserService extends GenericService<User, UUID>
     {
         UUID jwtUserId = UUID.fromString(jwt.getSubject());
 
-        User user = new User();
-        user.setId(jwtUserId);
-        user.setFirstName(jwt.getClaim("given_name"));
-        user.setLastName(jwt.getClaim("family_name"));
-        user.setUsername(jwt.getClaim("preferred_username"));
+        User user;
 
+        User existingUser = userRepository.findById(jwtUserId).orElse(null);
+        if(existingUser != null){
+            user = existingUser;
+            user.setDebt(existingUser.getDebt());
+        }else
+        {
+            user = new User();
+            user.setId(jwtUserId);
+            user.setFirstName(jwt.getClaim("given_name"));
+            user.setLastName(jwt.getClaim("family_name"));
+            user.setUsername(jwt.getClaim("preferred_username"));
+        }
         create(user);
     }
 
