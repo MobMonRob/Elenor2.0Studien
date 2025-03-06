@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Transactional
-public abstract class PaymentService<PaymentPattern, T, ID> implements IPaymentService<PaymentPattern, T, ID>
+public abstract class PaymentService<P, T, ID> implements IPaymentService<P, T, ID>
 {
     private final JpaRepository<T, ID> repository;
 
@@ -17,7 +17,7 @@ public abstract class PaymentService<PaymentPattern, T, ID> implements IPaymentS
     }
 
     @Override
-    public T create(PaymentPattern paymentPattern, Jwt jwt)
+    public T create(P paymentPattern, Jwt jwt)
     {
         T entity = convertToEntity(paymentPattern, null);
         executePayment(entity, jwt);
@@ -37,7 +37,7 @@ public abstract class PaymentService<PaymentPattern, T, ID> implements IPaymentS
     }
 
     @Override
-    public Optional<T> update(ID id, PaymentPattern paymentPattern, Jwt jwt)
+    public Optional<T> update(ID id, P paymentPattern, Jwt jwt)
     {
         T updatedEntity = convertToEntity(paymentPattern, id);
         T oldEntity = repository.findById(id).orElseThrow(()
@@ -65,7 +65,7 @@ public abstract class PaymentService<PaymentPattern, T, ID> implements IPaymentS
         return repository.existsById(id);
     }
 
-    public abstract T convertToEntity(PaymentPattern paymentPattern, ID id);
+    public abstract T convertToEntity(P paymentPattern, ID id);
 
     public abstract void executePayment(T entity, Jwt jwt);
 

@@ -10,7 +10,7 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler
 {
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request)
+    public ResponseEntity<ErrorDetails> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request)
     {
         ErrorDetails errorDetails = new ErrorDetails("IllegalArgumentException", ex.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);

@@ -23,7 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 @Import(TestSecurityConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserPaymentInfoTest
+class UserPaymentInfoTest
 {
     @Autowired
     private UserService userService;

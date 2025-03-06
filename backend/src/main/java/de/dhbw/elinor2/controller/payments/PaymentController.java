@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-public abstract class PaymentController<PaymentPattern, T, ID> implements IPaymentController<PaymentPattern, T, ID>
+public abstract class PaymentController<P, T, ID> implements IPaymentController<P, T, ID>
 {
-    private final PaymentService<PaymentPattern, T, ID> service;
+    private final PaymentService<P, T, ID> service;
 
-    protected PaymentController(PaymentService<PaymentPattern, T, ID> service)
+    protected PaymentController(PaymentService<P, T, ID> service)
     {
         this.service = service;
     }
 
     @Override
     @PostMapping("")
-    public ResponseEntity<T> create(@RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<T> create(@RequestBody P paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
         T savedEntity = service.create(paymentPattern, jwt);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
@@ -47,7 +47,7 @@ public abstract class PaymentController<PaymentPattern, T, ID> implements IPayme
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody P paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
         Optional<T> savedEntity = service.update(id, paymentPattern, jwt);
         if (savedEntity.isPresent())

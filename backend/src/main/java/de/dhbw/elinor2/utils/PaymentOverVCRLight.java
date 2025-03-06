@@ -9,5 +9,5 @@ import java.util.UUID;
 @Setter
 public class PaymentOverVCRLight extends PaymentLight
 {
-    public UUID vcrId;
+    private UUID vcrId;
 }

@@ -5,8 +5,6 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.TestObject;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -64,16 +62,14 @@ public class UserTest extends GenericTest<User, User, UUID>
     }
 
     @Override
-    @Disabled("Endpoint not supported")
-    @Test
+    //@Test
     public void putRequest()
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @Disabled("Endpoint not supported")
-    @Test
+    //@Test
     public void postRequest()
     {
         throw new UnsupportedOperationException();
