@@ -1,29 +1,25 @@
 package de.dhbw.elinor2.utils;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 public interface IGenericTest
 {
-    @BeforeEach
+    //BeforeEach
     void addTestData();
 
-    @AfterEach
+    //AfterEach
     void deleteTestData();
 
-    @Test
+    //Test
     void getRequest_Single();
 
-    @Test
+    //Test
     void getRequest_All();
 
-    @Test
+    //Test
     void postRequest();
 
-    @Test
+    //Test
     void putRequest();
 
-    @Test
+    //Test
     void deleteRequest();
 }

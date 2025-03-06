@@ -100,14 +100,12 @@ public class UserService extends GenericService<User, UUID>
 
     public void checkUserAuthorization(UUID userId, Jwt jwt)
     {
-        setupUpdateUser(jwt);
         if(!userId.equals(UUID.fromString(jwt.getSubject())))
             throw new IllegalArgumentException("User " + jwt.getClaim("preferred_username") + " not authorized to perform this action");
     }
 
     public void checkUserAuthorization(User[] users, Jwt jwt)
     {
-        setupUpdateUser(jwt);
         for(User user : users){
             if(user.getId().equals(UUID.fromString(jwt.getSubject())))
                 return;
