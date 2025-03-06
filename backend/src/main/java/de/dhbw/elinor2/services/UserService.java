@@ -17,20 +17,17 @@ import java.util.UUID;
 @Service
 public class UserService extends GenericService<User, UUID>
 {
+    private final UserRepository userRepository;
+    private final User_PaymentInfoRepository userPaymentInfoRepository;
+    private final PaymentInfoRepository paymentInfoRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private User_PaymentInfoRepository userPaymentInfoRepository;
-
-    @Autowired
-    private PaymentInfoRepository paymentInfoRepository;
-
-    @Autowired
-    public UserService(UserRepository repository)
+    public UserService(UserRepository repository, User_PaymentInfoRepository userPaymentInfoRepository, PaymentInfoRepository paymentInfoRepository)
     {
         super(repository);
+        userRepository = repository;
+        this.userPaymentInfoRepository = userPaymentInfoRepository;
+        this.paymentInfoRepository = paymentInfoRepository;
     }
 
     @Transactional

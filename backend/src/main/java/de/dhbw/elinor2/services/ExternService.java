@@ -16,20 +16,17 @@ import java.util.UUID;
 @Service
 public class ExternService extends GenericService<Extern, UUID>
 {
+    private final ExternRepository externRepository;
+    private final PaymentInfoRepository paymentInfoRepository;
+    private final Extern_PaymentInfoRepository externPaymentInfoRepository;
 
     @Autowired
-    private ExternRepository externRepository;
-
-    @Autowired
-    private PaymentInfoRepository paymentInfoRepository;
-
-    @Autowired
-    private Extern_PaymentInfoRepository externPaymentInfoRepository;
-
-    @Autowired
-    public ExternService(ExternRepository repository)
+    public ExternService(ExternRepository repository, PaymentInfoRepository paymentInfoRepository, Extern_PaymentInfoRepository externPaymentInfoRepository)
     {
         super(repository);
+        externRepository = repository;
+        this.paymentInfoRepository = paymentInfoRepository;
+        this.externPaymentInfoRepository = externPaymentInfoRepository;
     }
 
     @Transactional

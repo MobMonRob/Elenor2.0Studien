@@ -2,17 +2,17 @@ package de.dhbw.elinor2.services;
 
 import java.util.Optional;
 
-public interface IGenericService<Entity, Id>
+public interface IGenericService<T, ID>
 {
-    Entity create(Entity entity);
+    T create(T entity);
 
-    Optional<Entity> findById(Id id);
+    Optional<T> findById(ID id);
 
-    Iterable<Entity> findAll();
+    Iterable<T> findAll();
 
-    Optional<Entity> update(Id id, Entity updatedEntity);
+    Optional<T> update(ID id, T updatedEntity);
 
-    void deleteById(Id id);
+    void deleteById(ID id);
 
-    boolean existsById(Id id);
+    boolean existsById(ID id);
 }

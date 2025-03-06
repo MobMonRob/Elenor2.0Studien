@@ -15,13 +15,13 @@ import java.util.UUID;
 @Service
 public class VCRToVCRService extends PaymentService<PaymentLight, VCRToVCR, UUID>
 {
-    @Autowired
-    private VirtualCashRegisterRepository vcrRepository;
+    private final VirtualCashRegisterRepository vcrRepository;
 
     @Autowired
-    public VCRToVCRService(VCRToVCRRepository repository)
+    public VCRToVCRService(VCRToVCRRepository repository, VirtualCashRegisterRepository vcrRepository)
     {
         super(repository);
+        this.vcrRepository = vcrRepository;
     }
 
     @Override

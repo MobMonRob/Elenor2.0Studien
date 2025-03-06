@@ -12,12 +12,13 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+        String authorizationTool = "keycloak";
         return new OpenAPI()
-                .addSecurityItem(new SecurityRequirement().addList("keycloak"))
+                .addSecurityItem(new SecurityRequirement().addList(authorizationTool))
                 .components(new Components()
-                        .addSecuritySchemes("keycloak",
+                        .addSecuritySchemes(authorizationTool,
                                 new SecurityScheme()
-                                        .name("keycloak")
+                                        .name(authorizationTool)
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")

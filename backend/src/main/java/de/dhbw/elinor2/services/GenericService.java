@@ -11,7 +11,7 @@ public abstract class GenericService<T, ID> implements IGenericService<T, ID>
 
     private final JpaRepository<T, ID> repository;
 
-    public GenericService(JpaRepository<T, ID> repository)
+    protected GenericService(JpaRepository<T, ID> repository)
     {
         this.repository = repository;
     }

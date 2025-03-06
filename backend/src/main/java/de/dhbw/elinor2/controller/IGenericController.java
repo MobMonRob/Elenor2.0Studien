@@ -2,15 +2,15 @@ package de.dhbw.elinor2.controller;
 
 import org.springframework.http.ResponseEntity;
 
-public interface IGenericController<Entity, Id>
+public interface IGenericController<T, ID>
 {
-    ResponseEntity<Entity> create(Entity entity);
+    ResponseEntity<T> create(T entity);
 
-    ResponseEntity<Entity> findById(Id id);
+    ResponseEntity<T> findById(ID id);
 
-    ResponseEntity<Iterable<Entity>> findAll();
+    ResponseEntity<Iterable<T>> findAll();
 
-    ResponseEntity<Entity> update(Id id, Entity updatedEntity);
+    ResponseEntity<T> update(ID id, T updatedEntity);
 
-    ResponseEntity<Void> deleteById(Id id);
+    ResponseEntity<Void> deleteById(ID id);
 }

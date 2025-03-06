@@ -8,28 +8,28 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-public abstract class GenericController<Entity, Id> implements IGenericController<Entity, Id>
+public abstract class GenericController<T, ID> implements IGenericController<T, ID>
 {
-    private final IGenericService<Entity, Id> service;
+    private final IGenericService<T, ID> service;
 
-    public GenericController(IGenericService<Entity, Id> service)
+    protected GenericController(IGenericService<T, ID> service)
     {
         this.service = service;
     }
 
     @Override
     @PostMapping("")
-    public ResponseEntity<Entity> create(@RequestBody Entity entity)
+    public ResponseEntity<T> create(@RequestBody T entity)
     {
-        Entity savedEntity = service.create(entity);
+        T savedEntity = service.create(entity);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<Entity> findById(@PathVariable Id id)
+    public ResponseEntity<T> findById(@PathVariable ID id)
     {
-        Optional<Entity> entity = service.findById(id);
+        Optional<T> entity = service.findById(id);
         if (entity.isPresent())
         {
             return new ResponseEntity<>(entity.get(), HttpStatus.OK);
@@ -39,16 +39,16 @@ public abstract class GenericController<Entity, Id> implements IGenericControlle
 
     @Override
     @GetMapping("")
-    public ResponseEntity<Iterable<Entity>> findAll()
+    public ResponseEntity<Iterable<T>> findAll()
     {
         return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
     }
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<Entity> update(@PathVariable Id id, @RequestBody Entity updatedEntity)
+    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody T updatedEntity)
     {
-        Optional<Entity> savedEntity = service.update(id, updatedEntity);
+        Optional<T> savedEntity = service.update(id, updatedEntity);
         if (savedEntity.isPresent())
         {
             return new ResponseEntity<>(savedEntity.get(), HttpStatus.OK);
@@ -58,7 +58,7 @@ public abstract class GenericController<Entity, Id> implements IGenericControlle
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Id id)
+    public ResponseEntity<Void> deleteById(@PathVariable ID id)
     {
         service.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);

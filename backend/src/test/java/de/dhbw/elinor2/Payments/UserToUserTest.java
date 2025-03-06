@@ -105,11 +105,11 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
     public void postRequest()
     {
         super.postRequest();
-        User sender = userRepository.findById(this.sender.getId()).orElseThrow();
-        User receiver = userRepository.findById(this.receiver.getId()).orElseThrow();
+        User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
+        User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-400, sender.getDebt().intValue());
-        Assertions.assertEquals(400, receiver.getDebt().intValue());
+        Assertions.assertEquals(-400, senderResult.getDebt().intValue());
+        Assertions.assertEquals(400, receiverResult.getDebt().intValue());
     }
 
     @Override
@@ -117,11 +117,11 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
     public void putRequest()
     {
         super.putRequest();
-        User sender = userRepository.findById(this.sender.getId()).orElseThrow();
-        User receiver = userRepository.findById(this.receiver.getId()).orElseThrow();
+        User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
+        User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-200, sender.getDebt().intValue());
-        Assertions.assertEquals(200, receiver.getDebt().intValue());
+        Assertions.assertEquals(-200, senderResult.getDebt().intValue());
+        Assertions.assertEquals(200, receiverResult.getDebt().intValue());
     }
 
     @Override
@@ -129,10 +129,10 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
     public void deleteRequest()
     {
         super.deleteRequest();
-        User sender = userRepository.findById(this.sender.getId()).orElseThrow();
-        User receiver = userRepository.findById(this.receiver.getId()).orElseThrow();
+        User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
+        User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(0, sender.getDebt().intValue());
-        Assertions.assertEquals(0, receiver.getDebt().intValue());
+        Assertions.assertEquals(0, senderResult.getDebt().intValue());
+        Assertions.assertEquals(0, receiverResult.getDebt().intValue());
     }
 }

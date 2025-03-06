@@ -42,7 +42,7 @@ public class UserPaymentInfoTest
     private String BASE_URL;
 
     @BeforeEach
-    public void addTestData()
+    void addTestData()
     {
         User user = DefaultUser.getDefaultUser();
         User responseUser = userRepository.save(user);
@@ -60,7 +60,7 @@ public class UserPaymentInfoTest
     }
 
     @AfterEach
-    public void deleteTestData()
+    void deleteTestData()
     {
         user_paymentInfoRepository.deleteAll();
         userRepository.deleteAll();

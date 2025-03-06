@@ -8,6 +8,7 @@ import de.dhbw.elinor2.repositories.ExternRepository;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.UserToExternRepository;
+import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.PaymentOverVCRLight;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +20,24 @@ import java.util.UUID;
 @Service
 public class UserToExternService extends PaymentService<PaymentOverVCRLight, UserToExtern, UUID>
 {
-    @Autowired
-    private ExternRepository externRepository;
+    private final ExternRepository externRepository;
+    private final UserRepository userRepository;
+    private final VirtualCashRegisterRepository virtualCashRegisterRepository;
+
+    private final UserService userService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private VirtualCashRegisterRepository virtualCashRegisterRepository;
-
-    @Autowired
-    public UserToExternService(UserToExternRepository repository)
+    public UserToExternService(UserToExternRepository repository,
+                               UserService userService,
+                               ExternRepository externRepository,
+                               UserRepository userRepository,
+                               VirtualCashRegisterRepository virtualCashRegisterRepository)
     {
         super(repository);
+        this.userService = userService;
+        this.externRepository = externRepository;
+        this.userRepository = userRepository;
+        this.virtualCashRegisterRepository = virtualCashRegisterRepository;
     }
 
     @Override

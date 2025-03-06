@@ -4,6 +4,7 @@ import de.dhbw.elinor2.entities.User;
 import de.dhbw.elinor2.entities.UserToUser;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.payments.UserToUserRepository;
+import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.PaymentLight;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +16,15 @@ import java.util.UUID;
 @Service
 public class UserToUserService extends PaymentService<PaymentLight, UserToUser, UUID>
 {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public UserToUserService(UserToUserRepository repository)
+    public UserToUserService(UserToUserRepository repository, UserService userService, UserRepository userRepository)
     {
         super(repository);
+        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Override

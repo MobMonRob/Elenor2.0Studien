@@ -6,6 +6,7 @@ import de.dhbw.elinor2.entities.VirtualCashRegister;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.VCRToUserRepository;
+import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.PaymentLight;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +18,21 @@ import java.util.UUID;
 @Service
 public class VCRToUserService extends PaymentService<PaymentLight, VCRToUser, UUID>
 {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final VirtualCashRegisterRepository virtualCashRegisterRepository;
+
+    private final UserService userService;
 
     @Autowired
-    private VirtualCashRegisterRepository virtualCashRegisterRepository;
-
-    @Autowired
-    public VCRToUserService(VCRToUserRepository repository)
+    public VCRToUserService(VCRToUserRepository repository,
+                            UserService userService,
+                            UserRepository userRepository,
+                            VirtualCashRegisterRepository virtualCashRegisterRepository)
     {
         super(repository);
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.virtualCashRegisterRepository = virtualCashRegisterRepository;
     }
 
     @Override

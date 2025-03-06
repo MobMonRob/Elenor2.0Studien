@@ -66,10 +66,16 @@ public class UserTest extends GenericTest<User, User, UUID>
     @Override
     @Disabled("Endpoint not supported")
     @Test
-    public void putRequest(){} // Endpoint not supported
+    public void putRequest()
+    {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     @Disabled("Endpoint not supported")
     @Test
-    public void postRequest(){} // Endpoint not supported
+    public void postRequest()
+    {
+        throw new UnsupportedOperationException();
+    }
 }

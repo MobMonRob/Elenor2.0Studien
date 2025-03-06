@@ -9,29 +9,28 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-public abstract class PaymentController<PaymentPattern, Entity, Id> implements IPaymentController<PaymentPattern, Entity, Id>
+public abstract class PaymentController<PaymentPattern, T, ID> implements IPaymentController<PaymentPattern, T, ID>
 {
-    private PaymentService<PaymentPattern, Entity, Id> service;
+    private final PaymentService<PaymentPattern, T, ID> service;
 
-
-    public PaymentController(PaymentService<PaymentPattern, Entity, Id> service)
+    protected PaymentController(PaymentService<PaymentPattern, T, ID> service)
     {
         this.service = service;
     }
 
     @Override
     @PostMapping("")
-    public ResponseEntity<Entity> create(@RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<T> create(@RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        Entity savedEntity = service.create(paymentPattern, jwt);
+        T savedEntity = service.create(paymentPattern, jwt);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
     }
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<Entity> findById(@PathVariable Id id)
+    public ResponseEntity<T> findById(@PathVariable ID id)
     {
-        Optional<Entity> entity = service.findById(id);
+        Optional<T> entity = service.findById(id);
         if (entity.isPresent())
         {
             return new ResponseEntity<>(entity.get(), HttpStatus.OK);
@@ -41,16 +40,16 @@ public abstract class PaymentController<PaymentPattern, Entity, Id> implements I
 
     @Override
     @GetMapping("")
-    public ResponseEntity<Iterable<Entity>> findAll()
+    public ResponseEntity<Iterable<T>> findAll()
     {
         return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
     }
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<Entity> update(@PathVariable Id id, @RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody PaymentPattern paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        Optional<Entity> savedEntity = service.update(id, paymentPattern, jwt);
+        Optional<T> savedEntity = service.update(id, paymentPattern, jwt);
         if (savedEntity.isPresent())
         {
             return new ResponseEntity<>(savedEntity.get(), HttpStatus.OK);
@@ -60,7 +59,7 @@ public abstract class PaymentController<PaymentPattern, Entity, Id> implements I
 
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Id id, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<Void> deleteById(@PathVariable ID id, @AuthenticationPrincipal Jwt jwt)
     {
         service.deleteById(id, jwt);
         return new ResponseEntity<>(HttpStatus.OK);

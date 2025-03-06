@@ -4,17 +4,17 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.Optional;
 
-public interface IPaymentService<PaymentPattern, Entity, Id>
+public interface IPaymentService<PaymentPattern, T, ID>
 {
-    Entity create(PaymentPattern paymentPattern, Jwt jwt);
+    T create(PaymentPattern paymentPattern, Jwt jwt);
 
-    Optional<Entity> findById(Id id);
+    Optional<T> findById(ID id);
 
-    Iterable<Entity> findAll();
+    Iterable<T> findAll();
 
-    Optional<Entity> update(Id id, PaymentPattern paymentPattern, Jwt jwt);
+    Optional<T> update(ID id, PaymentPattern paymentPattern, Jwt jwt);
 
-    void deleteById(Id id, Jwt jwt);
+    void deleteById(ID id, Jwt jwt);
 
-    boolean existsById(Id id);
+    boolean existsById(ID id);
 }

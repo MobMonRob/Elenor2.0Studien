@@ -103,11 +103,11 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
     public void postRequest()
     {
         super.postRequest();
-        VirtualCashRegister sender = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
-        VirtualCashRegister receiver = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
+        VirtualCashRegister senderResult = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
+        VirtualCashRegister receiverResult = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-400, sender.getBalance().intValue());
-        Assertions.assertEquals(400, receiver.getBalance().intValue());
+        Assertions.assertEquals(-400, senderResult.getBalance().intValue());
+        Assertions.assertEquals(400, receiverResult.getBalance().intValue());
     }
 
     @Override
@@ -115,11 +115,11 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
     public void putRequest()
     {
         super.putRequest();
-        VirtualCashRegister sender = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
-        VirtualCashRegister receiver = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
+        VirtualCashRegister senderResult = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
+        VirtualCashRegister receiverResult = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-200, sender.getBalance().intValue());
-        Assertions.assertEquals(200, receiver.getBalance().intValue());
+        Assertions.assertEquals(-200, senderResult.getBalance().intValue());
+        Assertions.assertEquals(200, receiverResult.getBalance().intValue());
     }
 
     @Override
@@ -127,10 +127,10 @@ public class VCRToVCRTest extends GenericTest<PaymentLight, VCRToVCR, UUID>
     public void deleteRequest()
     {
         super.deleteRequest();
-        VirtualCashRegister sender = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
-        VirtualCashRegister receiver = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
+        VirtualCashRegister senderResult = virtualCashRegisterRepository.findById(this.sender.getId()).orElseThrow();
+        VirtualCashRegister receiverResult = virtualCashRegisterRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(0, sender.getBalance().intValue());
-        Assertions.assertEquals(0, receiver.getBalance().intValue());
+        Assertions.assertEquals(0, senderResult.getBalance().intValue());
+        Assertions.assertEquals(0, receiverResult.getBalance().intValue());
     }
 }

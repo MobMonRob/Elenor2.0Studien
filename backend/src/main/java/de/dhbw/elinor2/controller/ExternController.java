@@ -16,14 +16,13 @@ import java.util.UUID;
 @RequestMapping("api/externs")
 public class ExternController extends GenericController<Extern, UUID>
 {
+    private final ExternService externService;
 
     @Autowired
-    private ExternService externService;
-
-    @Autowired
-    public ExternController(ExternService service)
+    public ExternController(ExternService externService)
     {
-        super(service);
+        super(externService);
+        this.externService = externService;
     }
 
 

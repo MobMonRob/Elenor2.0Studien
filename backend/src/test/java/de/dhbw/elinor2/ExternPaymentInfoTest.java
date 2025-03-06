@@ -23,7 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 @Import(TestSecurityConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class ExternPaymentInfoTest
+class ExternPaymentInfoTest
 {
     @Autowired
     private ExternService externService;
@@ -42,7 +42,7 @@ public class ExternPaymentInfoTest
     private String BASE_URL;
 
     @BeforeEach
-    public void addTestData()
+    void addTestData()
     {
         Extern extern = new Extern();
         extern.setName("testName");
@@ -61,7 +61,7 @@ public class ExternPaymentInfoTest
     }
 
     @AfterEach
-    public void deleteTestData()
+    void deleteTestData()
     {
         extern_paymentInfoRepository.deleteAll();
         externRepository.deleteAll();

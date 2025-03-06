@@ -109,11 +109,11 @@ public class UserToVCRTest extends GenericTest<PaymentLight, UserToVCR, UUID>
     public void postRequest()
     {
         super.postRequest();
-        VirtualCashRegister virtualCashRegister = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
-        User user = userRepository.findById(this.user.getId()).orElseThrow();
+        VirtualCashRegister virtualCashRegisterResult = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
+        User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
-        Assertions.assertEquals(400, virtualCashRegister.getBalance().intValue());
-        Assertions.assertEquals(400, user.getDebt().intValue());
+        Assertions.assertEquals(400, virtualCashRegisterResult.getBalance().intValue());
+        Assertions.assertEquals(400, userResult.getDebt().intValue());
     }
 
     @Override
@@ -121,11 +121,11 @@ public class UserToVCRTest extends GenericTest<PaymentLight, UserToVCR, UUID>
     public void putRequest()
     {
         super.putRequest();
-        VirtualCashRegister virtualCashRegister = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
-        User user = userRepository.findById(this.user.getId()).orElseThrow();
+        VirtualCashRegister virtualCashRegisterResult = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
+        User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
-        Assertions.assertEquals(200, virtualCashRegister.getBalance().intValue());
-        Assertions.assertEquals(200, user.getDebt().intValue());
+        Assertions.assertEquals(200, virtualCashRegisterResult.getBalance().intValue());
+        Assertions.assertEquals(200, userResult.getDebt().intValue());
     }
 
     @Override
@@ -133,10 +133,10 @@ public class UserToVCRTest extends GenericTest<PaymentLight, UserToVCR, UUID>
     public void deleteRequest()
     {
         super.deleteRequest();
-        VirtualCashRegister virtualCashRegister = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
-        User user = userRepository.findById(this.user.getId()).orElseThrow();
+        VirtualCashRegister virtualCashRegisterResult = virtualCashRegisterRepository.findById(this.virtualCashRegister.getId()).orElseThrow();
+        User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
-        Assertions.assertEquals(0, virtualCashRegister.getBalance().intValue());
-        Assertions.assertEquals(0, user.getDebt().intValue());
+        Assertions.assertEquals(0, virtualCashRegisterResult.getBalance().intValue());
+        Assertions.assertEquals(0, userResult.getDebt().intValue());
     }
 }
