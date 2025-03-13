@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mariadb:
     image: mariadb:latest
-    container_name: elinor2-database
+    container_name: database
     environment:
       MARIADB_ROOT_PASSWORD: my-secret-password
       MARIADB_DATABASE: elinor2
@@ -20,10 +20,11 @@ services:
       start_period: 30s
       timeout: 10s
 
-  app:
-    container_name: elinor2-backend
+
+  backend:
+    container_name: backend
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -33,6 +34,16 @@ services:
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
     depends_on:
       - mariadb
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   mariadb_data:
