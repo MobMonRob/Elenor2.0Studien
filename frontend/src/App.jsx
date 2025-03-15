@@ -1,55 +1,35 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Navbar from "./components/navbar";
-import Sidebar from "./components/sidebar";
 import Mainpage from "./components/mainpage";
-import Keycloak from "keycloak-js";
-import {httpClient} from "./HttpClient";
+import {keycloak} from "./HttpClient";
 
+const App = () => {
+    const [authenticated, setAuthenticated] = useState(false);
 
-const keycloak = new Keycloak({
-    url: "http://localhost:8081/",
-    realm: "elinor-realm",
-    clientId: "elinor"
-});
+    useEffect(() => {
+        keycloak.init({onLoad: "login-required"}).then((auth) => {
+            setAuthenticated(auth);
+        }).catch((error) => {
+            console.error("Keycloak init error:", error);
+        });
+    }, []);
 
-keycloak.init({
-    onLoad: "login-required",
-    checkLoginIframe: true
-}).then((authenticated) => {
-    if (authenticated) {
-        httpClient.defaults.headers.common["Authorization"] = `Bearer ${keycloak.token}`;
-    }
-}).catch((error) => {
-    console.error("Keycloak init error:", error);
-});
-
-
-
-
-class App extends React.Component {
-
-    state = {}
-
-    render() {
-        /*
-        if (!keycloak.token) {
-            return (
-                <div>
-                    <Navbar/>
-                    <h1 className="centered-label">Bitte warten...</h1>
-                </div>
-            );
-        }*/
+    if (!authenticated) {
         return (
             <div>
-                <Navbar logout={keycloak.logout} />
-                <div className="d-flex">
-                    <Sidebar/>
-                    <Mainpage/>
-                </div>
+                <Navbar logout={()=>{}}/>
+                <h1 className="centered-label">Loading...</h1>
             </div>
         );
     }
-}
+
+
+    return (
+        <div>
+            <Navbar logout={keycloak.logout}/>
+            <Mainpage/>
+        </div>
+    );
+};
 
 export default App;
