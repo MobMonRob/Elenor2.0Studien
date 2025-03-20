@@ -7,7 +7,7 @@ import de.dhbw.elinor2.repositories.payments.UserToUserRepository;
 import de.dhbw.elinor2.services.payments.executiong.UserToUserService;
 import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.PaymentLight;
+import de.dhbw.elinor2.utils.InputPayment;
 import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
+public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
 {
     @Autowired
     private UserToUserRepository userToUserRepository;
@@ -50,18 +50,18 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
     }
 
     @Override
-    public String getObjectAssertionIdentificationReceivedEntity(PaymentLight paymentLight)
+    public String getObjectAssertionIdentificationReceivedEntity(InputPayment inputPaymentLight)
     {
-        return paymentLight.getSenderId().toString() +
-                paymentLight.getReceiverId().toString() +
-                paymentLight.getAmount().intValue();
+        return inputPaymentLight.getSenderId().toString() +
+                inputPaymentLight.getReceiverId().toString() +
+                inputPaymentLight.getAmount().intValue();
     }
 
 
     @Override
-    public TestObject<PaymentLight, UserToUser, UUID> initTestObject()
+    public TestObject<InputPayment, UserToUser, UUID> initTestObject()
     {
-        TestObject<PaymentLight, UserToUser, UUID> testObject = new TestObject<>();
+        TestObject<InputPayment, UserToUser, UUID> testObject = new TestObject<>();
         testObject.setEntityClass(UserToUser.class);
         testObject.setEntityArrayClass(UserToUser[].class);
         testObject.setRepository(userToUserRepository);
@@ -77,7 +77,7 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
         receiver.setLastName("testLastname");
         receiver = userRepository.save(receiver);
 
-        PaymentLight initialPayment = new PaymentLight();
+        InputPayment initialPayment = new InputPayment();
         initialPayment.setSenderId(sender.getId());
         initialPayment.setReceiverId(receiver.getId());
         initialPayment.setAmount(BigDecimal.valueOf(100));
@@ -85,13 +85,13 @@ public class UserToUserTest extends GenericTest<PaymentLight, UserToUser, UUID>
         testObject.setInitSavedEntity(userToUser);
         testObject.setInitSavedEntityId(userToUser.getId());
 
-        PaymentLight updated = new PaymentLight();
+        InputPayment updated = new InputPayment();
         updated.setSenderId(sender.getId());
         updated.setReceiverId(receiver.getId());
         updated.setAmount(BigDecimal.valueOf(200));
         testObject.setUpdateEntity(updated);
 
-        PaymentLight newPayment = new PaymentLight();
+        InputPayment newPayment = new InputPayment();
         newPayment.setSenderId(sender.getId());
         newPayment.setReceiverId(receiver.getId());
         newPayment.setAmount(BigDecimal.valueOf(300));

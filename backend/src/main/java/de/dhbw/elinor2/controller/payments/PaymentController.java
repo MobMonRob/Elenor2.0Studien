@@ -1,6 +1,8 @@
 package de.dhbw.elinor2.controller.payments;
 
 import de.dhbw.elinor2.services.payments.PaymentService;
+import de.dhbw.elinor2.utils.InputPayment;
+import de.dhbw.elinor2.utils.OutputPayment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,18 +11,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-public abstract class PaymentController<P, T, ID> implements IPaymentController<P, T, ID>
+public abstract class PaymentController<IP extends InputPayment, OP extends OutputPayment, T, ID> implements IPaymentController<IP, OP, T, ID>
 {
-    private final PaymentService<P, T, ID> service;
+    private final PaymentService<IP, OP, T, ID> service;
 
-    protected PaymentController(PaymentService<P, T, ID> service)
+    protected PaymentController(PaymentService<IP, OP, T, ID> service)
     {
         this.service = service;
     }
 
     @Override
     @PostMapping("")
-    public ResponseEntity<T> create(@RequestBody P paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<T> create(@RequestBody IP paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
         T savedEntity = service.create(paymentPattern, jwt);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
@@ -40,14 +42,14 @@ public abstract class PaymentController<P, T, ID> implements IPaymentController<
 
     @Override
     @GetMapping("")
-    public ResponseEntity<Iterable<T>> findAll()
+    public ResponseEntity<Iterable<OP>> findAll()
     {
         return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
     }
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody P paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody IP paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
         Optional<T> savedEntity = service.update(id, paymentPattern, jwt);
         if (savedEntity.isPresent())

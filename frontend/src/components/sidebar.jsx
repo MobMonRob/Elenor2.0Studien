@@ -9,9 +9,6 @@ class Sidebar extends React.Component {
         externs: [],
     };
 
-
-
-
     async componentDidMount() {
         try {
             // Stelle sicher, dass Keycloak authentifiziert ist
@@ -22,7 +19,6 @@ class Sidebar extends React.Component {
             // Token sicherstellen
             const token = keycloak.token;
             httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            console.log(httpClient.defaults.headers.common["Authorization"]);
             // API-Anfrage mit gültigem Token
             const response = await httpClient.get("/users");
             this.setState({ users: response.data });
@@ -37,7 +33,7 @@ class Sidebar extends React.Component {
 
     render() {
         return (
-            <div className="bg-dark text-white p-3 vh-100" style={{ width: "300px" }}>
+            <div className="bg-dark text-white p-3 vh-100" style={{ width: "350px" }}>
                 <div className="accordion" id="accordionPanelsStayOpenExample">
                     <div className="accordion-item">
                         <h2 className="accordion-header">
@@ -55,7 +51,11 @@ class Sidebar extends React.Component {
                         <div id="panelsStayOpen-collapseOne" className="accordion-collapse collapse show">
                             <div className="accordion-body">
                                 {this.state.users.map((user) => (
-                                    <button key={user.id}>{user.username}</button>
+                                    <button className="nav-link active" onClick={() => {
+                                        this.props.setTransactionFilter(user.id);
+                                        this.props.setTransactionFilterName(user.username);
+                                    }} key={user.id}>{user.username}
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -76,7 +76,12 @@ class Sidebar extends React.Component {
                         <div id="panelsStayOpen-collapseTwo" className="accordion-collapse collapse">
                             <div className="accordion-body">
                                 {this.state.cashRegisters.map((cashRegister) => (
-                                    <button key={cashRegister.id}>{cashRegister.name}</button>
+                                    <button className="nav-link active" onClick={() =>
+                                    {
+                                        this.props.setTransactionFilter(cashRegister.id);
+                                        this.props.setTransactionFilterName(cashRegister.name);
+                                    }} key={cashRegister.id}>{cashRegister.name}
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -97,7 +102,12 @@ class Sidebar extends React.Component {
                         <div id="panelsStayOpen-collapseThree" className="accordion-collapse collapse">
                             <div className="accordion-body">
                                 {this.state.externs.map((extern) => (
-                                    <button key={extern.id}>{extern.name}</button>
+                                    <button className="nav-link active" onClick={() =>
+                                    {
+                                        this.props.setTransactionFilter(extern.id);
+                                        this.props.setTransactionFilterName(extern.name);
+                                    }} key={extern.id}>{extern.name}
+                                    </button>
                                 ))}
                             </div>
                         </div>

@@ -8,7 +8,10 @@ import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.UserToVCRRepository;
 import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
-import de.dhbw.elinor2.utils.PaymentLight;
+import de.dhbw.elinor2.utils.InputPayment;
+import de.dhbw.elinor2.utils.OutputPayment;
+import de.dhbw.elinor2.utils.PaymentType;
+import de.dhbw.elinor2.utils.TransactionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class UserToVCRService extends PaymentService<PaymentLight, UserToVCR, UUID>
+public class UserToVCRService extends PaymentService<InputPayment, OutputPayment, UserToVCR, UUID>
 {
     private final UserRepository userRepository;
     private final VirtualCashRegisterRepository virtualCashRegisterRepository;
@@ -36,18 +39,18 @@ public class UserToVCRService extends PaymentService<PaymentLight, UserToVCR, UU
     }
 
     @Override
-    public UserToVCR convertToEntity(PaymentLight paymentLight, UUID id)
+    public UserToVCR convertToEntity(InputPayment inputPaymentLight, UUID id)
     {
-        User userSender = userRepository.findById(paymentLight.getSenderId()).orElseThrow(()
+        User userSender = userRepository.findById(inputPaymentLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("User not found"));
 
-        VirtualCashRegister vcrReceiver = virtualCashRegisterRepository.findById(paymentLight.getReceiverId()).orElseThrow(()
+        VirtualCashRegister vcrReceiver = virtualCashRegisterRepository.findById(inputPaymentLight.getReceiverId()).orElseThrow(()
                 -> new IllegalArgumentException("VirtualCashRegister not found"));
 
         UserToVCR userToVCR = new UserToVCR();
         userToVCR.setUser(userSender);
         userToVCR.setVirtualCashRegister(vcrReceiver);
-        userToVCR.setAmount(paymentLight.getAmount());
+        userToVCR.setAmount(inputPaymentLight.getAmount());
         if (id != null) userToVCR.setId(id);
 
         return userToVCR;
@@ -79,5 +82,24 @@ public class UserToVCRService extends PaymentService<PaymentLight, UserToVCR, UU
         VirtualCashRegister vcr = userToVCR.getVirtualCashRegister();
         vcr.setBalance(vcr.getBalance().subtract(userToVCR.getAmount()));
         virtualCashRegisterRepository.save(vcr);
+    }
+
+    @Override
+    public OutputPayment convertEntityToOutputPattern(UserToVCR entity)
+    {
+        return new OutputPayment(
+                PaymentType.User2Vcr,
+                entity.getId(),
+                entity.getAmount(),
+                entity.getTimestamp(),
+                new TransactionEntity(
+                        entity.getUser().getId(),
+                        entity.getUser().getUsername()
+                ),
+                new TransactionEntity(
+                        entity.getVirtualCashRegister().getId(),
+                        entity.getVirtualCashRegister().getName()
+                )
+        );
     }
 }

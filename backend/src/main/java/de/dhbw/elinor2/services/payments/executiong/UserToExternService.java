@@ -10,7 +10,10 @@ import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.UserToExternRepository;
 import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
-import de.dhbw.elinor2.utils.PaymentOverVCRLight;
+import de.dhbw.elinor2.utils.InputPaymentOverVcr;
+import de.dhbw.elinor2.utils.OutputPaymentOverVcr;
+import de.dhbw.elinor2.utils.PaymentType;
+import de.dhbw.elinor2.utils.TransactionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class UserToExternService extends PaymentService<PaymentOverVCRLight, UserToExtern, UUID>
+public class UserToExternService extends PaymentService<InputPaymentOverVcr, OutputPaymentOverVcr, UserToExtern, UUID>
 {
     private final ExternRepository externRepository;
     private final UserRepository userRepository;
@@ -41,7 +44,7 @@ public class UserToExternService extends PaymentService<PaymentOverVCRLight, Use
     }
 
     @Override
-    public UserToExtern convertToEntity(PaymentOverVCRLight paymentOverVCRLight, UUID id)
+    public UserToExtern convertToEntity(InputPaymentOverVcr paymentOverVCRLight, UUID id)
     {
         User userSender = userRepository.findById(paymentOverVCRLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("User not found"));
@@ -88,5 +91,28 @@ public class UserToExternService extends PaymentService<PaymentOverVCRLight, Use
         VirtualCashRegister vcr = userToExtern.getVirtualCashRegister();
         vcr.setBalance(vcr.getBalance().add(userToExtern.getAmount()));
         virtualCashRegisterRepository.save(vcr);
+    }
+
+    @Override
+    public OutputPaymentOverVcr convertEntityToOutputPattern(UserToExtern entity)
+    {
+        return new OutputPaymentOverVcr(
+                PaymentType.User2ExternOverVcr,
+                entity.getId(),
+                entity.getAmount(),
+                entity.getTimestamp(),
+                new TransactionEntity(
+                        entity.getUser().getId(),
+                        entity.getUser().getUsername()
+                ),
+                new TransactionEntity(
+                        entity.getExtern().getId(),
+                        entity.getExtern().getName()
+                ),
+                new TransactionEntity(
+                        entity.getVirtualCashRegister().getId(),
+                        entity.getVirtualCashRegister().getName()
+                )
+        );
     }
 }

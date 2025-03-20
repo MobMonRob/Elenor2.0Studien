@@ -10,14 +10,17 @@ import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.ExternToUserRepository;
 import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
-import de.dhbw.elinor2.utils.PaymentOverVCRLight;
+import de.dhbw.elinor2.utils.InputPaymentOverVcr;
+import de.dhbw.elinor2.utils.OutputPaymentOverVcr;
+import de.dhbw.elinor2.utils.PaymentType;
+import de.dhbw.elinor2.utils.TransactionEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class ExternToUserService extends PaymentService<PaymentOverVCRLight, ExternToUser, UUID>
+public class ExternToUserService extends PaymentService<InputPaymentOverVcr, OutputPaymentOverVcr, ExternToUser, UUID>
 {
     private final ExternRepository externRepository;
     private final UserRepository userRepository;
@@ -39,7 +42,7 @@ public class ExternToUserService extends PaymentService<PaymentOverVCRLight, Ext
     }
 
     @Override
-    public ExternToUser convertToEntity(PaymentOverVCRLight paymentOverVCRLight, UUID id)
+    public ExternToUser convertToEntity(InputPaymentOverVcr paymentOverVCRLight, UUID id)
     {
         User userReceiver = userRepository.findById(paymentOverVCRLight.getReceiverId()).orElseThrow(()
                 -> new IllegalArgumentException("User not found"));
@@ -86,5 +89,28 @@ public class ExternToUserService extends PaymentService<PaymentOverVCRLight, Ext
         VirtualCashRegister vcr = externToUser.getVirtualCashRegister();
         vcr.setBalance(vcr.getBalance().subtract(externToUser.getAmount()));
         virtualCashRegisterRepository.save(vcr);
+    }
+
+    @Override
+    public OutputPaymentOverVcr convertEntityToOutputPattern(ExternToUser entity)
+    {
+        return new OutputPaymentOverVcr(
+                PaymentType.Extern2UserOverVcr,
+                entity.getId(),
+                entity.getAmount(),
+                entity.getTimestamp(),
+                new TransactionEntity(
+                        entity.getExtern().getId(),
+                        entity.getExtern().getName()
+                ),
+                new TransactionEntity(
+                        entity.getUser().getId(),
+                        entity.getUser().getUsername()
+                ),
+                new TransactionEntity(
+                        entity.getVirtualCashRegister().getId(),
+                        entity.getVirtualCashRegister().getName()
+                )
+        );
     }
 }

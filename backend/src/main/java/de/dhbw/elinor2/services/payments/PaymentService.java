@@ -1,13 +1,18 @@
 package de.dhbw.elinor2.services.payments;
 
+import de.dhbw.elinor2.utils.InputPayment;
+import de.dhbw.elinor2.utils.OutputPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
-public abstract class PaymentService<P, T, ID> implements IPaymentService<P, T, ID>
+public abstract class PaymentService<IP extends InputPayment, OP extends OutputPayment, T, ID> implements IPaymentService<IP, OP, T, ID>
 {
     private final JpaRepository<T, ID> repository;
 
@@ -17,7 +22,7 @@ public abstract class PaymentService<P, T, ID> implements IPaymentService<P, T, 
     }
 
     @Override
-    public T create(P paymentPattern, Jwt jwt)
+    public T create(IP paymentPattern, Jwt jwt)
     {
         T entity = convertToEntity(paymentPattern, null);
         executePayment(entity, jwt);
@@ -31,13 +36,19 @@ public abstract class PaymentService<P, T, ID> implements IPaymentService<P, T, 
     }
 
     @Override
-    public Iterable<T> findAll()
+    public Collection<OP> findAll()
     {
-        return repository.findAll();
+        List<OP> result = new ArrayList<>();
+        List<T> entities = repository.findAll();
+        for(T entity : entities)
+        {
+            result.add(convertEntityToOutputPattern(entity));
+        }
+        return result;
     }
 
     @Override
-    public Optional<T> update(ID id, P paymentPattern, Jwt jwt)
+    public Optional<T> update(ID id, IP paymentPattern, Jwt jwt)
     {
         T updatedEntity = convertToEntity(paymentPattern, id);
         T oldEntity = repository.findById(id).orElseThrow(()
@@ -65,9 +76,11 @@ public abstract class PaymentService<P, T, ID> implements IPaymentService<P, T, 
         return repository.existsById(id);
     }
 
-    public abstract T convertToEntity(P paymentPattern, ID id);
+    public abstract T convertToEntity(IP paymentPattern, ID id);
 
     public abstract void executePayment(T entity, Jwt jwt);
 
     public abstract void undoPayment(T entity, Jwt jwt);
+
+    public abstract OP convertEntityToOutputPattern(T entity);
 }

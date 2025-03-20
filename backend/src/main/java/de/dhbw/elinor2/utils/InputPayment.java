@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class PaymentLight
+public class InputPayment
 {
     private UUID senderId;
 
@@ -16,14 +16,14 @@ public class PaymentLight
 
     private BigDecimal amount = BigDecimal.ZERO;
 
-    public PaymentLight(UUID senderId, UUID receiverId, BigDecimal amount)
+    public InputPayment(UUID senderId, UUID receiverId, BigDecimal amount)
     {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.amount = amount;
     }
 
-    public PaymentLight()
+    public InputPayment()
     {
     }
 }

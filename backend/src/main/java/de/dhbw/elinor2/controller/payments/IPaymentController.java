@@ -1,17 +1,19 @@
 package de.dhbw.elinor2.controller.payments;
 
+import de.dhbw.elinor2.utils.InputPayment;
+import de.dhbw.elinor2.utils.OutputPayment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-public interface IPaymentController<P, T, ID>
+public interface IPaymentController<IP extends InputPayment, OP extends OutputPayment, T, ID>
 {
-    ResponseEntity<T> create(P paymentPattern, Jwt jwt);
+    ResponseEntity<T> create(IP paymentPattern, Jwt jwt);
 
     ResponseEntity<T> findById(ID id);
 
-    ResponseEntity<Iterable<T>> findAll();
+    ResponseEntity<Iterable<OP>> findAll();
 
-    ResponseEntity<T> update(ID id, P paymentPattern, Jwt jwt);
+    ResponseEntity<T> update(ID id, IP paymentPattern, Jwt jwt);
 
     ResponseEntity<Void> deleteById(ID id, Jwt jwt);
 }

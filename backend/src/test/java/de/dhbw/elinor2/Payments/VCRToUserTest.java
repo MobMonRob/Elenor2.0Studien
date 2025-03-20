@@ -9,7 +9,7 @@ import de.dhbw.elinor2.repositories.payments.VCRToUserRepository;
 import de.dhbw.elinor2.services.payments.documenting.VCRToUserService;
 import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.PaymentLight;
+import de.dhbw.elinor2.utils.InputPayment;
 import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class VCRToUserTest extends GenericTest<PaymentLight, VCRToUser, UUID>
+public class VCRToUserTest extends GenericTest<InputPayment, VCRToUser, UUID>
 {
     @Autowired
     private VCRToUserRepository vcrToUserRepository;
@@ -57,17 +57,17 @@ public class VCRToUserTest extends GenericTest<PaymentLight, VCRToUser, UUID>
     }
 
     @Override
-    public String getObjectAssertionIdentificationReceivedEntity(PaymentLight paymentLight)
+    public String getObjectAssertionIdentificationReceivedEntity(InputPayment inputPaymentLight)
     {
-        return paymentLight.getSenderId().toString() +
-                paymentLight.getReceiverId().toString() +
-                paymentLight.getAmount().intValue();
+        return inputPaymentLight.getSenderId().toString() +
+                inputPaymentLight.getReceiverId().toString() +
+                inputPaymentLight.getAmount().intValue();
     }
 
     @Override
-    public TestObject<PaymentLight, VCRToUser, UUID> initTestObject()
+    public TestObject<InputPayment, VCRToUser, UUID> initTestObject()
     {
-        TestObject<PaymentLight, VCRToUser, UUID> testObject = new TestObject<>();
+        TestObject<InputPayment, VCRToUser, UUID> testObject = new TestObject<>();
         testObject.setEntityClass(VCRToUser.class);
         testObject.setEntityArrayClass(VCRToUser[].class);
         testObject.setRepository(vcrToUserRepository);
@@ -80,25 +80,25 @@ public class VCRToUserTest extends GenericTest<PaymentLight, VCRToUser, UUID>
         virtualCashRegister.setName("testVCR");
         virtualCashRegister = virtualCashRegisterRepository.save(virtualCashRegister);
 
-        PaymentLight paymentLight = new PaymentLight();
-        paymentLight.setSenderId(virtualCashRegister.getId());
-        paymentLight.setReceiverId(user.getId());
-        paymentLight.setAmount(BigDecimal.valueOf(100));
-        VCRToUser vcrToUser = vcrToUserService.create(paymentLight, DefaultUser.getJwtToken());
+        InputPayment inputPaymentLight = new InputPayment();
+        inputPaymentLight.setSenderId(virtualCashRegister.getId());
+        inputPaymentLight.setReceiverId(user.getId());
+        inputPaymentLight.setAmount(BigDecimal.valueOf(100));
+        VCRToUser vcrToUser = vcrToUserService.create(inputPaymentLight, DefaultUser.getJwtToken());
         testObject.setInitSavedEntity(vcrToUser);
         testObject.setInitSavedEntityId(vcrToUser.getId());
 
-        PaymentLight updatedPaymentLight = new PaymentLight();
-        updatedPaymentLight.setSenderId(virtualCashRegister.getId());
-        updatedPaymentLight.setReceiverId(user.getId());
-        updatedPaymentLight.setAmount(BigDecimal.valueOf(200));
-        testObject.setUpdateEntity(updatedPaymentLight);
+        InputPayment updatedInputPaymentLight = new InputPayment();
+        updatedInputPaymentLight.setSenderId(virtualCashRegister.getId());
+        updatedInputPaymentLight.setReceiverId(user.getId());
+        updatedInputPaymentLight.setAmount(BigDecimal.valueOf(200));
+        testObject.setUpdateEntity(updatedInputPaymentLight);
 
-        PaymentLight newPaymentLight = new PaymentLight();
-        newPaymentLight.setSenderId(virtualCashRegister.getId());
-        newPaymentLight.setReceiverId(user.getId());
-        newPaymentLight.setAmount(BigDecimal.valueOf(300));
-        testObject.setNewEntity(newPaymentLight);
+        InputPayment newInputPaymentLight = new InputPayment();
+        newInputPaymentLight.setSenderId(virtualCashRegister.getId());
+        newInputPaymentLight.setReceiverId(user.getId());
+        newInputPaymentLight.setAmount(BigDecimal.valueOf(300));
+        testObject.setNewEntity(newInputPaymentLight);
 
         return testObject;
     }

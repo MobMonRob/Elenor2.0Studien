@@ -6,7 +6,10 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.payments.UserToUserRepository;
 import de.dhbw.elinor2.services.UserService;
 import de.dhbw.elinor2.services.payments.PaymentService;
-import de.dhbw.elinor2.utils.PaymentLight;
+import de.dhbw.elinor2.utils.InputPayment;
+import de.dhbw.elinor2.utils.OutputPayment;
+import de.dhbw.elinor2.utils.PaymentType;
+import de.dhbw.elinor2.utils.TransactionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -14,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class UserToUserService extends PaymentService<PaymentLight, UserToUser, UUID>
+public class UserToUserService extends PaymentService<InputPayment, OutputPayment, UserToUser, UUID>
 {
     private final UserRepository userRepository;
     private final UserService userService;
@@ -28,18 +31,18 @@ public class UserToUserService extends PaymentService<PaymentLight, UserToUser, 
     }
 
     @Override
-    public UserToUser convertToEntity(PaymentLight paymentLight, UUID id)
+    public UserToUser convertToEntity(InputPayment inputPaymentLight, UUID id)
     {
-        User userSender = userRepository.findById(paymentLight.getSenderId()).orElseThrow(()
+        User userSender = userRepository.findById(inputPaymentLight.getSenderId()).orElseThrow(()
                 -> new IllegalArgumentException("User-Sender not found"));
 
-        User userReceiver = userRepository.findById(paymentLight.getReceiverId()).orElseThrow(()
+        User userReceiver = userRepository.findById(inputPaymentLight.getReceiverId()).orElseThrow(()
                 -> new IllegalArgumentException("User.Receiver not found"));
 
         UserToUser userToUser = new UserToUser();
         userToUser.setSender(userSender);
         userToUser.setReceiver(userReceiver);
-        userToUser.setAmount(paymentLight.getAmount());
+        userToUser.setAmount(inputPaymentLight.getAmount());
         if (id != null) userToUser.setId(id);
 
         return userToUser;
@@ -73,5 +76,24 @@ public class UserToUserService extends PaymentService<PaymentLight, UserToUser, 
         User receiver = userToUser.getReceiver();
         receiver.setDebt(receiver.getDebt().subtract(userToUser.getAmount()));
         userRepository.save(receiver);
+    }
+
+    @Override
+    public OutputPayment convertEntityToOutputPattern(UserToUser entity)
+    {
+        return new OutputPayment(
+                PaymentType.User2User,
+                entity.getId(),
+                entity.getAmount(),
+                entity.getTimestamp(),
+                new TransactionEntity(
+                        entity.getSender().getId(),
+                        entity.getSender().getUsername()
+                ),
+                new TransactionEntity(
+                        entity.getReceiver().getId(),
+                        entity.getReceiver().getUsername()
+                )
+        );
     }
 }

@@ -11,7 +11,7 @@ import de.dhbw.elinor2.repositories.payments.UserToExternRepository;
 import de.dhbw.elinor2.services.payments.executiong.UserToExternService;
 import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.PaymentOverVCRLight;
+import de.dhbw.elinor2.utils.InputPaymentOverVcr;
 import de.dhbw.elinor2.utils.TestObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExtern, UUID>
+public class UserToExternTest extends GenericTest<InputPaymentOverVcr, UserToExtern, UUID>
 {
     @Autowired
     private UserToExternRepository userToExternRepository;
@@ -64,7 +64,7 @@ public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExt
     }
 
     @Override
-    public String getObjectAssertionIdentificationReceivedEntity(PaymentOverVCRLight paymentOverVCRLight)
+    public String getObjectAssertionIdentificationReceivedEntity(InputPaymentOverVcr paymentOverVCRLight)
     {
         return paymentOverVCRLight.getSenderId().toString() +
                 paymentOverVCRLight.getReceiverId().toString() +
@@ -73,9 +73,9 @@ public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExt
     }
 
     @Override
-    public TestObject<PaymentOverVCRLight, UserToExtern, UUID> initTestObject()
+    public TestObject<InputPaymentOverVcr, UserToExtern, UUID> initTestObject()
     {
-        TestObject<PaymentOverVCRLight, UserToExtern, UUID> testObject = new TestObject<>();
+        TestObject<InputPaymentOverVcr, UserToExtern, UUID> testObject = new TestObject<>();
         testObject.setEntityClass(UserToExtern.class);
         testObject.setEntityArrayClass(UserToExtern[].class);
         testObject.setRepository(userToExternRepository);
@@ -92,7 +92,7 @@ public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExt
         virtualCashRegister.setName("testVCR");
         virtualCashRegister = virtualCashRegisterRepository.save(virtualCashRegister);
 
-        PaymentOverVCRLight initialPayment = new PaymentOverVCRLight();
+        InputPaymentOverVcr initialPayment = new InputPaymentOverVcr();
         initialPayment.setSenderId(user.getId());
         initialPayment.setReceiverId(extern.getId());
         initialPayment.setVcrId(virtualCashRegister.getId());
@@ -102,14 +102,14 @@ public class UserToExternTest extends GenericTest<PaymentOverVCRLight, UserToExt
         testObject.setInitSavedEntityId(userToExtern.getId());
 
 
-        PaymentOverVCRLight updatedPayment = new PaymentOverVCRLight();
+        InputPaymentOverVcr updatedPayment = new InputPaymentOverVcr();
         updatedPayment.setSenderId(user.getId());
         updatedPayment.setReceiverId(extern.getId());
         updatedPayment.setVcrId(virtualCashRegister.getId());
         updatedPayment.setAmount(BigDecimal.valueOf(200));
         testObject.setUpdateEntity(updatedPayment);
 
-        PaymentOverVCRLight newPayment = new PaymentOverVCRLight();
+        InputPaymentOverVcr newPayment = new InputPaymentOverVcr();
         newPayment.setSenderId(user.getId());
         newPayment.setReceiverId(extern.getId());
         newPayment.setVcrId(virtualCashRegister.getId());

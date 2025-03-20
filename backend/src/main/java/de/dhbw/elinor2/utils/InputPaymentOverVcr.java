@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class PaymentOverVCRLight extends PaymentLight
+public class InputPaymentOverVcr extends InputPayment
 {
     private UUID vcrId;
 }
