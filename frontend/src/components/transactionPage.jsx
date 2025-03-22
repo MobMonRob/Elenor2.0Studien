@@ -1,12 +1,16 @@
 import React from "react";
 import Transaction from "./transaction";
 import { httpClient, keycloak } from "../HttpClient";
+import UpdateTransactionWindow from "./updateTransaction";
 
 class TransactionPage extends React.Component {
     state = {
         displayedTransactions: [],
         everyTransaction: [],
-        subjectId: null
+        subjectId: null,
+        isUpdatedWindowOpen: false,
+        editedTransaction: null,
+        editedTransactionTranslatedPaymentType: null
     };
 
     deleteTransaction = async (transactionId) => {
@@ -54,6 +58,48 @@ class TransactionPage extends React.Component {
         }
     }
 
+    getTransactionOutputFormatFromInputFormat = (transaction) => {
+        return {
+            senderId: transaction.sender.entityId,
+            receiverId: transaction.receiver.entityId,
+            amount: transaction.amount,
+            ...(transaction.overVcr && transaction.overVcr.entityId ? { vcrId: transaction.overVcr.entityId } : {})
+        };
+    }
+
+    updateTransaction = async (updatedTransaction) => {
+        try{
+            await httpClient.put(`/payments/${updatedTransaction.transactionId}`, this.getTransactionOutputFormatFromInputFormat(updatedTransaction));
+
+            const updatedAllTransactions = this.state.everyTransaction.map((transaction) =>
+                transaction.transactionId === updatedTransaction.transactionId ? updatedTransaction : transaction
+            );
+
+            const updatedDisplayedTransactions = this.state.displayedTransactions.map((transaction) =>
+                transaction.transactionId === updatedTransaction.transactionId ? updatedTransaction : transaction
+            );
+
+            this.setState({
+                everyTransaction: updatedAllTransactions,
+                displayedTransactions: updatedDisplayedTransactions,
+            });
+        } catch (error) {
+            console.error("Error updating transaction:", error);
+        }
+    };
+
+    setEditedTransaction = (filter) => {
+        this.setState({
+            transactionFilter: filter
+        });
+    }
+
+    setTransactionFilterName = (filterName) => {
+        this.setState({
+            transactionFilterName: filterName
+        });
+    }
+
     render() {
         return (
             <div className="container mt-4 position-relative">
@@ -83,10 +129,38 @@ class TransactionPage extends React.Component {
                     </thead>
                     <tbody>
                     {this.state.displayedTransactions.map((transaction) => (
-                        <Transaction key={transaction.transactionId} transaction={transaction} jwtSubject={this.state.subjectId} delete={this.deleteTransaction} />
+                        <Transaction
+                            key={transaction.transactionId}
+                            transaction={transaction}
+                            jwtSubject={this.state.subjectId}
+                            delete={this.deleteTransaction}
+                            openUpdatedWindow={() => this.setState({ isUpdatedWindowOpen: true })}
+                            setEditedTransaction={(editedTransaction) => {
+                                this.setState({
+                                    editedTransaction: editedTransaction
+                                });
+                            }}
+                            setEditedTransactionTranslatedPaymentType={(editedTransactionTranslatedPaymentType) => {
+                                this.setState({
+                                    editedTransactionTranslatedPaymentType: editedTransactionTranslatedPaymentType
+                                });
+                            }}
+                        />
                     ))}
                     </tbody>
                 </table>
+                {this.state.isUpdatedWindowOpen
+                    && this.state.editedTransactionTranslatedPaymentType
+                    && this.state.editedTransaction
+                    && (
+                        <UpdateTransactionWindow
+                            transaction={this.state.editedTransaction}
+                            translatedPaymentType={this.state.editedTransactionTranslatedPaymentType}
+                            updateTransaction={this.updateTransaction}
+                            closeWindow={() => this.setState({ isUpdatedWindowOpen: false })}
+                        />
+                    )}
+
             </div>
         );
     }

@@ -4,7 +4,9 @@ import { MdEdit } from "react-icons/md";
 import "../index.css"
 
 class Transactions extends React.Component {
-    state = {}
+    state = {
+        isUpdatedWindowOpen: false
+    }
     render() {
         const { transaction } = this.props;
 
@@ -40,6 +42,12 @@ class Transactions extends React.Component {
             this.props.jwtSubject === this.props.transaction.sender.entityId ||
             this.props.jwtSubject === this.props.transaction.receiver.entityId;
 
+        const openUpdatedWindow = () => {
+            this.props.openUpdatedWindow();
+            this.props.setEditedTransaction(this.props.transaction);
+            this.props.setEditedTransactionTranslatedPaymentType(translatedPaymentType);
+        };
+
         return (
             <tr>
                 <td>{translatedPaymentType}</td>
@@ -49,7 +57,7 @@ class Transactions extends React.Component {
                 <td>{this.props.transaction.amount} €</td>
                 <td>{formattedDate}</td>
                 <td style={{ textAlign: "right" }}>
-                    <button className="btn btn-primary" style={{ marginRight: "10px" }} disabled={!shouldShowButtons}>
+                    <button className="btn btn-primary" style={{ marginRight: "10px" }} onClick={openUpdatedWindow} disabled={!shouldShowButtons}>
                         <MdEdit className="centered-label"/>
                     </button>
                     <button className="btn btn-danger" onClick={() => this.props.delete(this.props.transaction.transactionId)} disabled={!shouldShowButtons}>

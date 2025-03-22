@@ -3,3 +3,16 @@
     justify-content: center;
     align-items: center;
 }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    margin-bottom: 10px;  /* Add margin between the label and the input */
+    display: block;       /* Ensure the label and input are stacked */
+}
+
+.form-group input {
+    margin-top: 5px;      /* Add margin above the input field */
+}
