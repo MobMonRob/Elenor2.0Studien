@@ -1,19 +1,16 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Transaction from "./transaction";
 import { httpClient, keycloak } from "../HttpClient";
 import UpdateTransactionWindow from "./updateTransaction";
 
-class TransactionPage extends React.Component {
-    state = {
-        displayedTransactions: [],
-        everyTransaction: [],
-        subjectId: null,
-        isUpdatedWindowOpen: false,
-        editedTransaction: null,
-        editedTransactionTranslatedPaymentType: null
-    };
+const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transactionFilterName, transactionFilter}) => {
+    const [displayedTransactions, setDisplayedTransactions] = useState([]);
+    const [everyTransaction, setEveryTransaction] = useState([]);
+    const [subjectId, setSubjectId] = useState(null);
+    const [isUpdatedWindowOpen, setIsUpdatedWindowOpen] = useState(false);
+    const [editedTransaction, setEditedTransaction] = useState(null);
 
-    deleteTransaction = async (transactionId) => {
+    const deleteTransaction = async (transactionId) => {
         try {
             await httpClient.delete(`/payments/${transactionId}`);
             this.setState({
@@ -25,40 +22,41 @@ class TransactionPage extends React.Component {
         }
     };
 
-    async componentDidMount() {
-        try {
-            if (!keycloak.authenticated) {
-                await keycloak.init({ onLoad: "login-required" });
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (!keycloak.authenticated) {
+                    await keycloak.init({ onLoad: "login-required" });
+                }
+                const token = keycloak.token;
+                httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+                const response = await httpClient.get("/payments");
+                setEveryTransaction(response.data);
+                setDisplayedTransactions(response.data);
+                setSubjectId(keycloak.tokenParsed?.sub);
+            } catch (error) {
+                console.error("Error fetching payments:", error);
             }
-            const token = keycloak.token;
-            httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        };
+        fetchData();
+    }, []);
 
-            const response = await httpClient.get("/payments");
-            this.setState({
-                everyTransaction: response.data,
-                displayedTransactions: response.data,
-                subjectId: keycloak.tokenParsed?.sub
-            });
-        } catch (error) {
-            console.error("Error fetching users:", error);
+    useEffect(() => {
+        if (transactionFilter) {
+            setDisplayedTransactions(
+                everyTransaction.filter((transaction) =>
+                    transaction.overVcr?.entityId === transactionFilter ||
+                    transaction.sender.entityId === transactionFilter ||
+                    transaction.receiver.entityId === transactionFilter
+                )
+            );
+        } else {
+            setDisplayedTransactions(everyTransaction);
         }
-    }
+    }, [transactionFilter, everyTransaction]);
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.transactionFilter !== this.props.transactionFilter) {
-            this.setState({
-                displayedTransactions: this.props.transactionFilter
-                    ? this.state.everyTransaction.filter((transaction) =>
-                        transaction.overVcr?.entityId === this.props.transactionFilter ||
-                        transaction.sender.entityId === this.props.transactionFilter ||
-                        transaction.receiver.entityId === this.props.transactionFilter
-                    )
-                    : this.state.everyTransaction,
-            });
-        }
-    }
-
-    getTransactionOutputFormatFromInputFormat = (transaction) => {
+    const getTransactionOutputFormatFromInputFormat = (transaction) => {
         return {
             senderId: transaction.sender.entityId,
             receiverId: transaction.receiver.entityId,
@@ -67,104 +65,83 @@ class TransactionPage extends React.Component {
         };
     }
 
-    updateTransaction = async (updatedTransaction) => {
+    const updateTransaction = async (updatedTransaction) => {
         try{
             const response = await httpClient.put(
                 `/payments/${updatedTransaction.transactionId}`,
-                this.getTransactionOutputFormatFromInputFormat(updatedTransaction)
+                getTransactionOutputFormatFromInputFormat(updatedTransaction)
             );
 
             const updatedTransactionFromApi = response.data;
 
-            this.setState((prevState) => ({
-                everyTransaction: prevState.everyTransaction.map((transaction) =>
+            setEveryTransaction((prevTransactions) =>
+                prevTransactions.map((transaction) =>
                     transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
-                ),
-                displayedTransactions: prevState.displayedTransactions.map((transaction) =>
+                )
+            );
+
+            setDisplayedTransactions((prevDisplayed) =>
+                prevDisplayed.map((transaction) =>
                     transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
-                ),
-            }));
+                )
+            );
         } catch (error) {
             console.error("Error updating transaction:", error);
         }
     };
 
-    setEditedTransaction = (filter) => {
-        this.setState({
-            transactionFilter: filter
-        });
-    }
-
-    setTransactionFilterName = (filterName) => {
-        this.setState({
-            transactionFilterName: filterName
-        });
-    }
-
-    render() {
-        return (
-            <div className="container mt-4 position-relative">
-                <div className="d-flex justify-content-between align-items-center">
-                    <button className="btn btn-outline-dark position-absolute" style={{top: "3px", left: "12px"}} onClick={() =>
-                    {
-                        this.props.setTransactionFilter("");
-                        this.props.setTransactionFilterName("");
-                    }} disabled={!this.props.transactionFilter}>
-                        <i className="bi bi-x-circle"></i> Filter löschen
-                    </button>
-                    <h2 className="text-center mb-4 flex-grow-1">
-                        Transaktionsübersicht{this.props.transactionFilterName && ` (${this.props.transactionFilterName})`}
-                    </h2>
-                </div>
-                <table className="table table-striped" style={{ border: '2px solid #dee2e6', overflow: 'hidden', tableLayout: 'fixed' }}>
-                    <thead>
-                    <tr>
-                        <th scope="col">Art</th>
-                        <th scope="col">Sender</th>
-                        <th scope="col">Empfänger</th>
-                        <th scope="col">Über Kasse</th>
-                        <th scope="col">Betrag</th>
-                        <th scope="col">Datum</th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.displayedTransactions.map((transaction) => (
-                        <Transaction
-                            key={transaction.transactionId}
-                            transaction={transaction}
-                            jwtSubject={this.state.subjectId}
-                            delete={this.deleteTransaction}
-                            openUpdatedWindow={() => this.setState({ isUpdatedWindowOpen: true })}
-                            setEditedTransaction={(editedTransaction) => {
-                                this.setState({
-                                    editedTransaction: editedTransaction
-                                });
-                            }}
-                            setEditedTransactionTranslatedPaymentType={(editedTransactionTranslatedPaymentType) => {
-                                this.setState({
-                                    editedTransactionTranslatedPaymentType: editedTransactionTranslatedPaymentType
-                                });
-                            }}
-                        />
-                    ))}
-                    </tbody>
-                </table>
-                {this.state.isUpdatedWindowOpen
-                    && this.state.editedTransactionTranslatedPaymentType
-                    && this.state.editedTransaction
-                    && (
-                        <UpdateTransactionWindow
-                            transaction={this.state.editedTransaction}
-                            translatedPaymentType={this.state.editedTransactionTranslatedPaymentType}
-                            updateTransaction={this.updateTransaction}
-                            closeWindow={() => this.setState({ isUpdatedWindowOpen: false })}
-                        />
-                    )}
-
+    return (
+        <div className="container mt-4 position-relative">
+            <div className="d-flex justify-content-between align-items-center">
+                <button className="btn btn-outline-dark position-absolute" style={{top: "3px", left: "12px"}} onClick={() =>
+                {
+                    setTransactionFilter("");
+                    setTransactionFilterName("");
+                }} disabled={!transactionFilter}>
+                    <i className="bi bi-x-circle"></i> Filter löschen
+                </button>
+                <h2 className="text-center mb-4 flex-grow-1">
+                    Transaktionsübersicht{transactionFilterName && ` (${transactionFilterName})`}
+                </h2>
             </div>
-        );
-    }
+            <table className="table table-striped" style={{ border: '2px solid #dee2e6', overflow: 'hidden', tableLayout: 'fixed' }}>
+                <thead>
+                <tr>
+                    <th scope="col">Art</th>
+                    <th scope="col">Sender</th>
+                    <th scope="col">Empfänger</th>
+                    <th scope="col">Über Kasse</th>
+                    <th scope="col">Betrag</th>
+                    <th scope="col">Datum</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {displayedTransactions.map((transaction) => (
+                    <Transaction
+                        key={transaction.transactionId}
+                        transaction={transaction}
+                        jwtSubject={subjectId}
+                        deleteTransaction={deleteTransaction}
+                        openUpdatedWindow={() => setIsUpdatedWindowOpen(true)}
+                        setEditedTransaction={setEditedTransaction}
+                    />
+                ))}
+                </tbody>
+            </table>
+            {isUpdatedWindowOpen
+                && editedTransaction
+                && (
+                    <UpdateTransactionWindow
+                        transaction={editedTransaction}
+                        updateTransaction={updateTransaction}
+                        closeWindow={() => setIsUpdatedWindowOpen(false)}
+                    />
+                )}
+
+        </div>
+    );
+
 }
 
 export default TransactionPage;

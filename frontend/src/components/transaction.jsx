@@ -2,71 +2,46 @@ import React from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import "../index.css"
+import TransactionUtils from "../TransactionUtils";
 
-class Transactions extends React.Component {
-    state = {
-        isUpdatedWindowOpen: false
+const Transactions = ({transaction, jwtSubject, openUpdatedWindow, setEditedTransaction, deleteTransaction}) => {
+    if (!transaction || !transaction.timestamp) {
+        return null;
     }
-    render() {
-        const { transaction } = this.props;
 
-        if (!transaction || !transaction.timestamp) {
-            return null;
-        }
+    const formattedDate = TransactionUtils.formatTimestamp(transaction.timestamp);
 
-        const timestamp = transaction.timestamp;
-        const date = new Date(
-            timestamp[0], // Jahr
-            timestamp[1] - 1, // Monat (0-basiert, daher -1)
-            timestamp[2], // Tag
-            timestamp[3], // Stunde
-            timestamp[4], // Minuten
-            timestamp[5], // Sekunden
-            Math.floor(timestamp[6] / 1000000) // Millisekunden
-        );
-        const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}; ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')} Uhr`;
+    const translatedPaymentType = TransactionUtils.getPaymentTypeTranslation(transaction.paymentType)  || "Unbekannt";
 
-        const paymentTypeTranslations = {
-            "User2Vcr": "Mitglied zu Kasse",
-            "Vcr2User": "Kasse zu Mitglied",
-            "Vcr2Vcr": "Kasse zu Kasse",
-            "Extern2UserOverVcr": "Extern zu Mitglied über Kasse",
-            "User2ExternOverVcr": "Mitglied zu Extern über Kasse",
-            "User2User": "Mitglied zu Mitglied",
-        };
+    const shouldShowButtons =
+        transaction.paymentType === "VcrToVcr" ||
+        jwtSubject === transaction.sender.entityId ||
+        jwtSubject === transaction.receiver.entityId;
 
-        const translatedPaymentType = paymentTypeTranslations[this.props.transaction.paymentType]  || "Unbekannt";
+    const openUpdatedWindowComponent = () => {
+        openUpdatedWindow();
+        setEditedTransaction(transaction);
+    };
 
-        const shouldShowButtons =
-            this.props.transaction.paymentType === "VcrToVcr" ||
-            this.props.jwtSubject === this.props.transaction.sender.entityId ||
-            this.props.jwtSubject === this.props.transaction.receiver.entityId;
+    return (
+        <tr>
+            <td>{translatedPaymentType}</td>
+            <td>{transaction.sender.name}</td>
+            <td>{transaction.receiver.name}</td>
+            <td>{transaction.overVcr == null ? '-' : transaction.overVcr.name}</td>
+            <td>{transaction.amount} €</td>
+            <td>{formattedDate}</td>
+            <td style={{ textAlign: "right" }}>
+                <button className="btn btn-primary" style={{ marginRight: "10px" }} onClick={openUpdatedWindowComponent} disabled={!shouldShowButtons}>
+                    <MdEdit className="centered-label"/>
+                </button>
+                <button className="btn btn-danger" onClick={() => deleteTransaction(transaction.transactionId)} disabled={!shouldShowButtons}>
+                    <FaRegTrashAlt className="centered-label"/>
+                </button>
+            </td>
+        </tr>
+    );
 
-        const openUpdatedWindow = () => {
-            this.props.openUpdatedWindow();
-            this.props.setEditedTransaction(this.props.transaction);
-            this.props.setEditedTransactionTranslatedPaymentType(translatedPaymentType);
-        };
-
-        return (
-            <tr>
-                <td>{translatedPaymentType}</td>
-                <td>{this.props.transaction.sender.name}</td>
-                <td>{this.props.transaction.receiver.name}</td>
-                <td>{this.props.transaction.overVcr == null ? '-' : this.props.transaction.overVcr.name}</td>
-                <td>{this.props.transaction.amount} €</td>
-                <td>{formattedDate}</td>
-                <td style={{ textAlign: "right" }}>
-                    <button className="btn btn-primary" style={{ marginRight: "10px" }} onClick={openUpdatedWindow} disabled={!shouldShowButtons}>
-                        <MdEdit className="centered-label"/>
-                    </button>
-                    <button className="btn btn-danger" onClick={() => this.props.delete(this.props.transaction.transactionId)} disabled={!shouldShowButtons}>
-                        <FaRegTrashAlt className="centered-label"/>
-                    </button>
-                </td>
-            </tr>
-        );
-    }
 }
 
 export default Transactions;

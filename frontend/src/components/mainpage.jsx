@@ -1,38 +1,23 @@
-import React from "react";
+import React, {useState} from "react";
 import Sidebar from "./sidebar";
 import TransactionPage from "./transactionPage";
 
-class Mainpage extends React.Component {
-    state = {
-        transactionFilter: "",
-        transactionFilterName: ""
-    }
+const Mainpage = () => {
 
-    setTransactionFilter = (filter) => {
-        this.setState({
-            transactionFilter: filter
-        });
-    }
+    const [transactionFilter, setTransactionFilter] = useState("");
+    const [transactionFilterName, setTransactionFilterName] = useState("");
 
-    setTransactionFilterName = (filterName) => {
-        this.setState({
-            transactionFilterName: filterName
-        });
-    }
-
-    render() {
-        return (
-            <div className="d-flex">
-                <Sidebar setTransactionFilter={this.setTransactionFilter} setTransactionFilterName={this.setTransactionFilterName} />
-                <TransactionPage
-                    transactionFilter={this.state.transactionFilter}
-                    transactionFilterName={this.state.transactionFilterName}
-                    setTransactionFilter={this.setTransactionFilter}
-                    setTransactionFilterName={this.setTransactionFilterName}
-                />
-            </div>
-        );
-    }
+    return (
+        <div className="d-flex">
+            <Sidebar setTransactionFilter={setTransactionFilter} setTransactionFilterName={setTransactionFilterName} />
+            <TransactionPage
+                transactionFilter={transactionFilter}
+                transactionFilterName={transactionFilterName}
+                setTransactionFilter={setTransactionFilter}
+                setTransactionFilterName={setTransactionFilterName}
+            />
+        </div>
+    );
 }
 
 export default Mainpage;
