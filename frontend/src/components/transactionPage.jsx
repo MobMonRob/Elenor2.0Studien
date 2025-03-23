@@ -2,12 +2,14 @@ import React, {useEffect, useState} from "react";
 import Transaction from "./transaction";
 import { httpClient, keycloak } from "../HttpClient";
 import UpdateTransactionWindow from "./updateTransaction";
+import NewTransactionWindow from "./newTransaction";
 
-const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transactionFilterName, transactionFilter}) => {
+const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transactionFilterName, transactionFilter, users, externs, cashregisters}) => {
     const [displayedTransactions, setDisplayedTransactions] = useState([]);
     const [everyTransaction, setEveryTransaction] = useState([]);
     const [subjectId, setSubjectId] = useState(null);
     const [isUpdatedWindowOpen, setIsUpdatedWindowOpen] = useState(false);
+    const [isNewTransactionWindowOpen, setIsNewTransactionWindowOpen] = useState(false);
     const [editedTransaction, setEditedTransaction] = useState(null);
 
     const deleteTransaction = async (transactionId) => {
@@ -103,6 +105,11 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                 <h2 className="text-center mb-4 flex-grow-1">
                     Transaktionsübersicht{transactionFilterName && ` (${transactionFilterName})`}
                 </h2>
+                <button className="btn btn-outline-dark position-absolute" style={{top: "3px", right: "12px"}} onClick={
+                    () => setIsNewTransactionWindowOpen(true)
+                }>
+                    Neue Transaktion
+                </button>
             </div>
             <table className="table table-striped" style={{ border: '2px solid #dee2e6', overflow: 'hidden', tableLayout: 'fixed' }}>
                 <thead>
@@ -138,6 +145,14 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                         closeWindow={() => setIsUpdatedWindowOpen(false)}
                     />
                 )}
+            {isNewTransactionWindowOpen &&
+                <NewTransactionWindow
+                    closeWindow={() => setIsNewTransactionWindowOpen(false)}
+                    users={users}
+                    externs={externs}
+                    cashregisters={cashregisters}
+                    loggedInUserId={subjectId}
+                />}
 
         </div>
     );

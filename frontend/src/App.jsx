@@ -1,33 +1,55 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./components/navbar";
 import Mainpage from "./components/mainpage";
-import {keycloak} from "./HttpClient";
+import { httpClient, keycloak } from "./HttpClient";
 
 const App = () => {
     const [authenticated, setAuthenticated] = useState(false);
+    const [users, setUsers] = useState([]);
+    const [cashRegisters, setCashRegisters] = useState([]);
+    const [externs, setExterns] = useState([]);
 
     useEffect(() => {
-        keycloak.init({onLoad: "login-required"}).then((auth) => {
-            setAuthenticated(auth);
-        }).catch((error) => {
-            console.error("Keycloak init error:", error);
-        });
+        const fetchData = async () => {
+            try {
+                const auth = await keycloak.init({ onLoad: "login-required" });
+                setAuthenticated(auth);
+
+                if (auth) {
+                    const token = keycloak.token;
+                    httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+                    const [usersRes, cashRes, externsRes] = await Promise.all([
+                        httpClient.get("/users"),
+                        httpClient.get("/virtualcashregisters"),
+                        httpClient.get("/externs")
+                    ]);
+
+                    setUsers(usersRes.data);
+                    setCashRegisters(cashRes.data);
+                    setExterns(externsRes.data);
+                }
+            } catch (error) {
+                console.error("Error during authentication or fetching data:", error);
+            }
+        };
+
+        fetchData();
     }, []);
 
     if (!authenticated) {
         return (
             <div>
-                <Navbar logout={()=>{}}/>
+                <Navbar logout={() => {}} />
                 <h1 className="centered-label">Loading...</h1>
             </div>
         );
     }
 
-
     return (
         <div>
-            <Navbar logout={keycloak.logout}/>
-            <Mainpage/>
+            <Navbar loggedInUserId={keycloak.tokenParsed.sub} logout={keycloak.logout} users={users} cashregisters={cashRegisters} externs={externs} />
+            <Mainpage users={users} cashRegisters={cashRegisters} externs={externs} />
         </div>
     );
 };

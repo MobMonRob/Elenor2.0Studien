@@ -1,37 +1,7 @@
-import React, {useEffect, useState} from "react";
-import { httpClient, keycloak } from "../HttpClient";
+import React from "react";
 
 
-const Sidebar = ({setTransactionFilter, setTransactionFilterName}) => {
-    const [users, setUsers] = useState([]);
-    const [cashRegisters, setCashRegisters] = useState([]);
-    const [externs, setExterns] = useState([]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Stelle sicher, dass Keycloak authentifiziert ist
-                if (!keycloak.authenticated) {
-                    await keycloak.init({ onLoad: "login-required" });
-                }
-
-                // Token sicherstellen
-                const token = keycloak.token;
-                httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-                // API-Anfrage mit gültigem Token
-                const response = await httpClient.get("/users");
-                setUsers(response.data);
-                const response2 = await httpClient.get("/virtualcashregisters");
-                setCashRegisters(response2.data);
-                const response3 = await httpClient.get("/externs");
-                setExterns(response3.data);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        }
-        fetchData();
-    }, []);
-
+const Sidebar = ({setTransactionFilter, setTransactionFilterName, users, cashRegisters, externs}) => {
     return (
         <div className="bg-dark text-white p-3 vh-100" style={{ width: "350px" }}>
             <div className="accordion" id="accordionPanelsStayOpenExample">

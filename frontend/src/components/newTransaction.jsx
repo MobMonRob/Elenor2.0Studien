@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Modal, Button} from 'react-bootstrap';
 import Select from 'react-select';
 
-const NewTransactionWindow = ({closeWindow}) => {
+const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, loggedInUserId}) => {
     const [type, setType] = useState('');
     const [amount, setAmount] = useState('');
     const [sender, setSender] = useState('');
@@ -11,6 +11,8 @@ const NewTransactionWindow = ({closeWindow}) => {
     const [overVcrDisabled, setOverVcrDisabled] = useState(true);
     const [senderDisabled, setSenderDisabled] = useState(true);
     const [receiverDisabled, setReceiverDisabled] = useState(true);
+    const [optionsSender, setOptionsSender] = useState([]);
+    const [optionsReceiver, setOptionsReceiver] = useState([]);
 
 
     const handleSave = () => {
@@ -27,38 +29,63 @@ const NewTransactionWindow = ({closeWindow}) => {
         { value: 'User2ExternOverVcr', label: 'Mitglied zu Extern über Kasse' },
     ];
 
-    const optionsSender = [];
+    const userList = users.map(user => ({
+        value: user.id,
+        label: user.username
+    }));
 
-    const optionsReceiver = []
+    const cashRegisterList = cashregisters.map(cashregister => ({
+        value: cashregister.id,
+        label: cashregister.name
+    }));
 
-    const optionsOverVcr = []
+    const externList = externs.map(extern => ({
+        value: extern.id,
+        label: extern.name
+    }));
+
+    const optionsOverVcr = cashRegisterList;
 
     const changeType = (selectedOption) => {
         setType(selectedOption.value)
+        setSender("")
+        setReceiver("")
+        setOverVcr("")
+        setOptionsSender([])
+        setOptionsReceiver([])
         if(selectedOption.value === 'Vcr2Vcr') {
             setSenderDisabled(false)
             setReceiverDisabled(false)
             setOverVcrDisabled(true)
+            setOptionsSender(cashRegisterList);
+            setOptionsReceiver(cashRegisterList);
         }else if(selectedOption.value === 'Vcr2User') {
             setSenderDisabled(false)
             setReceiverDisabled(true)
             setOverVcrDisabled(true)
+            setOptionsSender(cashRegisterList);
+            setSender(loggedInUserId);
         }else if(selectedOption.value === 'User2Vcr') {
             setSenderDisabled(true)
             setReceiverDisabled(false)
             setOverVcrDisabled(true)
+            setOptionsReceiver(cashRegisterList);
         }else if(selectedOption.value === 'User2User') {
             setSenderDisabled(false)
             setReceiverDisabled(false)
             setOverVcrDisabled(true)
-        }else if(selectedOption.value === 'User2Extern') {
-            setSenderDisabled(false)
+            setOptionsSender(userList);
+            setOptionsReceiver(userList);
+        }else if(selectedOption.value === 'User2ExternOverVcr') {
+            setSenderDisabled(true)
             setReceiverDisabled(false)
             setOverVcrDisabled(false)
-        }else if(selectedOption.value === 'Extern2User') {
+            setOptionsReceiver(externList);
+        }else if(selectedOption.value === 'Extern2UserOverVcr') {
             setSenderDisabled(false)
-            setReceiverDisabled(false)
+            setReceiverDisabled(true)
             setOverVcrDisabled(false)
+            setOptionsSender(externList);
         }
     }
 
