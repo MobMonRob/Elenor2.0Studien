@@ -49,14 +49,9 @@ public abstract class PaymentController<IP extends InputPayment, OP extends Outp
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<T> update(@PathVariable ID id, @RequestBody IP paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<OP> update(@PathVariable ID id, @RequestBody IP paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        Optional<T> savedEntity = service.update(id, paymentPattern, jwt);
-        if (savedEntity.isPresent())
-        {
-            return new ResponseEntity<>(savedEntity.get(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(service.update(id, paymentPattern, jwt), HttpStatus.OK);
     }
 
     @Override

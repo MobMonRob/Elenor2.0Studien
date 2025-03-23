@@ -69,20 +69,21 @@ class TransactionPage extends React.Component {
 
     updateTransaction = async (updatedTransaction) => {
         try{
-            await httpClient.put(`/payments/${updatedTransaction.transactionId}`, this.getTransactionOutputFormatFromInputFormat(updatedTransaction));
-
-            const updatedAllTransactions = this.state.everyTransaction.map((transaction) =>
-                transaction.transactionId === updatedTransaction.transactionId ? updatedTransaction : transaction
+            const response = await httpClient.put(
+                `/payments/${updatedTransaction.transactionId}`,
+                this.getTransactionOutputFormatFromInputFormat(updatedTransaction)
             );
 
-            const updatedDisplayedTransactions = this.state.displayedTransactions.map((transaction) =>
-                transaction.transactionId === updatedTransaction.transactionId ? updatedTransaction : transaction
-            );
+            const updatedTransactionFromApi = response.data;
 
-            this.setState({
-                everyTransaction: updatedAllTransactions,
-                displayedTransactions: updatedDisplayedTransactions,
-            });
+            this.setState((prevState) => ({
+                everyTransaction: prevState.everyTransaction.map((transaction) =>
+                    transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
+                ),
+                displayedTransactions: prevState.displayedTransactions.map((transaction) =>
+                    transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
+                ),
+            }));
         } catch (error) {
             console.error("Error updating transaction:", error);
         }

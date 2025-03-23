@@ -14,7 +14,7 @@ public interface IPaymentService<IP extends InputPayment, OP extends OutputPayme
 
     Iterable<OP> findAll();
 
-    Optional<T> update(ID id, IP paymentPattern, Jwt jwt);
+    OP update(ID id, IP paymentPattern, Jwt jwt);
 
     void deleteById(ID id, Jwt jwt);
 

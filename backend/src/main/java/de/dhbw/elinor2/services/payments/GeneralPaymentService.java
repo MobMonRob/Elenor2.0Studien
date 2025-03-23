@@ -6,6 +6,7 @@ import de.dhbw.elinor2.services.payments.documenting.VCRToVCRService;
 import de.dhbw.elinor2.services.payments.executiong.ExternToUserService;
 import de.dhbw.elinor2.services.payments.executiong.UserToExternService;
 import de.dhbw.elinor2.services.payments.executiong.UserToUserService;
+import de.dhbw.elinor2.utils.InputPaymentOverVcr;
 import de.dhbw.elinor2.utils.OutputPayment;
 import de.dhbw.elinor2.utils.OutputPaymentOverVcr;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,26 @@ public class GeneralPaymentService
             userToExternService.deleteById(id, jwt);
         else
             throw new IllegalArgumentException("Entity not found");
+    }
+
+    public OutputPaymentOverVcr update(UUID id, InputPaymentOverVcr paymentPattern, Jwt jwt)
+    {
+        OutputPaymentOverVcr updatedPayment;
+        if(externToUserService.existsById(id))
+            updatedPayment = externToUserService.update(id, paymentPattern, jwt);
+        else if (userToUserService.existsById(id))
+            updatedPayment = convertToOutputPaymentOverVcr(userToUserService.update(id, paymentPattern, jwt));
+        else if (vcrToUserService.existsById(id))
+            updatedPayment = convertToOutputPaymentOverVcr(vcrToUserService.update(id, paymentPattern, jwt));
+        else if (userToVCRService.existsById(id))
+            updatedPayment = convertToOutputPaymentOverVcr(userToVCRService.update(id, paymentPattern, jwt));
+        else if (vcrToVCRService.existsById(id))
+            updatedPayment = convertToOutputPaymentOverVcr(vcrToVCRService.update(id, paymentPattern, jwt));
+        else if (userToExternService.existsById(id))
+            updatedPayment = userToExternService.update(id, paymentPattern, jwt);
+        else
+            throw new IllegalArgumentException("Entity not found");
+        return updatedPayment;
     }
 
     private List<OutputPaymentOverVcr> convertToOutputPaymentOverVcr(Collection<OutputPayment> outputPayments)

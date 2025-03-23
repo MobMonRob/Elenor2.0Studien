@@ -1,6 +1,7 @@
 package de.dhbw.elinor2.controller.payments;
 
 import de.dhbw.elinor2.services.payments.GeneralPaymentService;
+import de.dhbw.elinor2.utils.InputPaymentOverVcr;
 import de.dhbw.elinor2.utils.OutputPaymentOverVcr;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +37,13 @@ public class GeneralPaymentController
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OutputPaymentOverVcr> update(@PathVariable UUID id, @RequestBody InputPaymentOverVcr paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    {
+        OutputPaymentOverVcr result = service.update(id, paymentPattern, jwt);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

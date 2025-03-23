@@ -13,7 +13,7 @@ public interface IPaymentController<IP extends InputPayment, OP extends OutputPa
 
     ResponseEntity<Iterable<OP>> findAll();
 
-    ResponseEntity<T> update(ID id, IP paymentPattern, Jwt jwt);
+    ResponseEntity<OP> update(ID id, IP paymentPattern, Jwt jwt);
 
     ResponseEntity<Void> deleteById(ID id, Jwt jwt);
 }

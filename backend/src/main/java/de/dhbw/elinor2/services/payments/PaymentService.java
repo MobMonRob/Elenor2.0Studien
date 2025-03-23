@@ -48,7 +48,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
-    public Optional<T> update(ID id, IP paymentPattern, Jwt jwt)
+    public OP update(ID id, IP paymentPattern, Jwt jwt)
     {
         T updatedEntity = convertToEntity(paymentPattern, id);
         T oldEntity = repository.findById(id).orElseThrow(()
@@ -57,8 +57,13 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
         undoPayment(oldEntity, jwt);
         executePayment(updatedEntity, jwt);
 
-        return repository.findById(id).map(entity ->
+        Optional<T> savedEntity = repository.findById(id).map(entity ->
                 repository.save(updatedEntity));
+        if(savedEntity.isPresent())
+        {
+            return convertEntityToOutputPattern(savedEntity.get());
+        }
+        throw new IllegalArgumentException("Updated entity not found!");
     }
 
     @Override
