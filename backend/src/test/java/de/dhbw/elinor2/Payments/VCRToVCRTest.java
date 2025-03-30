@@ -65,7 +65,7 @@ public class VCRToVCRTest extends GenericTest<InputPayment, VCRToVCR, UUID>
         testObject.setEntityClass(VCRToVCR.class);
         testObject.setEntityArrayClass(VCRToVCR[].class);
         testObject.setRepository(vcrToVCRRepository);
-        testObject.setBaseUrl("http://localhost:8080/api/payments/doc/vcrtovcrs");
+        testObject.setBaseUrl("http://localhost:8080/api/payments");
 
         sender = new VirtualCashRegister();
         sender.setName("Sender");

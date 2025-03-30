@@ -65,7 +65,7 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         testObject.setEntityClass(UserToUser.class);
         testObject.setEntityArrayClass(UserToUser[].class);
         testObject.setRepository(userToUserRepository);
-        testObject.setBaseUrl("http://localhost:8080/api/payments/exec/usertousers");
+        testObject.setBaseUrl("http://localhost:8080/api/payments");
 
         sender = DefaultUser.getDefaultUser();
         sender = userRepository.save(sender);
@@ -108,8 +108,8 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
         User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-400, senderResult.getDebt().intValue());
-        Assertions.assertEquals(400, receiverResult.getDebt().intValue());
+        Assertions.assertEquals(-400, senderResult.getBalance().intValue());
+        Assertions.assertEquals(400, receiverResult.getBalance().intValue());
     }
 
     @Override
@@ -120,8 +120,8 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
         User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-200, senderResult.getDebt().intValue());
-        Assertions.assertEquals(200, receiverResult.getDebt().intValue());
+        Assertions.assertEquals(-200, senderResult.getBalance().intValue());
+        Assertions.assertEquals(200, receiverResult.getBalance().intValue());
     }
 
     @Override
@@ -132,7 +132,7 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
         User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(0, senderResult.getDebt().intValue());
-        Assertions.assertEquals(0, receiverResult.getDebt().intValue());
+        Assertions.assertEquals(0, senderResult.getBalance().intValue());
+        Assertions.assertEquals(0, receiverResult.getBalance().intValue());
     }
 }

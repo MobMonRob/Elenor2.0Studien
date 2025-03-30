@@ -83,7 +83,7 @@ public class UserService extends GenericService<User, UUID>
         User existingUser = userRepository.findById(jwtUserId).orElse(null);
         if(existingUser != null){
             user = existingUser;
-            user.setDebt(existingUser.getDebt());
+            user.setBalance(existingUser.getBalance());
         }else
         {
             user = new User();
@@ -108,5 +108,14 @@ public class UserService extends GenericService<User, UUID>
                 return;
         }
         throw new IllegalArgumentException("User " + jwt.getClaim("preferred_username") + " not authorized to perform this action");
+    }
+
+    @Override
+    protected User updateEntity(User entity, User updatedEntity)
+    {
+        entity.setFirstName(updatedEntity.getFirstName());
+        entity.setLastName(updatedEntity.getLastName());
+        entity.setUsername(updatedEntity.getUsername());
+        return entity;
     }
 }

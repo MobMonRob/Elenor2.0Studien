@@ -18,7 +18,6 @@ const App = () => {
                 if (auth) {
                     const token = keycloak.token;
                     httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
                     const [usersRes, cashRes, externsRes] = await Promise.all([
                         httpClient.get("/users"),
                         httpClient.get("/virtualcashregisters"),
@@ -30,7 +29,7 @@ const App = () => {
                     setExterns(externsRes.data);
                 }
             } catch (error) {
-                console.error("Error during authentication or fetching data:", error);
+                console.error("Error during authentication & fetching data:", error);
             }
         };
 
@@ -48,8 +47,19 @@ const App = () => {
 
     return (
         <div>
-            <Navbar loggedInUserId={keycloak.tokenParsed.sub} logout={keycloak.logout} users={users} cashregisters={cashRegisters} externs={externs} />
-            <Mainpage users={users} cashRegisters={cashRegisters} externs={externs} />
+            <Navbar
+                logout={keycloak.logout}
+                users={users}
+                setUsers={setUsers}
+            />
+            <Mainpage
+                users={users}
+                cashRegisters={cashRegisters}
+                externs={externs}
+                setUsers={setUsers}
+                setCashRegisters={setCashRegisters}
+                setExterns={setExterns}
+            />
         </div>
     );
 };

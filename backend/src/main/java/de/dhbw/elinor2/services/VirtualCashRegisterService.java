@@ -15,4 +15,11 @@ public class VirtualCashRegisterService extends GenericService<VirtualCashRegist
     {
         super(repository);
     }
+
+    @Override
+    protected VirtualCashRegister updateEntity(VirtualCashRegister entity, VirtualCashRegister updatedEntity)
+    {
+        entity.setName(updatedEntity.getName());
+        return entity;
+    }
 }

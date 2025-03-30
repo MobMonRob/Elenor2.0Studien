@@ -16,3 +16,8 @@
 .form-group input {
     margin-top: 5px;      /* Add margin above the input field */
 }
+
+.sidebar {
+    width:350px;
+    height:calc(100vh - 55px);
+}

@@ -1,5 +1,6 @@
 package de.dhbw.elinor2.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +38,15 @@ public abstract class GenericService<T, ID> implements IGenericService<T, ID>
     @Override
     public Optional<T> update(ID id, T updatedEntity)
     {
-        return repository.findById(id).map(entity ->
-                repository.save(updatedEntity));
+        Optional<T> existing = repository.findById(id);
+
+        if (existing.isEmpty())
+        {
+            return Optional.empty();
+        }
+
+        T editedEntity = updateEntity(existing.get(), updatedEntity);
+        return Optional.of(repository.save(editedEntity));
     }
 
     @Override
@@ -52,4 +60,6 @@ public abstract class GenericService<T, ID> implements IGenericService<T, ID>
     {
         return repository.existsById(id);
     }
+
+    protected abstract T updateEntity(T entity, T updatedEntity);
 }

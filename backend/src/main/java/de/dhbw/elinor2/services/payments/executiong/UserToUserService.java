@@ -55,11 +55,11 @@ public class UserToUserService extends PaymentService<InputPayment, OutputPaymen
         userService.checkUserAuthorization(users, jwt);
 
         User sender = userToUser.getSender();
-        sender.setDebt(sender.getDebt().subtract(userToUser.getAmount()));
+        sender.setBalance(sender.getBalance().add(userToUser.getAmount()));
         userRepository.save(sender);
 
         User receiver = userToUser.getReceiver();
-        receiver.setDebt(receiver.getDebt().add(userToUser.getAmount()));
+        receiver.setBalance(receiver.getBalance().subtract(userToUser.getAmount()));
         userRepository.save(receiver);
     }
 
@@ -70,11 +70,11 @@ public class UserToUserService extends PaymentService<InputPayment, OutputPaymen
         userService.checkUserAuthorization(users, jwt);
 
         User sender = userToUser.getSender();
-        sender.setDebt(sender.getDebt().add(userToUser.getAmount()));
+        sender.setBalance(sender.getBalance().subtract(userToUser.getAmount()));
         userRepository.save(sender);
 
         User receiver = userToUser.getReceiver();
-        receiver.setDebt(receiver.getDebt().subtract(userToUser.getAmount()));
+        receiver.setBalance(receiver.getBalance().add(userToUser.getAmount()));
         userRepository.save(receiver);
     }
 

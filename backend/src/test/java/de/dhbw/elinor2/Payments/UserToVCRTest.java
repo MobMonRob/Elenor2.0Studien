@@ -71,7 +71,7 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         testObject.setEntityClass(UserToVCR.class);
         testObject.setEntityArrayClass(UserToVCR[].class);
         testObject.setRepository(userToVCRRepository);
-        testObject.setBaseUrl("http://localhost:8080/api/payments/doc/usertovcrs");
+        testObject.setBaseUrl("http://localhost:8080/api/payments");
 
         user = DefaultUser.getDefaultUser();
         user = userRepository.save(user);
@@ -113,7 +113,7 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(400, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(400, userResult.getDebt().intValue());
+        Assertions.assertEquals(400, userResult.getBalance().intValue());
     }
 
     @Override
@@ -125,7 +125,7 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(200, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(200, userResult.getDebt().intValue());
+        Assertions.assertEquals(200, userResult.getBalance().intValue());
     }
 
     @Override
@@ -137,6 +137,6 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(0, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(0, userResult.getDebt().intValue());
+        Assertions.assertEquals(0, userResult.getBalance().intValue());
     }
 }

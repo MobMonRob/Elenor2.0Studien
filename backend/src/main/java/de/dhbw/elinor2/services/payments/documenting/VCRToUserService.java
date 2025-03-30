@@ -63,7 +63,7 @@ public class VCRToUserService extends PaymentService<InputPayment, OutputPayment
         VirtualCashRegister sender = vcrToUser.getVirtualCashRegister();
         User receiver = vcrToUser.getUser();
         sender.setBalance(sender.getBalance().subtract(vcrToUser.getAmount()));
-        receiver.setDebt(receiver.getDebt().subtract(vcrToUser.getAmount()));
+        receiver.setBalance(receiver.getBalance().add(vcrToUser.getAmount()));
         virtualCashRegisterRepository.save(sender);
         userRepository.save(receiver);
     }
@@ -76,7 +76,7 @@ public class VCRToUserService extends PaymentService<InputPayment, OutputPayment
         VirtualCashRegister sender = vcrToUser.getVirtualCashRegister();
         User receiver = vcrToUser.getUser();
         sender.setBalance(sender.getBalance().add(vcrToUser.getAmount()));
-        receiver.setDebt(receiver.getDebt().add(vcrToUser.getAmount()));
+        receiver.setBalance(receiver.getBalance().subtract(vcrToUser.getAmount()));
         virtualCashRegisterRepository.save(sender);
         userRepository.save(receiver);
     }

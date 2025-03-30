@@ -72,4 +72,11 @@ public class ExternService extends GenericService<Extern, UUID>
     {
         externPaymentInfoRepository.deleteByExternIdAndPaymentInfoId(externId, paymentInfoId);
     }
+
+    @Override
+    protected Extern updateEntity(Extern entity, Extern updatedEntity)
+    {
+        entity.setName(updatedEntity.getName());
+        return entity;
+    }
 }

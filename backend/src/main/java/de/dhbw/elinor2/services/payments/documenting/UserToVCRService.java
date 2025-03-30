@@ -62,7 +62,7 @@ public class UserToVCRService extends PaymentService<InputPayment, OutputPayment
         userService.checkUserAuthorization(userToVCR.getUser().getId(), jwt);
 
         User user = userToVCR.getUser();
-        user.setDebt(user.getDebt().add(userToVCR.getAmount()));
+        user.setBalance(user.getBalance().subtract(userToVCR.getAmount()));
         userRepository.save(user);
 
         VirtualCashRegister vcr = userToVCR.getVirtualCashRegister();
@@ -76,7 +76,7 @@ public class UserToVCRService extends PaymentService<InputPayment, OutputPayment
         userService.checkUserAuthorization(userToVCR.getUser().getId(), jwt);
 
         User user = userToVCR.getUser();
-        user.setDebt(user.getDebt().subtract(userToVCR.getAmount()));
+        user.setBalance(user.getBalance().add(userToVCR.getAmount()));
         userRepository.save(user);
 
         VirtualCashRegister vcr = userToVCR.getVirtualCashRegister();

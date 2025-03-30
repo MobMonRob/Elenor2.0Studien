@@ -1,5 +1,8 @@
 package de.dhbw.elinor2.services.payments;
 
+import de.dhbw.elinor2.services.ExternService;
+import de.dhbw.elinor2.services.UserService;
+import de.dhbw.elinor2.services.VirtualCashRegisterService;
 import de.dhbw.elinor2.services.payments.documenting.UserToVCRService;
 import de.dhbw.elinor2.services.payments.documenting.VCRToUserService;
 import de.dhbw.elinor2.services.payments.documenting.VCRToVCRService;
@@ -26,13 +29,19 @@ public class GeneralPaymentService
     private final ExternToUserService externToUserService;
     private final UserToExternService userToExternService;
     private final UserToUserService userToUserService;
+    private final UserService userService;
+    private final ExternService externService;
+    private final VirtualCashRegisterService virtualCashRegisterService;
 
     public GeneralPaymentService(UserToVCRService userToVCRService,
                                  VCRToUserService vcrToUserService,
                                  VCRToVCRService vcrToVCRService,
                                  ExternToUserService externToUserService,
                                  UserToExternService userToExternService,
-                                 UserToUserService userToUserService)
+                                 UserToUserService userToUserService,
+                                 UserService userService,
+                                 ExternService externService,
+                                 VirtualCashRegisterService virtualCashRegisterService)
     {
         this.userToVCRService = userToVCRService;
         this.vcrToUserService = vcrToUserService;
@@ -40,6 +49,9 @@ public class GeneralPaymentService
         this.externToUserService = externToUserService;
         this.userToExternService = userToExternService;
         this.userToUserService = userToUserService;
+        this.userService = userService;
+        this.externService = externService;
+        this.virtualCashRegisterService = virtualCashRegisterService;
     }
 
     public Iterable<OutputPaymentOverVcr> findAll()
@@ -93,6 +105,76 @@ public class GeneralPaymentService
         else
             throw new IllegalArgumentException("Entity not found");
         return updatedPayment;
+    }
+
+    public OutputPaymentOverVcr create(InputPaymentOverVcr paymentPattern, Jwt jwt)
+    {
+        if (paymentPattern.getSenderId() == null || paymentPattern.getReceiverId() == null)
+            throw new IllegalArgumentException("Sender and receiver must be set");
+
+        OutputPaymentOverVcr savedEntity;
+        UUID senderId = paymentPattern.getSenderId();
+        UUID receiverId = paymentPattern.getReceiverId();
+        UUID vcrId = paymentPattern.getVcrId();
+
+        if (isUserId(senderId))
+        {
+            if (isUserId(receiverId))
+            {
+                savedEntity = convertToOutputPaymentOverVcr(userToUserService.create(paymentPattern, jwt));
+            }
+            else if (isExternId(receiverId) && isVcrId(vcrId))
+            {
+                savedEntity = userToExternService.create(paymentPattern, jwt);
+            }
+            else if (isVcrId(receiverId))
+            {
+                savedEntity = convertToOutputPaymentOverVcr(userToVCRService.create(paymentPattern, jwt));
+            }
+            else
+            {
+                throw new IllegalArgumentException("Receiver not found");
+            }
+        }
+        else if (isVcrId(senderId))
+        {
+            if (isUserId(receiverId))
+            {
+                savedEntity = convertToOutputPaymentOverVcr(vcrToUserService.create(paymentPattern, jwt));
+            }
+            else if (isVcrId(receiverId))
+            {
+                savedEntity = convertToOutputPaymentOverVcr(vcrToVCRService.create(paymentPattern, jwt));
+            }
+            else
+            {
+                throw new IllegalArgumentException("Receiver not found");
+            }
+        } else if (isExternId(senderId) && isUserId(receiverId) && isVcrId(vcrId))
+        {
+            savedEntity = externToUserService.create(paymentPattern, jwt);
+        }else
+        {
+            throw new IllegalArgumentException("Sender not found");
+        }
+
+
+        return savedEntity;
+    }
+
+    private boolean isUserId(UUID id)
+    {
+        return id != null && userService.existsById(id);
+    }
+
+    private boolean isVcrId(UUID id)
+    {
+        return id != null && virtualCashRegisterService.existsById(id);
+    }
+
+    private boolean isExternId(UUID id)
+    {
+        return id != null && externService.existsById(id);
     }
 
     private List<OutputPaymentOverVcr> convertToOutputPaymentOverVcr(Collection<OutputPayment> outputPayments)

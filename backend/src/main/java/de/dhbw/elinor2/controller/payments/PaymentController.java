@@ -22,9 +22,9 @@ public abstract class PaymentController<IP extends InputPayment, OP extends Outp
 
     @Override
     @PostMapping("")
-    public ResponseEntity<T> create(@RequestBody IP paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    public ResponseEntity<OP> create(@RequestBody IP paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        T savedEntity = service.create(paymentPattern, jwt);
+        OP savedEntity = service.create(paymentPattern, jwt);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
     }
 

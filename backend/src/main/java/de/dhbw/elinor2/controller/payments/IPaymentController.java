@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public interface IPaymentController<IP extends InputPayment, OP extends OutputPayment, T, ID>
 {
-    ResponseEntity<T> create(IP paymentPattern, Jwt jwt);
+    ResponseEntity<OP> create(IP paymentPattern, Jwt jwt);
 
     ResponseEntity<T> findById(ID id);
 

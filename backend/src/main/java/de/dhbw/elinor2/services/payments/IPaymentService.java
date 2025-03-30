@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface IPaymentService<IP extends InputPayment, OP extends OutputPayment, T, ID>
 {
-    T create(IP paymentPattern, Jwt jwt);
+    OP create(IP paymentPattern, Jwt jwt);
 
     Optional<T> findById(ID id);
 

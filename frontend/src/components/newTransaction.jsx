@@ -1,24 +1,38 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Modal, Button} from 'react-bootstrap';
 import Select from 'react-select';
 
-const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, loggedInUserId}) => {
-    const [type, setType] = useState('');
-    const [amount, setAmount] = useState('');
-    const [sender, setSender] = useState('');
-    const [receiver, setReceiver] = useState('');
-    const [overVcr, setOverVcr] = useState('');
+const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, loggedInUserId, saveNewTransaction}) => {
+    const [type, setType] = useState(undefined);
+    const [amount, setAmount] = useState("");
+    const [sender, setSender] = useState(undefined);
+    const [receiver, setReceiver] = useState(undefined);
+    const [overVcr, setOverVcr] = useState(undefined);
     const [overVcrDisabled, setOverVcrDisabled] = useState(true);
     const [senderDisabled, setSenderDisabled] = useState(true);
     const [receiverDisabled, setReceiverDisabled] = useState(true);
     const [optionsSender, setOptionsSender] = useState([]);
     const [optionsReceiver, setOptionsReceiver] = useState([]);
-
+    const [saveDisabled, setSaveDisabled] = useState(true);
 
     const handleSave = () => {
-        //newTransaction(this.state.newTransaction);
+        const savedAmount = Number(amount.replace(",", "."))
+
+        const newTransaction = {
+            senderId: sender,
+            receiverId: receiver,
+            amount: savedAmount,
+            ...(overVcr ? { vcrId: overVcr } : {})
+        }
+        saveNewTransaction(newTransaction);
         closeWindow();
     };
+
+    useEffect(() => {
+        setSaveDisabled(
+            (!type || amount === "" || (!senderDisabled && !sender) || (!receiverDisabled && !receiver) || (!overVcrDisabled && !overVcr))
+        )
+    }, [type, amount, sender, receiver, overVcr, senderDisabled, receiverDisabled, overVcrDisabled]);
 
     const optionsType = [
         { value: 'User2User', label: 'Mitglied zu Mitglied' },
@@ -44,7 +58,21 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
         label: extern.name
     }));
 
-    const optionsOverVcr = cashRegisterList;
+    let optionsOverVcr = cashRegisterList;
+
+    const changeReceiver = (selectedOption) => {
+        setReceiver(selectedOption.value)
+        if (type === 'User2User' && selectedOption.value !== loggedInUserId) {
+            setSender(loggedInUserId)
+        }
+    }
+
+    const changeSender = (selectedOption) => {
+        setSender(selectedOption.value)
+        if (type === 'User2User' && selectedOption.value !== loggedInUserId) {
+            setReceiver(loggedInUserId)
+        }
+    }
 
     const changeType = (selectedOption) => {
         setType(selectedOption.value)
@@ -64,12 +92,15 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
             setReceiverDisabled(true)
             setOverVcrDisabled(true)
             setOptionsSender(cashRegisterList);
-            setSender(loggedInUserId);
+            setOptionsReceiver(userList);
+            setReceiver(loggedInUserId);
         }else if(selectedOption.value === 'User2Vcr') {
             setSenderDisabled(true)
             setReceiverDisabled(false)
             setOverVcrDisabled(true)
+            setOptionsSender(userList);
             setOptionsReceiver(cashRegisterList);
+            setSender(loggedInUserId);
         }else if(selectedOption.value === 'User2User') {
             setSenderDisabled(false)
             setReceiverDisabled(false)
@@ -80,12 +111,16 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
             setSenderDisabled(true)
             setReceiverDisabled(false)
             setOverVcrDisabled(false)
+            setOptionsSender(userList);
             setOptionsReceiver(externList);
+            setSender(loggedInUserId);
         }else if(selectedOption.value === 'Extern2UserOverVcr') {
             setSenderDisabled(false)
             setReceiverDisabled(true)
             setOverVcrDisabled(false)
             setOptionsSender(externList);
+            setOptionsReceiver(userList);
+            setReceiver(loggedInUserId);
         }
     }
 
@@ -102,20 +137,26 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
                             <label>Transaktionstyp:</label>
                             <Select
                                 options={optionsType}
-                                value={optionsType.find(option => option.value === type)}
-                                onChange={(selectedOption) => changeType(selectedOption)}
-                                className="form-control"
+                                value={optionsType.find(option => option.value === type) || undefined}
+                                onChange={(e) => changeType(e)}
                                 placeholder="Auswahl Typ"
+                                inputId="type-select"
+                                id="type-select"
                             />
                         </div>
 
                         <div className="col-md-6 form-group">
                             <label>Betrag in €:</label>
                             <input
-                                type="number"
+                                type="text"
                                 name="amount"
                                 value={amount}
-                                onChange={(selectedOption) => setAmount(selectedOption.value)}
+                                onChange={(e) => {
+                                    let value = e.target.value.replace(/[^0-9.,]/g, '');
+                                    if (/^\d*([.,]\d{0,2})?$/.test(value)) {
+                                        setAmount(value);
+                                    }
+                                }}
                                 className="form-control"
                                 placeholder="Eingabe Betrag"
                             />
@@ -127,9 +168,8 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
                             <label>Sender:</label>
                             <Select
                                 options={optionsSender}
-                                value={optionsSender.find(option => option.value === sender)}
-                                onChange={(selectedOption) => setSender(selectedOption.value)}
-                                className="form-control"
+                                value={optionsSender.find(option => option.value === sender) || undefined}
+                                onChange={(e) => changeSender(e)}
                                 placeholder="Auswahl Sender"
                                 isDisabled={senderDisabled}
                             />
@@ -139,9 +179,8 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
                             <label>Empfänger:</label>
                             <Select
                                 options={optionsReceiver}
-                                value={optionsReceiver.find(option => option.value === receiver)}
-                                onChange={(selectedOption) => setReceiver(selectedOption.value)}
-                                className="form-control"
+                                value={optionsReceiver.find(option => option.value === receiver) || undefined}
+                                onChange={(e) => changeReceiver(e)}
                                 placeholder="Auswahl Empfänger"
                                 isDisabled={receiverDisabled}
                             />
@@ -153,10 +192,9 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
                             <label>Über Kasse:</label>
                             <Select
                                 options={optionsOverVcr}
-                                value={optionsOverVcr.find(option => option.value === overVcr)}
-                                onChange={(selectedOption) => setOverVcr(selectedOption.value)}
+                                value={optionsOverVcr.find(option => option.value === overVcr) || undefined}
+                                onChange={(e) => setOverVcr(e.value)}
                                 isDisabled={overVcrDisabled}
-                                className="form-control"
                                 placeholder="Auswahl beteiligte Kasse"
                             />
                         </div>
@@ -168,7 +206,7 @@ const NewTransactionWindow = ({closeWindow, users, externs, cashregisters, logge
                 <Button variant="secondary" onClick={closeWindow}>
                     Abbrechen
                 </Button>
-                <Button variant="primary" onClick={handleSave}>
+                <Button variant="primary" onClick={handleSave} disabled={saveDisabled}>
                     Speichern
                 </Button>
             </Modal.Footer>

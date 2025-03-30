@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,11 +23,12 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
-    public T create(IP paymentPattern, Jwt jwt)
+    public OP create(IP paymentPattern, Jwt jwt)
     {
+        checkInputPaymentPattern(paymentPattern);
         T entity = convertToEntity(paymentPattern, null);
         executePayment(entity, jwt);
-        return repository.save(entity);
+        return convertEntityToOutputPattern(repository.save(entity));
     }
 
     @Override
@@ -50,6 +52,8 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     @Override
     public OP update(ID id, IP paymentPattern, Jwt jwt)
     {
+        checkInputPaymentPattern(paymentPattern);
+
         T updatedEntity = convertToEntity(paymentPattern, id);
         T oldEntity = repository.findById(id).orElseThrow(()
                 -> new IllegalArgumentException("Entity not found"));
@@ -79,6 +83,12 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     public boolean existsById(ID id)
     {
         return repository.existsById(id);
+    }
+
+    private void checkInputPaymentPattern(IP paymentPattern)
+    {
+        if(paymentPattern.getAmount() == null)
+            paymentPattern.setAmount(new BigDecimal(0));
     }
 
     public abstract T convertToEntity(IP paymentPattern, ID id);

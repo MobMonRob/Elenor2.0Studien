@@ -17,11 +17,17 @@ export const httpClient = axios.create({
     withCredentials: true
 });
 
-// Interceptor, um den Token für jede Anfrage zu setzen
+
 httpClient.interceptors.request.use(async (config) => {
     if (!keycloak.authenticated) {
         await keycloak.init({ onLoad: "login-required" });
     }
+
+    await keycloak.updateToken(30)
+        .catch(() => {
+            console.error("Token konnte nicht aktualisiert werden, Benutzer wird abgemeldet.");
+            keycloak.logout();
+        });
 
     if (keycloak.token) {
         config.headers["Authorization"] = `Bearer ${keycloak.token}`;

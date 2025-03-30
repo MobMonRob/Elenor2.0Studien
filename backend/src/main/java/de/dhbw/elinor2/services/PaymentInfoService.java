@@ -16,4 +16,11 @@ public class PaymentInfoService extends GenericService<PaymentInfo, UUID>
     {
         super(repository);
     }
+
+    @Override
+    protected PaymentInfo updateEntity(PaymentInfo entity, PaymentInfo updatedEntity)
+    {
+        entity.setName(updatedEntity.getName());
+        return entity;
+    }
 }

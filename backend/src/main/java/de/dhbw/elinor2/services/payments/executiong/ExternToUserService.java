@@ -69,7 +69,7 @@ public class ExternToUserService extends PaymentService<InputPaymentOverVcr, Out
         userService.checkUserAuthorization(externToUser.getUser().getId(), jwt);
 
         User user = externToUser.getUser();
-        user.setDebt(user.getDebt().add(externToUser.getAmount()));
+        user.setBalance(user.getBalance().subtract(externToUser.getAmount()));
         userRepository.save(user);
 
         VirtualCashRegister vcr = externToUser.getVirtualCashRegister();
@@ -83,7 +83,7 @@ public class ExternToUserService extends PaymentService<InputPaymentOverVcr, Out
         userService.checkUserAuthorization(externToUser.getUser().getId(), jwt);
 
         User user = externToUser.getUser();
-        user.setDebt(user.getDebt().subtract(externToUser.getAmount()));
+        user.setBalance(user.getBalance().add(externToUser.getAmount()));
         userRepository.save(user);
 
         VirtualCashRegister vcr = externToUser.getVirtualCashRegister();

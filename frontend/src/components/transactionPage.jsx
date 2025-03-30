@@ -3,36 +3,131 @@ import Transaction from "./transaction";
 import { httpClient, keycloak } from "../HttpClient";
 import UpdateTransactionWindow from "./updateTransaction";
 import NewTransactionWindow from "./newTransaction";
+import InfoProfileModal from "./infoProfileModal";
+import {IoMdInformationCircleOutline} from "react-icons/io";
+import {MdEdit} from "react-icons/md";
+import EditCashRegisterModal from "./editCashRegisterModal";
 
-const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transactionFilterName, transactionFilter, users, externs, cashregisters}) => {
+const TransactionPage = ({setTransactionFilter,
+                             setTransactionFilterName,
+                             transactionFilterName,
+                             transactionFilter,
+                             users,
+                             externs,
+                             cashregisters,
+                             setUsers,
+                             setCashRegisters
+                         }) => {
     const [displayedTransactions, setDisplayedTransactions] = useState([]);
     const [everyTransaction, setEveryTransaction] = useState([]);
     const [subjectId, setSubjectId] = useState(null);
     const [isUpdatedWindowOpen, setIsUpdatedWindowOpen] = useState(false);
     const [isNewTransactionWindowOpen, setIsNewTransactionWindowOpen] = useState(false);
     const [editedTransaction, setEditedTransaction] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [displayedTransactionsOnPage, setDisplayedTransactionsOnPage] = useState([]);
+    const [isUserInformationWindowOpen, setIsUserInformationWindowOpen] = useState(false);
+    const [isCashRegisterEditWindowOpen, setIsCashRegisterEditWindowOpen] = useState(false);
+
+    const transactionsPerPage = 10;
+    const totalPages = Math.max(Math.ceil(displayedTransactions.length / transactionsPerPage), 1);
+    const indexOfLastTransaction = currentPage * transactionsPerPage;
+    const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+
+
+    useEffect(() => {
+        setDisplayedTransactionsOnPage(displayedTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction))
+    }, [currentPage, displayedTransactions, indexOfFirstTransaction, indexOfLastTransaction]);
+
 
     const deleteTransaction = async (transactionId) => {
         try {
             await httpClient.delete(`/payments/${transactionId}`);
-            this.setState({
-                everyTransaction: this.state.everyTransaction.filter((transaction) => transaction.transactionId !== transactionId),
-                displayedTransactions: this.state.displayedTransactions.filter((transaction) => transaction.transactionId !== transactionId)
-            });
+            const transaction = everyTransaction.find((transaction) => transaction.transactionId === transactionId)
+            setEveryTransaction(everyTransaction.filter((transaction) => transaction.transactionId !== transactionId));
+            setDisplayedTransactions(displayedTransactions.filter((transaction) => transaction.transactionId !== transactionId));
+            updateListsBecauseOfTransaction(transaction);
         } catch (error) {
             console.error("Error deleting transaction:", error);
         }
     };
 
+    const newTransaction = async (newTransaction) => {
+        try {
+            const response = await httpClient.post(`/payments`, newTransaction);
+            const transaction = response.data;
+            setEveryTransaction([transaction, ...everyTransaction]);
+            setDisplayedTransactions([transaction, ...displayedTransactions]);
+            updateListsBecauseOfTransaction(transaction);
+        } catch (error) {
+            console.error("Error creating transaction:", error);
+        }
+    }
+
+
+    const updateTransaction = async (updatedTransaction) => {
+        try{
+            const response = await httpClient.put(
+                `/payments/${updatedTransaction.transactionId}`,
+                getTransactionOutputFormatFromInputFormat(updatedTransaction)
+            );
+
+            const updatedTransactionFromApi = response.data;
+
+            setEveryTransaction((prevTransactions) =>
+                prevTransactions.map((transaction) =>
+                    transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
+                )
+            );
+
+            setDisplayedTransactions((prevDisplayed) =>
+                prevDisplayed.map((transaction) =>
+                    transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
+                )
+            );
+            updateListsBecauseOfTransaction(updatedTransactionFromApi);
+        } catch (error) {
+            console.error("Error updating transaction:", error);
+        }
+    };
+
+    const resetDisplayedTransactions = () => {
+        setDisplayedTransactions(everyTransaction);
+    }
+
+    const renameTransactions = (entityId, newName) => {
+
+        setEveryTransaction(everyTransaction.map((
+            transaction) => {
+            if(transaction.sender.entityId === entityId){
+                transaction.sender.name = newName;
+            }
+            if(transaction.receiver.entityId === entityId){
+                transaction.receiver.name = newName;
+            }
+            if(transaction.overVcr?.entityId === entityId){
+                transaction.overVcr.name = newName;
+            }
+            return transaction;
+        }));
+        setDisplayedTransactions(displayedTransactions.map((transaction) => {
+            if(transaction.sender.entityId === entityId){
+                transaction.sender.name = newName;
+            }
+            if(transaction.receiver.entityId === entityId){
+                transaction.receiver.name = newName;
+            }
+            if(transaction.overVcr?.entityId === entityId){
+                transaction.overVcr.name = newName;
+            }
+            return transaction;
+        }));
+    }
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                if (!keycloak.authenticated) {
-                    await keycloak.init({ onLoad: "login-required" });
-                }
-                const token = keycloak.token;
-                httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
                 const response = await httpClient.get("/payments");
                 setEveryTransaction(response.data);
                 setDisplayedTransactions(response.data);
@@ -67,33 +162,58 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
         };
     }
 
-    const updateTransaction = async (updatedTransaction) => {
-        try{
-            const response = await httpClient.put(
-                `/payments/${updatedTransaction.transactionId}`,
-                getTransactionOutputFormatFromInputFormat(updatedTransaction)
-            );
+    const updateListsBecauseOfTransaction = (updatedTransaction) => {
+        const paymentType = updatedTransaction.paymentType;
+        if(paymentType.startsWith("User")){
+            updateUserInList(updatedTransaction.sender);
+        }else if(paymentType.startsWith("Vcr")){
+            updateCashRegisterInList(updatedTransaction.sender);
+        }
 
-            const updatedTransactionFromApi = response.data;
+        if(paymentType.endsWith("2User")){
+            updateUserInList(updatedTransaction.receiver);
+        }else if(paymentType.endsWith("2Vcr")){
+            updateCashRegisterInList(updatedTransaction.receiver);
+        }else if(paymentType.endsWith("OverVcr")){
+            updateCashRegisterInList(updatedTransaction.overVcr);
+            if (paymentType.endsWith("2UserOverVcr")){
+                updateUserInList(updatedTransaction.receiver);
+            }
+        }
+    }
 
-            setEveryTransaction((prevTransactions) =>
-                prevTransactions.map((transaction) =>
-                    transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
-                )
-            );
-
-            setDisplayedTransactions((prevDisplayed) =>
-                prevDisplayed.map((transaction) =>
-                    transaction.transactionId === updatedTransactionFromApi.transactionId ? updatedTransactionFromApi : transaction
+    const updateUserInList = async (entity) => {
+        const id = entity.entityId;
+        try {
+            const response = await httpClient.get(`/users/${id}`);
+            const updatedUser = response.data;
+            setUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                    user.id === updatedUser.id ? updatedUser : user
                 )
             );
         } catch (error) {
-            console.error("Error updating transaction:", error);
+            console.error("Error getting user:", error);
         }
-    };
+    }
+
+    const updateCashRegisterInList = async (entity) => {
+        const id = entity.entityId;
+        try{
+            const response = await httpClient.get(`/virtualcashregisters/${id}`);
+            const updatedCashRegister = response.data;
+            setCashRegisters((prevCashRegisters) =>
+                prevCashRegisters.map((cashRegister) =>
+                    cashRegister.id === updatedCashRegister.id ? updatedCashRegister : cashRegister
+                )
+            );
+        }catch(error){
+            console.error("Error getting cash register:", error);
+        }
+    }
 
     return (
-        <div className="container mt-4 position-relative">
+        <div className="mt-4 position-relative" style={{width: '75%', margin: 'auto'}}>
             <div className="d-flex justify-content-between align-items-center">
                 <button className="btn btn-outline-dark position-absolute" style={{top: "3px", left: "12px"}} onClick={() =>
                 {
@@ -102,8 +222,34 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                 }} disabled={!transactionFilter}>
                     <i className="bi bi-x-circle"></i> Filter löschen
                 </button>
-                <h2 className="text-center mb-4 flex-grow-1">
-                    Transaktionsübersicht{transactionFilterName && ` (${transactionFilterName})`}
+                <h2 className="text-center mb-4 flex-grow-1 d-inline-flex centered-label">
+                    Transaktionsübersicht
+                    {transactionFilterName && (
+                        <>
+                            {" (" + transactionFilterName}
+                            {users.map(
+                                user => user.id === transactionFilter && (
+                                    <button
+                                        className="mt-auto mb-auto text-primary nav-link active ms-2"
+                                        onClick={() => setIsUserInformationWindowOpen(true)}
+                                    >
+                                        <IoMdInformationCircleOutline/>
+                                    </button>
+                                )
+                            )}
+                            {cashregisters.map(
+                                cr => cr.id === transactionFilter && (
+                                    <button
+                                        className="mt-auto mb-auto text-primary nav-link active ms-2"
+                                        onClick={() => setIsCashRegisterEditWindowOpen(true)}
+                                    >
+                                        <MdEdit/>
+                                    </button>
+                                )
+                            )}
+                            )
+                        </>
+                    )}
                 </h2>
                 <button className="btn btn-outline-dark position-absolute" style={{top: "3px", right: "12px"}} onClick={
                     () => setIsNewTransactionWindowOpen(true)
@@ -111,7 +257,7 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                     Neue Transaktion
                 </button>
             </div>
-            <table className="table table-striped" style={{ border: '2px solid #dee2e6', overflow: 'hidden', tableLayout: 'fixed' }}>
+            <table className="table table-striped" style={{ border: '2px solid #dee2e6', overflow: 'hidden', tableLayout: 'fixed'}}>
                 <thead>
                 <tr>
                     <th scope="col">Art</th>
@@ -124,7 +270,7 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                 </tr>
                 </thead>
                 <tbody>
-                {displayedTransactions.map((transaction) => (
+                {displayedTransactionsOnPage.map((transaction) => (
                     <Transaction
                         key={transaction.transactionId}
                         transaction={transaction}
@@ -136,6 +282,23 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                 ))}
                 </tbody>
             </table>
+            <div className="d-flex justify-content-center mt-4 gap-4">
+                <button
+                    className="btn btn-primary mx-2"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                >
+                    Zurück
+                </button>
+                <span className="mx-2 m-auto">Seite {currentPage} von {totalPages}</span>
+                <button
+                    className="btn btn-primary mx-2"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                >
+                    Weiter
+                </button>
+            </div>
             {isUpdatedWindowOpen
                 && editedTransaction
                 && (
@@ -152,8 +315,25 @@ const TransactionPage = ({setTransactionFilter, setTransactionFilterName, transa
                     externs={externs}
                     cashregisters={cashregisters}
                     loggedInUserId={subjectId}
+                    saveNewTransaction={newTransaction}
                 />}
-
+            {isUserInformationWindowOpen &&
+                <InfoProfileModal
+                    closeWindow={() => setIsUserInformationWindowOpen(false)}
+                    user={users.find(user => user.id === transactionFilter)}
+                />
+            }
+            {isCashRegisterEditWindowOpen &&
+                <EditCashRegisterModal
+                    closeWindow={() => setIsCashRegisterEditWindowOpen(false)}
+                    cashRegister={cashregisters.find(cr => cr.id === transactionFilter)}
+                    cashRegisters={cashregisters}
+                    setCashRegisters={setCashRegisters}
+                    resetDisplayedTransactions={resetDisplayedTransactions}
+                    renameTransactions={renameTransactions}
+                    isDeletable={displayedTransactions.length === 0}
+                />
+            }
         </div>
     );
 

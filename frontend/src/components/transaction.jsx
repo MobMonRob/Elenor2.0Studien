@@ -14,7 +14,7 @@ const Transactions = ({transaction, jwtSubject, openUpdatedWindow, setEditedTran
     const translatedPaymentType = TransactionUtils.getPaymentTypeTranslation(transaction.paymentType)  || "Unbekannt";
 
     const shouldShowButtons =
-        transaction.paymentType === "VcrToVcr" ||
+        transaction.paymentType === "Vcr2Vcr" ||
         jwtSubject === transaction.sender.entityId ||
         jwtSubject === transaction.receiver.entityId;
 

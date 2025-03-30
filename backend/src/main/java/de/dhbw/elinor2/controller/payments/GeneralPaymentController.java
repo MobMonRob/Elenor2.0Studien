@@ -1,5 +1,6 @@
 package de.dhbw.elinor2.controller.payments;
 
+import de.dhbw.elinor2.entities.Payment;
 import de.dhbw.elinor2.services.payments.GeneralPaymentService;
 import de.dhbw.elinor2.utils.InputPaymentOverVcr;
 import de.dhbw.elinor2.utils.OutputPaymentOverVcr;
@@ -45,5 +46,17 @@ public class GeneralPaymentController
     {
         OutputPaymentOverVcr result = service.update(id, paymentPattern, jwt);
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+
+    @PostMapping("")
+    public ResponseEntity<OutputPaymentOverVcr> create(@RequestBody InputPaymentOverVcr paymentPattern, @AuthenticationPrincipal Jwt jwt)
+    {
+        try{
+            OutputPaymentOverVcr savedEntity = service.create(paymentPattern, jwt);
+            return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 }

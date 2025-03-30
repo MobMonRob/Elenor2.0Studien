@@ -79,7 +79,7 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         testObject.setEntityClass(ExternToUser.class);
         testObject.setEntityArrayClass(ExternToUser[].class);
         testObject.setRepository(externToUserRepository);
-        testObject.setBaseUrl("http://localhost:8080/api/payments/exec/externtousers");
+        testObject.setBaseUrl("http://localhost:8080/api/payments");
 
         user = DefaultUser.getDefaultUser();
         user = userRepository.save(user);
@@ -128,7 +128,7 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(400, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(400, userResult.getDebt().intValue());
+        Assertions.assertEquals(400, userResult.getBalance().intValue());
     }
 
     @Override
@@ -140,7 +140,7 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(200, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(200, userResult.getDebt().intValue());
+        Assertions.assertEquals(200, userResult.getBalance().intValue());
     }
 
     @Override
@@ -152,6 +152,6 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(0, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(0, userResult.getDebt().intValue());
+        Assertions.assertEquals(0, userResult.getBalance().intValue());
     }
 }

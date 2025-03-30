@@ -33,7 +33,7 @@ public class User
     private String username;
 
     @Column(nullable = false)
-    private BigDecimal debt = BigDecimal.ZERO;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
