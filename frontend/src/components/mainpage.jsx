@@ -35,6 +35,7 @@ const Mainpage = ({
                 externs={externs}
                 setUsers={setUsers}
                 setCashRegisters={setCashRegisters}
+                setExterns={setExterns}
             />
         </div>
     );

@@ -3,6 +3,8 @@ import {Button, Modal} from "react-bootstrap";
 import {httpClient, keycloak} from "../HttpClient";
 import Select from "react-select";
 import NewEntity from "./newEntity";
+import {FaRegTrashAlt} from "react-icons/fa";
+import DeleteAccount from "./deleteAccount";
 
 const ChangeProfileModal = ({
                           closeWindow,
@@ -12,7 +14,9 @@ const ChangeProfileModal = ({
     const [isSaveDisabled, setIsSaveDisabled] = useState(true);
     const [paymentInfoTypes, setPaymentInfoTypes] = useState([]);
     const [userPaymentInfos, setUserPaymentInfos] = useState([]);
+    const [updatedUserPaymentInfos, setUpdatedUserPaymentInfos] = useState([]);
     const [newPaymentTypeWindowOpen, setNewPaymentTypeWindowOpen] = useState(false);
+    const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
 
     const user = users.find(user => user.id === keycloak.tokenParsed.sub);
 
@@ -22,7 +26,13 @@ const ChangeProfileModal = ({
                 const response = await httpClient.get("/paymentinfos");
                 setPaymentInfoTypes(response.data);
                 const response2 = await httpClient.get("/users/" + keycloak.tokenParsed.sub + "/paymentinfos");
-                setUserPaymentInfos(response2.data);
+
+                const paymentInfos = response2.data.map(({ paymentInfo, paymentAddress }) => ({
+                    paymentInfo,
+                    paymentAddress
+                }));
+                setUserPaymentInfos(paymentInfos);
+                setUpdatedUserPaymentInfos(paymentInfos);
             }catch(e){
                 console.error("Error during fetching paymentInfos:", e);
             }
@@ -44,21 +54,90 @@ const ChangeProfileModal = ({
         }
     }
 
-    const changePaymentInfoId = (e, id) => {
-        setIsSaveDisabled(true);
+    const changePaymentInfoId = (selectedOption, oldId) => {
+        setUpdatedUserPaymentInfos(prevInfos =>
+            prevInfos.map(info =>
+                info.paymentInfo.id === oldId
+                    ? { ...info, paymentInfo: { ...info.paymentInfo, id: selectedOption.value, name: selectedOption.label } }
+                    : info
+            )
+        );
+
+        setIsSaveDisabled(false);
+    }
+
+    const addPaymentInfoId = (selectedOption) => {
+        setUpdatedUserPaymentInfos(prevInfos => [
+            ...prevInfos,
+            {
+                paymentInfo: { id: selectedOption.value, name: selectedOption.label },
+                paymentAddress: ""
+            }
+        ]);
+        if(updatedUserPaymentInfos.some(info => info.paymentAddress === "")){
+            setIsSaveDisabled(true);
+        }
     }
 
     const changePaymentInfoContent = (e, id) => {
-        setIsSaveDisabled(true);
+        const newValue = e.target.value;
+        setUpdatedUserPaymentInfos(prevInfos =>
+            prevInfos.map(info =>
+                info.paymentInfo.id === id
+                    ? { ...info, paymentAddress: newValue }
+                    : info
+            )
+        );
 
+        if(e.target.value === "" || updatedUserPaymentInfos.some(info => info.paymentAddress === "")){
+            setIsSaveDisabled(true);
+        }else{
+            setIsSaveDisabled(false);
+        }
     }
+
+    const mapsAreEqual = (map1, map2) => {
+        if (map1.size !== map2.size) return false;
+        return [...map1.entries()].every(([key, value]) => map2.get(key) === value);
+    };
+
+    const listsAreEqual = (list1, list2) => {
+        if (list1.length !== list2.length) return false;
+        return list1.every((map, index) => mapsAreEqual(map, list2[index]));
+    };
 
     const savePaymentInfos = () => {
-
+        if(listsAreEqual(userPaymentInfos, updatedUserPaymentInfos)){
+            return;
+        }
+        updatedUserPaymentInfos.forEach(
+            async (updatedUserPaymentInfo) => {
+                if(userPaymentInfos.find(info => info.paymentInfo.id === updatedUserPaymentInfo.paymentInfo.id
+                    && info.paymentAddress !== updatedUserPaymentInfo.paymentAddress))
+                {
+                    await httpClient.put("/users/" + keycloak.tokenParsed.sub + "/paymentinfos/" + updatedUserPaymentInfo.paymentInfo.id,
+                        updatedUserPaymentInfo.paymentAddress,
+                        { headers: { "Content-Type": "text/plain" } });
+                }else if (!userPaymentInfos.find(info => info.paymentInfo.id === updatedUserPaymentInfo.paymentInfo.id))
+                {
+                    await httpClient.post("/users/" + keycloak.tokenParsed.sub + "/paymentinfos/" + updatedUserPaymentInfo.paymentInfo.id,
+                        updatedUserPaymentInfo.paymentAddress,
+                        { headers: { "Content-Type": "text/plain" } });
+                }
+            }
+        )
     }
 
-    const deleteUser = () => {
+    const deleteAccount = async () => {
+        setIsDeleteAccountOpen(false)
+    }
 
+    const deletePaymentInfo = async (id) => {
+        if(userPaymentInfos.find(info => info.paymentInfo.id === id)){
+            await httpClient.delete("/users/" + keycloak.tokenParsed.sub + "/paymentinfos/" + id);
+            setUserPaymentInfos(userPaymentInfos.filter(info => info.paymentInfo.id !== id));
+        }
+        setUpdatedUserPaymentInfos(updatedUserPaymentInfos.filter(info => info.paymentInfo.id !== id));
     }
 
     const handleSave = () => {
@@ -120,14 +199,14 @@ const ChangeProfileModal = ({
                     </div>
 
                     <label>Zahlungsinformationen:</label>
-                    {userPaymentInfos.map((userPaymentInfo, index) => (
+                    {updatedUserPaymentInfos.map((userPaymentInfo, index) => (
                         <div className="row" key={index}>
                             <div className="col-md-6 form-group">
                                 <label></label>
                                 <Select
                                     options={
                                         paymentInfoTypesOptions.filter(option =>
-                                            !userPaymentInfos.map(info => info.paymentInfo.id).includes(option.value)
+                                            !updatedUserPaymentInfos.map(info => info.paymentInfo.id).includes(option.value)
                                             || userPaymentInfo.paymentInfo.id === option.value)
                                     }
                                     value={paymentInfoTypesOptions.find(option => option.value === userPaymentInfo.paymentInfo.id) || undefined}
@@ -137,27 +216,33 @@ const ChangeProfileModal = ({
                             </div>
                             <div className="col-md-6 form-group">
                                 <label></label>
-                                <input
-                                    type="text"
-                                    name="zahlungsinformationInput"
-                                    value={userPaymentInfo.paymentAddress}
-                                    onChange={(e) => changePaymentInfoContent(e, userPaymentInfo.paymentInfo.id)}
-                                    className="form-control"
-                                />
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        name="zahlungsinformationInput"
+                                        value={userPaymentInfo.paymentAddress}
+                                        onChange={(e) => changePaymentInfoContent(e, userPaymentInfo.paymentInfo.id)}
+                                        placeholder="Zahlungsadresse"
+                                        className="form-control"
+                                    />
+                                    <button className="btn btn-danger input-group-sm" onClick={() => deletePaymentInfo(userPaymentInfo.paymentInfo.id)}>
+                                        <FaRegTrashAlt className="centered-label"/>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
-                    {userPaymentInfos.length < 3 &&
+                    {updatedUserPaymentInfos.length < 3 &&
                         <div className="row">
                             <div className="col-md-6 form-group">
                                 <label></label>
                                 <Select
                                     options={
                                         paymentInfoTypesOptions.filter(option =>
-                                            !userPaymentInfos.map(info => info.paymentInfo.id).includes(option.value))
+                                            !updatedUserPaymentInfos.map(info => info.paymentInfo.id).includes(option.value))
                                     }
-                                    value={undefined}
-                                    onChange={(e) => {}}
+                                    value=""
+                                    onChange={(e) => addPaymentInfoId(e)}
                                     placeholder="Zahlungsart"
                                 />
                             </div>
@@ -166,9 +251,10 @@ const ChangeProfileModal = ({
                                 <input
                                     type="text"
                                     name="zahlungsinformationInput"
-                                    value={user.phoneNumber}
+                                    value={undefined}
                                     className="form-control"
                                     placeholder="Zahlungsadresse"
+                                    disabled={true}
                                 />
                             </div>
                         </div>
@@ -188,7 +274,7 @@ const ChangeProfileModal = ({
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button className="me-auto" variant="danger" onClick={deleteUser}>
+                    <Button className="me-auto" variant="danger" onClick={() => setIsDeleteAccountOpen(true)}>
                         Account löschen
                     </Button>
                     <Button variant="secondary" onClick={closeWindow}>
@@ -205,6 +291,12 @@ const ChangeProfileModal = ({
                     entities={paymentInfoTypes}
                     persistNewEntity={persistNewPaymentType}
                     title="Zahlungsart hinzufügen"
+                />
+            }
+            {isDeleteAccountOpen &&
+                <DeleteAccount
+                    closeWindow={() => setIsDeleteAccountOpen(false)}
+                    deleteAccount={deleteAccount}
                 />
             }
         </div>

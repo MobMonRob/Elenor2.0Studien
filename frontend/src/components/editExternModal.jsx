@@ -2,52 +2,53 @@ import React, {useState} from "react";
 import {Button, Modal} from "react-bootstrap";
 import {httpClient} from "../HttpClient";
 
-const EditCashRegisterModal = ({
-                              closeWindow,
-                              setCashRegisters,
-                              cashRegisters,
-                              cashRegister,
-                              resetDisplayedTransactions,
-                              renameTransactions,
-                              isDeletable,
-                              setTransactionFilterName
-                          }) => {
+const EditExternModal = ({
+                         closeWindow,
+                         setExterns,
+                         externs,
+                         extern,
+                         resetDisplayedTransactions,
+                         renameTransactions,
+                         isDeletable,
+                         setTransactionFilterName
+                        }) => {
+
     const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-    const [updatedCashRegister, setUpdatedCashRegister] = useState(cashRegister);
+    const [updatedExtern, setUpdatedExtern] = useState(extern);
 
     const handleSave = async () => {
         try{
-            const response = await httpClient.put("/virtualcashregisters/" + cashRegister.id, updatedCashRegister);
-            setCashRegisters(cashRegisters.map(cashRegister => cashRegister.id === response.data.id ? response.data : cashRegister));
+            const response = await httpClient.put("/externs/" + extern.id, updatedExtern);
+            setExterns(externs.map(cashRegister => cashRegister.id === response.data.id ? response.data : cashRegister));
         }catch(e){
             console.error("An error occurred during updating cash register:",e);
         }
-        renameTransactions(cashRegister.id, updatedCashRegister.name);
-        setTransactionFilterName(updatedCashRegister.name);
+        renameTransactions(extern.id, extern.name);
+        setTransactionFilterName(updatedExtern.name);
         closeWindow();
     }
 
     const handleDelete = async () => {
-        await httpClient.delete("/virtualcashregisters/" + cashRegister.id);
+        await httpClient.delete("/externs/" + extern.id);
         resetDisplayedTransactions();
-        setCashRegisters(cashRegisters.filter(cr => cr.id !== cashRegister.id));
+        setExterns(externs.filter(ex => ex.id !== extern.id));
         closeWindow();
     }
 
     const handleNameChange = (e) => {
-        if (cashRegisters.some(cashRegister => cashRegister.name === e.target.value)) {
+        if (externs.some(extern => extern.name === e.target.value)) {
             setIsSaveDisabled(true)
         }else{
             setIsSaveDisabled(false);
         }
-        setUpdatedCashRegister({...updatedCashRegister, name: e.target.value})
+        setUpdatedExtern({...updatedExtern, name: e.target.value})
     }
 
-    return (
+    return(
         <div>
             <Modal show={true} onHide={closeWindow} centered={true} >
                 <Modal.Header closeButton>
-                    <Modal.Title>Virtuelles Konto - {cashRegister.name}</Modal.Title>
+                    <Modal.Title>Externes Konto - {extern.name}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -57,19 +58,9 @@ const EditCashRegisterModal = ({
                             <input
                                 type="text"
                                 name="firstName"
-                                value={updatedCashRegister.name}
+                                value={updatedExtern.name}
                                 onChange={(e) => handleNameChange(e)}
                                 className="form-control"
-                            />
-                        </div>
-                        <div className="col-md-6 form-group">
-                            <label>Saldo:</label>
-                            <input
-                                type="text"
-                                name="balance"
-                                value={cashRegister.balance + " €"}
-                                className="form-control"
-                                disabled={true}
                             />
                         </div>
                     </div>
@@ -93,7 +84,7 @@ const EditCashRegisterModal = ({
                 </Modal.Footer>
             </Modal>
         </div>
-    );
+    )
 }
 
-export default EditCashRegisterModal;
+export default EditExternModal;

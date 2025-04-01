@@ -118,4 +118,11 @@ public class UserService extends GenericService<User, UUID>
         entity.setUsername(updatedEntity.getUsername());
         return entity;
     }
+
+    @Override
+    public void deleteById(UUID id)
+    {
+        super.deleteById(id);
+
+    }
 }

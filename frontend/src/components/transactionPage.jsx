@@ -7,6 +7,7 @@ import InfoProfileModal from "./infoProfileModal";
 import {IoMdInformationCircleOutline} from "react-icons/io";
 import {MdEdit} from "react-icons/md";
 import EditCashRegisterModal from "./editCashRegisterModal";
+import EditExternModal from "./editExternModal";
 
 const TransactionPage = ({setTransactionFilter,
                              setTransactionFilterName,
@@ -16,7 +17,8 @@ const TransactionPage = ({setTransactionFilter,
                              externs,
                              cashregisters,
                              setUsers,
-                             setCashRegisters
+                             setCashRegisters,
+                             setExterns
                          }) => {
     const [displayedTransactions, setDisplayedTransactions] = useState([]);
     const [everyTransaction, setEveryTransaction] = useState([]);
@@ -28,6 +30,7 @@ const TransactionPage = ({setTransactionFilter,
     const [displayedTransactionsOnPage, setDisplayedTransactionsOnPage] = useState([]);
     const [isUserInformationWindowOpen, setIsUserInformationWindowOpen] = useState(false);
     const [isCashRegisterEditWindowOpen, setIsCashRegisterEditWindowOpen] = useState(false);
+    const [isExternEditWindowOpen, setIsExternEditWindowOpen] = useState(false);
 
     const transactionsPerPage = 10;
     const totalPages = Math.max(Math.ceil(displayedTransactions.length / transactionsPerPage), 1);
@@ -247,6 +250,16 @@ const TransactionPage = ({setTransactionFilter,
                                     </button>
                                 )
                             )}
+                            {externs.map(
+                                extern => extern.id === transactionFilter && (
+                                    <button
+                                        className="mt-auto mb-auto text-primary nav-link active ms-2"
+                                        onClick={() => setIsExternEditWindowOpen(true)}
+                                    >
+                                        <MdEdit/>
+                                    </button>
+                                )
+                            )}
                             )
                         </>
                     )}
@@ -331,6 +344,19 @@ const TransactionPage = ({setTransactionFilter,
                     setCashRegisters={setCashRegisters}
                     resetDisplayedTransactions={resetDisplayedTransactions}
                     renameTransactions={renameTransactions}
+                    isDeletable={displayedTransactions.length === 0}
+                    setTransactionFilterName={setTransactionFilterName}
+                />
+            }
+            {isExternEditWindowOpen &&
+                <EditExternModal
+                    closeWindow={() => setIsExternEditWindowOpen(false)}
+                    extern={externs.find(ex => ex.id === transactionFilter)}
+                    externs={externs}
+                    setExterns={setExterns}
+                    resetDisplayedTransactions={resetDisplayedTransactions}
+                    renameTransactions={renameTransactions}
+                    setTransactionFilterName={setTransactionFilterName}
                     isDeletable={displayedTransactions.length === 0}
                 />
             }

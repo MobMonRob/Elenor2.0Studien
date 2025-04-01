@@ -13,11 +13,26 @@
     display: block;       /* Ensure the label and input are stacked */
 }
 
-.form-group input {
-    margin-top: 5px;      /* Add margin above the input field */
-}
-
 .sidebar {
     width:350px;
     height:calc(100vh - 55px);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.input-group input {
+    flex: 1;
+    height: 38px; /* Gleiche Höhe wie Bootstrap Inputs */
+}
+
+.input-group .btn {
+    height: 38px;
+    width: 30px; /* Optional, für eine einheitliche Größe */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
