@@ -10,12 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class ExternTest extends GenericTest<Extern, Extern, UUID>
+public class ExternTest extends GenericTest<Extern, Extern, Extern, UUID>
 {
     @Autowired
     private ExternRepository externRepository;
 
-    private String BASE_URL = "http://localhost:8080/api/externs";
+    private final String BASE_URL = "http://localhost:8080/api/externs";
 
 
     @Override
@@ -31,9 +31,16 @@ public class ExternTest extends GenericTest<Extern, Extern, UUID>
     }
 
     @Override
-    public TestObject<Extern, Extern, UUID> initTestObject()
+    public String getObjectAssertionIdentificationSendEntity(Extern extern)
     {
-        TestObject<Extern, Extern, UUID> testObject = new TestObject<>();
+        return getObjectAssertionIdentificationSavedEntity(extern);
+    }
+
+
+    @Override
+    public TestObject<Extern, Extern, Extern, UUID> initTestObject()
+    {
+        TestObject<Extern, Extern, Extern, UUID> testObject = new TestObject<>();
         testObject.setRepository(externRepository);
         testObject.setBaseUrl(BASE_URL);
         testObject.setEntityClass(Extern.class);

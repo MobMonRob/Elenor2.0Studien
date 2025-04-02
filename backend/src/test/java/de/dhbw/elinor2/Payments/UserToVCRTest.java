@@ -7,10 +7,7 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.UserToVCRRepository;
 import de.dhbw.elinor2.services.payments.documenting.UserToVCRService;
-import de.dhbw.elinor2.utils.DefaultUser;
-import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.InputPayment;
-import de.dhbw.elinor2.utils.TestObject;
+import de.dhbw.elinor2.utils.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
+public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, OutputPaymentOverVcr, UUID>
 {
     @Autowired
     private UserToVCRRepository userToVCRRepository;
@@ -65,11 +62,19 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
     }
 
     @Override
-    public TestObject<InputPayment, UserToVCR, UUID> initTestObject()
+    public String getObjectAssertionIdentificationSendEntity(OutputPaymentOverVcr outputPaymentOverVcr)
     {
-        TestObject<InputPayment, UserToVCR, UUID> testObject = new TestObject<>();
-        testObject.setEntityClass(UserToVCR.class);
-        testObject.setEntityArrayClass(UserToVCR[].class);
+        return outputPaymentOverVcr.getSender().getEntityId().toString() +
+                outputPaymentOverVcr.getReceiver().getEntityId().toString() +
+                outputPaymentOverVcr.getAmount().intValue();
+    }
+
+    @Override
+    public TestObject<InputPayment, UserToVCR, OutputPaymentOverVcr, UUID> initTestObject()
+    {
+        TestObject<InputPayment, UserToVCR, OutputPaymentOverVcr, UUID> testObject = new TestObject<>();
+        testObject.setEntityClass(OutputPaymentOverVcr.class);
+        testObject.setEntityArrayClass(OutputPaymentOverVcr[].class);
         testObject.setRepository(userToVCRRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments");
 
@@ -80,12 +85,13 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         virtualCashRegister.setName("testVCR");
         virtualCashRegister = virtualCashRegisterRepository.save(virtualCashRegister);
 
+        UserToVCR userToVCR = new UserToVCR();
+        userToVCR.setUser(user);
+        userToVCR.setVirtualCashRegister(virtualCashRegister);
+        userToVCR.setAmount(BigDecimal.valueOf(100));
+        userToVCRService.executePayment(userToVCR, DefaultUser.getJwtToken());
+        userToVCR = userToVCRRepository.save(userToVCR);
 
-        InputPayment inputPaymentLight = new InputPayment();
-        inputPaymentLight.setSenderId(user.getId());
-        inputPaymentLight.setReceiverId(virtualCashRegister.getId());
-        inputPaymentLight.setAmount(BigDecimal.valueOf(100));
-        UserToVCR userToVCR = userToVCRService.create(inputPaymentLight, DefaultUser.getJwtToken());
         testObject.setInitSavedEntity(userToVCR);
         testObject.setInitSavedEntityId(userToVCR.getId());
 
@@ -113,7 +119,7 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(400, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(400, userResult.getBalance().intValue());
+        Assertions.assertEquals(-400, userResult.getBalance().intValue());
     }
 
     @Override
@@ -125,7 +131,7 @@ public class UserToVCRTest extends GenericTest<InputPayment, UserToVCR, UUID>
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(200, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(200, userResult.getBalance().intValue());
+        Assertions.assertEquals(-200, userResult.getBalance().intValue());
     }
 
     @Override

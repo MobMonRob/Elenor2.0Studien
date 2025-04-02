@@ -69,6 +69,26 @@ public class GeneralPaymentService
         return result;
     }
 
+    public OutputPaymentOverVcr findById(UUID id)
+    {
+        OutputPaymentOverVcr result;
+        if(externToUserService.existsById(id))
+            result = externToUserService.findById(id);
+        else if (userToUserService.existsById(id))
+            result = convertToOutputPaymentOverVcr(userToUserService.findById(id));
+        else if (vcrToUserService.existsById(id))
+            result = convertToOutputPaymentOverVcr(vcrToUserService.findById(id));
+        else if (userToVCRService.existsById(id))
+            result = convertToOutputPaymentOverVcr(userToVCRService.findById(id));
+        else if (vcrToVCRService.existsById(id))
+            result = convertToOutputPaymentOverVcr(vcrToVCRService.findById(id));
+        else if (userToExternService.existsById(id))
+            result = userToExternService.findById(id);
+        else
+            throw new IllegalArgumentException("Entity not found");
+        return result;
+    }
+
     public void deleteById(UUID id, Jwt jwt)
     {
         if(externToUserService.existsById(id))

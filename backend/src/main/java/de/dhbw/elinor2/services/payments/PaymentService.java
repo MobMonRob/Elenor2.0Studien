@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Transactional
-public abstract class PaymentService<IP extends InputPayment, OP extends OutputPayment, T, ID> implements IPaymentService<IP, OP, T, ID>
+public abstract class PaymentService<IP extends InputPayment, OP extends OutputPayment, T, ID> implements IPaymentService<IP, OP, ID>
 {
     private final JpaRepository<T, ID> repository;
 
@@ -32,9 +32,14 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
-    public Optional<T> findById(ID id)
+    public OP findById(ID id)
     {
-        return repository.findById(id);
+        Optional<T> result = repository.findById(id);
+        if(result.isPresent())
+        {
+            return convertEntityToOutputPattern(result.get());
+        }
+        throw new IllegalArgumentException("Updated entity not found!");
     }
 
     @Override

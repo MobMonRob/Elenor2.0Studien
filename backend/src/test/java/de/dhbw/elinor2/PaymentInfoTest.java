@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class PaymentInfoTest extends GenericTest<PaymentInfo, PaymentInfo, UUID>
+public class PaymentInfoTest extends GenericTest<PaymentInfo, PaymentInfo, PaymentInfo, UUID>
 {
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
@@ -29,11 +29,17 @@ public class PaymentInfoTest extends GenericTest<PaymentInfo, PaymentInfo, UUID>
         return getObjectAssertionIdentificationSavedEntity(paymentInfo);
     }
 
+    @Override
+    public String getObjectAssertionIdentificationSendEntity(PaymentInfo paymentInfo)
+    {
+        return getObjectAssertionIdentificationSavedEntity(paymentInfo);
+    }
+
 
     @Override
-    public TestObject<PaymentInfo, PaymentInfo, UUID> initTestObject()
+    public TestObject<PaymentInfo, PaymentInfo, PaymentInfo, UUID> initTestObject()
     {
-        TestObject<PaymentInfo, PaymentInfo, UUID> testObject = new TestObject<>();
+        TestObject<PaymentInfo, PaymentInfo, PaymentInfo, UUID> testObject = new TestObject<>();
         testObject.setBaseUrl(BASE_URL);
         testObject.setRepository(paymentInfoRepository);
         testObject.setEntityClass(PaymentInfo.class);

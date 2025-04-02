@@ -33,6 +33,12 @@ public class UserController
         return ResponseEntity.ok(userService.getUserPaymentInfoFields(userId));
     }
 
+    @GetMapping("/paymentinfos")
+    public ResponseEntity<Iterable<User_PaymentInfo>> getPaymentInfos()
+    {
+        return ResponseEntity.ok(userService.getUserPaymentInfoFields());
+    }
+
     @GetMapping("/{userId}/paymentinfos/{paymentInfoId}")
     public ResponseEntity<User_PaymentInfo> getPaymentInfo(@PathVariable UUID userId, @PathVariable UUID paymentInfoId)
     {

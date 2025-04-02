@@ -11,20 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 @Import(TestSecurityConfig.class)
-public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IGenericTest
+public abstract class GenericTest<ReceivedEntity, SavedEntity, SendEntity, Id> implements IGenericTest
 {
-    protected TestObject<ReceivedEntity, SavedEntity, Id> testObject;
+    protected TestObject<ReceivedEntity, SavedEntity, SendEntity, Id> testObject;
 
     protected SavedEntity existingEntity;
-
-    protected static Jwt jwt;
 
     @Override
     @BeforeEach
     public void addTestData()
     {
         testObject = initTestObject();
-        existingEntity = testObject.getRepository().save(testObject.getInitSavedEntity());
+        existingEntity = testObject.getInitSavedEntity();
     }
 
     @Override
@@ -39,12 +37,12 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     public void getRequest_Single()
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
-        ResponseEntity<SavedEntity> response =
+        ResponseEntity<SendEntity> response =
                 restTemplate.getForEntity(testObject.getBaseUrl() + "/" +
                         testObject.getInitPathId(), testObject.getEntityClass());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(getObjectAssertionIdentificationSavedEntity(existingEntity), getObjectAssertionIdentificationSavedEntity(response.getBody()));
+        Assertions.assertEquals(getObjectAssertionIdentificationSavedEntity(existingEntity), getObjectAssertionIdentificationSendEntity(response.getBody()));
     }
 
     @Override
@@ -52,12 +50,12 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     public void getRequest_All()
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
-        ResponseEntity<SavedEntity[]> response =
+        ResponseEntity<SendEntity[]> response =
                 restTemplate.getForEntity(testObject.getBaseUrl(), testObject.getEntityArrayClass());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(1, response.getBody().length);
-        Assertions.assertEquals(getObjectAssertionIdentificationSavedEntity(existingEntity), getObjectAssertionIdentificationSavedEntity(response.getBody()[0]));
+        Assertions.assertEquals(getObjectAssertionIdentificationSavedEntity(existingEntity), getObjectAssertionIdentificationSendEntity(response.getBody()[0]));
     }
 
     @Override
@@ -65,10 +63,10 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
     public void postRequest()
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
-        ResponseEntity<SavedEntity> response = restTemplate.postForEntity(testObject.getBaseUrl(), testObject.getNewEntity(), testObject.getEntityClass());
+        ResponseEntity<SendEntity> response = restTemplate.postForEntity(testObject.getBaseUrl(), testObject.getNewEntity(), testObject.getEntityClass());
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(testObject.getNewEntity()), getObjectAssertionIdentificationSavedEntity(response.getBody()));
+        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(testObject.getNewEntity()), getObjectAssertionIdentificationSendEntity(response.getBody()));
     }
 
     @Override
@@ -81,12 +79,12 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
         restTemplate.put(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getUpdateEntity());
 
         // Send a GET request to retrieve the updated Extern
-        ResponseEntity<SavedEntity> response = restTemplate.getForEntity(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getEntityClass());
+        ResponseEntity<SendEntity> response = restTemplate.getForEntity(testObject.getBaseUrl() + "/" + testObject.getInitPathId(), testObject.getEntityClass());
 
         // Verify the response
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(testObject.getUpdateEntity()), getObjectAssertionIdentificationSavedEntity(response.getBody()));
+        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(testObject.getUpdateEntity()), getObjectAssertionIdentificationSendEntity(response.getBody()));
     }
 
     @Override
@@ -102,5 +100,7 @@ public abstract class GenericTest<ReceivedEntity, SavedEntity, Id> implements IG
 
     public abstract String getObjectAssertionIdentificationReceivedEntity(ReceivedEntity entity);
 
-    public abstract TestObject<ReceivedEntity, SavedEntity, Id> initTestObject();
+    public abstract String getObjectAssertionIdentificationSendEntity(SendEntity entity);
+
+    public abstract TestObject<ReceivedEntity, SavedEntity, SendEntity, Id> initTestObject();
 }

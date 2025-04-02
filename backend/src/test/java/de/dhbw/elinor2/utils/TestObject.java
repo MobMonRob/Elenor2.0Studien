@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class TestObject<ReceivedEntity, SavedEntity, Id>
+public class TestObject<ReceivedEntity, SavedEntity, SendEntity, Id>
 {
     private ReceivedEntity updateEntity;
 
@@ -24,9 +24,8 @@ public class TestObject<ReceivedEntity, SavedEntity, Id>
 
     private UUID initPathId;
 
-    private Class<SavedEntity> entityClass;
-
-    private Class<SavedEntity[]> entityArrayClass;
+    private Class<SendEntity> entityClass;
+    private Class<SendEntity[]> entityArrayClass;
 
 
     public UUID getInitPathId()

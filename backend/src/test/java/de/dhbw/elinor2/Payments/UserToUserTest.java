@@ -5,10 +5,7 @@ import de.dhbw.elinor2.entities.UserToUser;
 import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.payments.UserToUserRepository;
 import de.dhbw.elinor2.services.payments.executiong.UserToUserService;
-import de.dhbw.elinor2.utils.DefaultUser;
-import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.InputPayment;
-import de.dhbw.elinor2.utils.TestObject;
+import de.dhbw.elinor2.utils.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
+public class UserToUserTest extends GenericTest<InputPayment, UserToUser, OutputPaymentOverVcr, UUID>
 {
     @Autowired
     private UserToUserRepository userToUserRepository;
@@ -57,13 +54,21 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
                 inputPaymentLight.getAmount().intValue();
     }
 
+    @Override
+    public String getObjectAssertionIdentificationSendEntity(OutputPaymentOverVcr outputPaymentOverVcr)
+    {
+        return outputPaymentOverVcr.getSender().getEntityId().toString() +
+                outputPaymentOverVcr.getReceiver().getEntityId().toString() +
+                outputPaymentOverVcr.getAmount().intValue();
+    }
+
 
     @Override
-    public TestObject<InputPayment, UserToUser, UUID> initTestObject()
+    public TestObject<InputPayment, UserToUser, OutputPaymentOverVcr, UUID> initTestObject()
     {
-        TestObject<InputPayment, UserToUser, UUID> testObject = new TestObject<>();
-        testObject.setEntityClass(UserToUser.class);
-        testObject.setEntityArrayClass(UserToUser[].class);
+        TestObject<InputPayment, UserToUser, OutputPaymentOverVcr, UUID> testObject = new TestObject<>();
+        testObject.setEntityClass(OutputPaymentOverVcr.class);
+        testObject.setEntityArrayClass(OutputPaymentOverVcr[].class);
         testObject.setRepository(userToUserRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments");
 
@@ -77,11 +82,13 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         receiver.setLastName("testLastname");
         receiver = userRepository.save(receiver);
 
-        InputPayment initialPayment = new InputPayment();
-        initialPayment.setSenderId(sender.getId());
-        initialPayment.setReceiverId(receiver.getId());
-        initialPayment.setAmount(BigDecimal.valueOf(100));
-        UserToUser userToUser = userToUserService.create(initialPayment, DefaultUser.getJwtToken());
+        UserToUser userToUser = new UserToUser();
+        userToUser.setSender(sender);
+        userToUser.setReceiver(receiver);
+        userToUser.setAmount(BigDecimal.valueOf(100));
+        userToUserService.executePayment(userToUser, DefaultUser.getJwtToken());
+        userToUser = userToUserRepository.save(userToUser);
+
         testObject.setInitSavedEntity(userToUser);
         testObject.setInitSavedEntityId(userToUser.getId());
 
@@ -108,8 +115,8 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
         User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-400, senderResult.getBalance().intValue());
-        Assertions.assertEquals(400, receiverResult.getBalance().intValue());
+        Assertions.assertEquals(400, senderResult.getBalance().intValue());
+        Assertions.assertEquals(-400, receiverResult.getBalance().intValue());
     }
 
     @Override
@@ -120,8 +127,8 @@ public class UserToUserTest extends GenericTest<InputPayment, UserToUser, UUID>
         User senderResult = userRepository.findById(this.sender.getId()).orElseThrow();
         User receiverResult = userRepository.findById(this.receiver.getId()).orElseThrow();
 
-        Assertions.assertEquals(-200, senderResult.getBalance().intValue());
-        Assertions.assertEquals(200, receiverResult.getBalance().intValue());
+        Assertions.assertEquals(200, senderResult.getBalance().intValue());
+        Assertions.assertEquals(-200, receiverResult.getBalance().intValue());
     }
 
     @Override

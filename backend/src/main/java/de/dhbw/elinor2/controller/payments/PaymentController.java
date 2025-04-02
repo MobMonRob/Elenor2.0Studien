@@ -1,5 +1,5 @@
 package de.dhbw.elinor2.controller.payments;
-
+/*
 import de.dhbw.elinor2.services.payments.PaymentService;
 import de.dhbw.elinor2.utils.InputPayment;
 import de.dhbw.elinor2.utils.OutputPayment;
@@ -62,3 +62,4 @@ public abstract class PaymentController<IP extends InputPayment, OP extends Outp
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
+*/

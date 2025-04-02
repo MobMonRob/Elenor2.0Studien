@@ -4,13 +4,11 @@ import de.dhbw.elinor2.utils.InputPayment;
 import de.dhbw.elinor2.utils.OutputPayment;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.Optional;
-
-public interface IPaymentService<IP extends InputPayment, OP extends OutputPayment, T, ID>
+public interface IPaymentService<IP extends InputPayment, OP extends OutputPayment, ID>
 {
     OP create(IP paymentPattern, Jwt jwt);
 
-    Optional<T> findById(ID id);
+    OP findById(ID id);
 
     Iterable<OP> findAll();
 

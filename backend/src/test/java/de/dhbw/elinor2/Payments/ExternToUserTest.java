@@ -9,10 +9,7 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.ExternToUserRepository;
 import de.dhbw.elinor2.services.payments.executiong.ExternToUserService;
-import de.dhbw.elinor2.utils.DefaultUser;
-import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.InputPaymentOverVcr;
-import de.dhbw.elinor2.utils.TestObject;
+import de.dhbw.elinor2.utils.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToUser, UUID>
+public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToUser, OutputPaymentOverVcr, UUID>
 {
     @Autowired
     private ExternToUserRepository externToUserRepository;
@@ -73,11 +70,20 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
     }
 
     @Override
-    public TestObject<InputPaymentOverVcr, ExternToUser, UUID> initTestObject()
+    public String getObjectAssertionIdentificationSendEntity(OutputPaymentOverVcr outputPaymentOverVcr)
     {
-        TestObject<InputPaymentOverVcr, ExternToUser, UUID> testObject = new TestObject<>();
-        testObject.setEntityClass(ExternToUser.class);
-        testObject.setEntityArrayClass(ExternToUser[].class);
+        return outputPaymentOverVcr.getSender().getEntityId().toString() +
+                outputPaymentOverVcr.getReceiver().getEntityId().toString() +
+                outputPaymentOverVcr.getOverVcr().getEntityId().toString() +
+                outputPaymentOverVcr.getAmount().intValue();
+    }
+
+    @Override
+    public TestObject<InputPaymentOverVcr, ExternToUser, OutputPaymentOverVcr, UUID> initTestObject()
+    {
+        TestObject<InputPaymentOverVcr, ExternToUser, OutputPaymentOverVcr, UUID> testObject = new TestObject<>();
+        testObject.setEntityClass(OutputPaymentOverVcr.class);
+        testObject.setEntityArrayClass(OutputPaymentOverVcr[].class);
         testObject.setRepository(externToUserRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments");
 
@@ -92,12 +98,14 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         virtualCashRegister.setName("testVCR");
         virtualCashRegister = virtualCashRegisterRepository.save(virtualCashRegister);
 
-        InputPaymentOverVcr initialPayment = new InputPaymentOverVcr();
-        initialPayment.setSenderId(extern.getId());
-        initialPayment.setReceiverId(user.getId());
-        initialPayment.setVcrId(virtualCashRegister.getId());
-        initialPayment.setAmount(BigDecimal.valueOf(100));
-        ExternToUser externToUser = externToUserService.create(initialPayment, DefaultUser.getJwtToken());
+        ExternToUser externToUser = new ExternToUser();
+        externToUser.setExtern(extern);
+        externToUser.setUser(user);
+        externToUser.setVirtualCashRegister(virtualCashRegister);
+        externToUser.setAmount(BigDecimal.valueOf(100));
+        externToUserService.executePayment(externToUser, DefaultUser.getJwtToken());
+        externToUser = externToUserRepository.save(externToUser);
+
         testObject.setInitSavedEntity(externToUser);
         testObject.setInitSavedEntityId(externToUser.getId());
 
@@ -128,7 +136,7 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(400, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(400, userResult.getBalance().intValue());
+        Assertions.assertEquals(-400, userResult.getBalance().intValue());
     }
 
     @Override
@@ -140,7 +148,7 @@ public class ExternToUserTest extends GenericTest<InputPaymentOverVcr, ExternToU
         User userResult = userRepository.findById(this.user.getId()).orElseThrow();
 
         Assertions.assertEquals(200, virtualCashRegisterResult.getBalance().intValue());
-        Assertions.assertEquals(200, userResult.getBalance().intValue());
+        Assertions.assertEquals(-200, userResult.getBalance().intValue());
     }
 
     @Override

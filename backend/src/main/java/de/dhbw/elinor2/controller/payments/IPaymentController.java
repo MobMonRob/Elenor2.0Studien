@@ -1,5 +1,5 @@
 package de.dhbw.elinor2.controller.payments;
-
+/*
 import de.dhbw.elinor2.utils.InputPayment;
 import de.dhbw.elinor2.utils.OutputPayment;
 import org.springframework.http.ResponseEntity;
@@ -17,3 +17,4 @@ public interface IPaymentController<IP extends InputPayment, OP extends OutputPa
 
     ResponseEntity<Void> deleteById(ID id, Jwt jwt);
 }
+*/

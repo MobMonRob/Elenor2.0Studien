@@ -1,5 +1,5 @@
 package de.dhbw.elinor2.controller.payments.executing;
-
+/*
 import de.dhbw.elinor2.controller.payments.PaymentController;
 import de.dhbw.elinor2.entities.UserToExtern;
 import de.dhbw.elinor2.services.payments.executiong.UserToExternService;
@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-@RestController
-@RequestMapping("api/payments/exec/usertoexterns")
+//@RestController
+//@RequestMapping("api/payments/exec/usertoexterns")
 public class UserToExternController extends PaymentController<InputPaymentOverVcr, OutputPaymentOverVcr, UserToExtern, UUID>
 {
-    @Autowired
+//    @Autowired
     public UserToExternController(UserToExternService service)
     {
         super(service);
     }
 }
+*/

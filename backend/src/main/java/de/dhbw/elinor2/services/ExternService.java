@@ -36,6 +36,12 @@ public class ExternService extends GenericService<Extern, UUID>
     }
 
     @Transactional
+    public Iterable<Extern_PaymentInfo> getExternPaymentInfoFields()
+    {
+        return externPaymentInfoRepository.findAll();
+    }
+
+    @Transactional
     public Optional<Extern_PaymentInfo> getExternPaymentInfoField(UUID externId, UUID paymentInfoId)
     {
         return externPaymentInfoRepository.findByExternIdAndPaymentInfoId(externId, paymentInfoId);

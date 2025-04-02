@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserTest extends GenericTest<User, User, UUID>
+public class UserTest extends GenericTest<User, User, User, UUID>
 {
     @Autowired
     private UserRepository userRepository;
@@ -32,9 +32,15 @@ public class UserTest extends GenericTest<User, User, UUID>
     }
 
     @Override
-    public TestObject<User, User, UUID> initTestObject()
+    public String getObjectAssertionIdentificationSendEntity(User user)
     {
-        TestObject<User, User, UUID> testObject = new TestObject<>();
+        return getObjectAssertionIdentificationSavedEntity(user);
+    }
+
+    @Override
+    public TestObject<User, User, User, UUID> initTestObject()
+    {
+        TestObject<User, User, User, UUID> testObject = new TestObject<>();
         testObject.setEntityClass(User.class);
         testObject.setEntityArrayClass(User[].class);
         testObject.setRepository(userRepository);

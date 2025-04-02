@@ -5,10 +5,7 @@ import de.dhbw.elinor2.entities.VirtualCashRegister;
 import de.dhbw.elinor2.repositories.VirtualCashRegisterRepository;
 import de.dhbw.elinor2.repositories.payments.VCRToVCRRepository;
 import de.dhbw.elinor2.services.payments.documenting.VCRToVCRService;
-import de.dhbw.elinor2.utils.DefaultUser;
-import de.dhbw.elinor2.utils.GenericTest;
-import de.dhbw.elinor2.utils.InputPayment;
-import de.dhbw.elinor2.utils.TestObject;
+import de.dhbw.elinor2.utils.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class VCRToVCRTest extends GenericTest<InputPayment, VCRToVCR, UUID>
+public class VCRToVCRTest extends GenericTest<InputPayment, VCRToVCR, OutputPaymentOverVcr, UUID>
 {
     @Autowired
     private VCRToVCRRepository vcrToVCRRepository;
@@ -59,11 +56,19 @@ public class VCRToVCRTest extends GenericTest<InputPayment, VCRToVCR, UUID>
     }
 
     @Override
-    public TestObject<InputPayment, VCRToVCR, UUID> initTestObject()
+    public String getObjectAssertionIdentificationSendEntity(OutputPaymentOverVcr outputPaymentOverVcr)
     {
-        TestObject<InputPayment, VCRToVCR, UUID> testObject = new TestObject<>();
-        testObject.setEntityClass(VCRToVCR.class);
-        testObject.setEntityArrayClass(VCRToVCR[].class);
+        return outputPaymentOverVcr.getSender().getEntityId().toString() +
+                outputPaymentOverVcr.getReceiver().getEntityId().toString() +
+                outputPaymentOverVcr.getAmount().intValue();
+    }
+
+    @Override
+    public TestObject<InputPayment, VCRToVCR, OutputPaymentOverVcr, UUID> initTestObject()
+    {
+        TestObject<InputPayment, VCRToVCR, OutputPaymentOverVcr, UUID> testObject = new TestObject<>();
+        testObject.setEntityClass(OutputPaymentOverVcr.class);
+        testObject.setEntityArrayClass(OutputPaymentOverVcr[].class);
         testObject.setRepository(vcrToVCRRepository);
         testObject.setBaseUrl("http://localhost:8080/api/payments");
 
@@ -75,11 +80,13 @@ public class VCRToVCRTest extends GenericTest<InputPayment, VCRToVCR, UUID>
         receiver.setName("Receiver");
         receiver = virtualCashRegisterRepository.save(receiver);
 
-        InputPayment inputPaymentLight = new InputPayment();
-        inputPaymentLight.setSenderId(sender.getId());
-        inputPaymentLight.setReceiverId(receiver.getId());
-        inputPaymentLight.setAmount(new BigDecimal(100));
-        VCRToVCR vcrToVCR = vcrToVCRService.create(inputPaymentLight, DefaultUser.getJwtToken());
+        VCRToVCR vcrToVCR = new VCRToVCR();
+        vcrToVCR.setSender(sender);
+        vcrToVCR.setReceiver(receiver);
+        vcrToVCR.setAmount(new BigDecimal(100));
+        vcrToVCRService.executePayment(vcrToVCR, DefaultUser.getJwtToken());
+        vcrToVCR = vcrToVCRRepository.save(vcrToVCR);
+
         testObject.setInitSavedEntity(vcrToVCR);
         testObject.setInitSavedEntityId(vcrToVCR.getId());
 

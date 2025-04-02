@@ -37,6 +37,12 @@ public class UserService extends GenericService<User, UUID>
     }
 
     @Transactional
+    public Iterable<User_PaymentInfo> getUserPaymentInfoFields()
+    {
+        return userPaymentInfoRepository.findAll();
+    }
+
+    @Transactional
     public Optional<User_PaymentInfo> getUserPaymentInfoField(UUID userId, UUID paymentInfoId)
     {
         return userPaymentInfoRepository.findByUserIdAndPaymentInfoId(userId, paymentInfoId);

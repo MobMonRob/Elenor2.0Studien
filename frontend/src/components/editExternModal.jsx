@@ -1,6 +1,7 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Modal} from "react-bootstrap";
 import {httpClient} from "../HttpClient";
+import EditEntityPaymentInfo from "./editEntityPaymentInfo";
 
 const EditExternModal = ({
                          closeWindow,
@@ -13,8 +14,54 @@ const EditExternModal = ({
                          setTransactionFilterName
                         }) => {
 
-    const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+    const [isSaveDisabledPaymentInfo, setIsSaveDisabledPaymentInfo] = useState(true);
+    const [isSaveDisabledName, setIsSaveDisabledName] = useState(true);
     const [updatedExtern, setUpdatedExtern] = useState(extern);
+    const [externPaymentInfos, setExternPaymentInfos] = useState([]);
+    const [updatedExternPaymentInfos, setUpdatedExternPaymentInfos] = useState([]);
+
+    useEffect(() => {
+        async function fetchPaymentInfos() {
+            try{
+                const response = await httpClient.get("/externs/" + updatedExtern.id + "/paymentinfos");
+
+                const paymentInfos = response.data.map(({ paymentInfo, paymentAddress }) => ({
+                    paymentInfo,
+                    paymentAddress
+                }));
+                setExternPaymentInfos(paymentInfos);
+                setUpdatedExternPaymentInfos(paymentInfos);
+            }catch(e){
+                console.error("Error during fetching paymentInfos:", e);
+            }
+        }
+        fetchPaymentInfos();
+    }, [updatedExtern.id])
+
+    const savePaymentInfos = () => {
+        updatedExternPaymentInfos.forEach(
+            async (updatedExternPaymentInfo) => {
+                if(externPaymentInfos.find(info => info.paymentInfo.id === updatedExternPaymentInfo.paymentInfo.id
+                    && info.paymentAddress !== updatedExternPaymentInfo.paymentAddress))
+                {
+                    await httpClient.put("/externs/" + extern.id + "/paymentinfos/" + updatedExternPaymentInfo.paymentInfo.id,
+                        updatedExternPaymentInfo.paymentAddress,
+                        { headers: { "Content-Type": "text/plain" } });
+                }else if (!externPaymentInfos.find(info => info.paymentInfo.id === updatedExternPaymentInfo.paymentInfo.id))
+                {
+                    await httpClient.post("/externs/" + updatedExtern.id + "/paymentinfos/" + updatedExternPaymentInfo.paymentInfo.id,
+                        updatedExternPaymentInfo.paymentAddress,
+                        { headers: { "Content-Type": "text/plain" } });
+                }
+            }
+        )
+        externPaymentInfos.filter(
+            async(externPaymentInfo) => {
+                if(!updatedExternPaymentInfos.find(updatedExternPaymentInfo => updatedExternPaymentInfo.paymentInfo.id === externPaymentInfo.paymentInfo.id)){
+                    await deletePaymentInfo(externPaymentInfo.paymentInfo.id);
+                }
+            })
+    }
 
     const handleSave = async () => {
         try{
@@ -25,6 +72,7 @@ const EditExternModal = ({
         }
         renameTransactions(extern.id, extern.name);
         setTransactionFilterName(updatedExtern.name);
+        savePaymentInfos()
         closeWindow();
     }
 
@@ -36,12 +84,20 @@ const EditExternModal = ({
     }
 
     const handleNameChange = (e) => {
-        if (externs.some(extern => extern.name === e.target.value)) {
-            setIsSaveDisabled(true)
-        }else{
-            setIsSaveDisabled(false);
+        if (externs.some(cashRegister => cashRegister.name === e.target.value)) {
+            setIsSaveDisabledName(true)
+        }else {
+            setIsSaveDisabledName(false);
         }
         setUpdatedExtern({...updatedExtern, name: e.target.value})
+    }
+
+    const deletePaymentInfo = async (id) => {
+        if(externPaymentInfos.find(info => info.paymentInfo.id === id)){
+            await httpClient.delete("/externs/" + updatedExtern.id + "/paymentinfos/" + id);
+            setExternPaymentInfos(externPaymentInfos.filter(info => info.paymentInfo.id !== id));
+        }
+        setUpdatedExternPaymentInfos(updatedExternPaymentInfos.filter(info => info.paymentInfo.id !== id));
     }
 
     return(
@@ -64,6 +120,12 @@ const EditExternModal = ({
                             />
                         </div>
                     </div>
+                    <EditEntityPaymentInfo
+                        updatedEntityPaymentInfos={updatedExternPaymentInfos}
+                        setUpdatedEntityPaymentInfos={setUpdatedExternPaymentInfos}
+                        setIsSaveDisabled={setIsSaveDisabledPaymentInfo}
+                        deleteEntityPaymentInfo={deletePaymentInfo}
+                    />
                     {!isDeletable && (
                         <div className="alert-danger alert mt-3">
                             Das Konto kann nicht gelöscht werden, da noch Transaktionen mit dem Konto in Verbindung stehen.
@@ -78,7 +140,10 @@ const EditExternModal = ({
                     <Button variant="secondary" onClick={closeWindow}>
                         Schließen
                     </Button>
-                    <Button variant="primary" onClick={handleSave} disabled={isSaveDisabled}>
+                    <Button variant="primary" onClick={handleSave} disabled={
+                        (isSaveDisabledPaymentInfo && isSaveDisabledName) ||
+                        (!isSaveDisabledPaymentInfo && isSaveDisabledName && extern.name !== updatedExtern.name)
+                    }>
                         Speichern
                     </Button>
                 </Modal.Footer>

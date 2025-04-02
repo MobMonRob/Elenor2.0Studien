@@ -96,6 +96,8 @@ const TransactionPage = ({setTransactionFilter,
 
     const resetDisplayedTransactions = () => {
         setDisplayedTransactions(everyTransaction);
+        setTransactionFilter("");
+        setTransactionFilterName("");
     }
 
     const renameTransactions = (entityId, newName) => {

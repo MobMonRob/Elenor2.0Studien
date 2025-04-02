@@ -1,6 +1,5 @@
 package de.dhbw.elinor2.controller.payments;
 
-import de.dhbw.elinor2.entities.Payment;
 import de.dhbw.elinor2.services.payments.GeneralPaymentService;
 import de.dhbw.elinor2.utils.InputPaymentOverVcr;
 import de.dhbw.elinor2.utils.OutputPaymentOverVcr;
@@ -26,7 +25,22 @@ public class GeneralPaymentController
     @GetMapping("")
     public ResponseEntity<Iterable<OutputPaymentOverVcr>> findAll()
     {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+        try{
+            return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OutputPaymentOverVcr> findById(@PathVariable UUID id)
+    {
+        try{
+            OutputPaymentOverVcr result = service.findById(id);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -44,8 +58,12 @@ public class GeneralPaymentController
     @PutMapping("/{id}")
     public ResponseEntity<OutputPaymentOverVcr> update(@PathVariable UUID id, @RequestBody InputPaymentOverVcr paymentPattern, @AuthenticationPrincipal Jwt jwt)
     {
-        OutputPaymentOverVcr result = service.update(id, paymentPattern, jwt);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        try{
+            OutputPaymentOverVcr result = service.update(id, paymentPattern, jwt);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 

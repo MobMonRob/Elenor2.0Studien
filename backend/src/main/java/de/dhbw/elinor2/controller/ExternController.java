@@ -32,6 +32,12 @@ public class ExternController extends GenericController<Extern, UUID>
         return ResponseEntity.ok(externService.getExternPaymentInfoFields(externId));
     }
 
+    @GetMapping("/paymentinfos")
+    public ResponseEntity<Iterable<Extern_PaymentInfo>> getPaymentInfos()
+    {
+        return ResponseEntity.ok(externService.getExternPaymentInfoFields());
+    }
+
     @GetMapping("/{externId}/paymentinfos/{paymentInfoId}")
     public ResponseEntity<Extern_PaymentInfo> getPaymentInfo(@PathVariable UUID externId, @PathVariable UUID paymentInfoId)
     {

@@ -10,12 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class VirtualCashRegisterTest extends GenericTest<VirtualCashRegister, VirtualCashRegister, UUID>
+public class VirtualCashRegisterTest extends GenericTest<VirtualCashRegister, VirtualCashRegister, VirtualCashRegister, UUID>
 {
     @Autowired
     private VirtualCashRegisterRepository virtualCashRegisterRepository;
 
-    private String BASE_URL = "http://localhost:8080/api/virtualcashregisters";
+    private final String BASE_URL = "http://localhost:8080/api/virtualcashregisters";
 
 
     @Override
@@ -31,9 +31,15 @@ public class VirtualCashRegisterTest extends GenericTest<VirtualCashRegister, Vi
     }
 
     @Override
-    public TestObject<VirtualCashRegister, VirtualCashRegister, UUID> initTestObject()
+    public String getObjectAssertionIdentificationSendEntity(VirtualCashRegister virtualCashRegister)
     {
-        TestObject<VirtualCashRegister, VirtualCashRegister, UUID> testObject = new TestObject<>();
+        return getObjectAssertionIdentificationSavedEntity(virtualCashRegister);
+    }
+
+    @Override
+    public TestObject<VirtualCashRegister, VirtualCashRegister, VirtualCashRegister, UUID> initTestObject()
+    {
+        TestObject<VirtualCashRegister, VirtualCashRegister, VirtualCashRegister, UUID> testObject = new TestObject<>();
         testObject.setRepository(virtualCashRegisterRepository);
         testObject.setBaseUrl(BASE_URL);
         testObject.setEntityClass(VirtualCashRegister.class);

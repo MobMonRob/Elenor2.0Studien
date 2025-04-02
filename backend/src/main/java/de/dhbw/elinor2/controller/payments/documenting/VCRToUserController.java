@@ -1,5 +1,5 @@
 package de.dhbw.elinor2.controller.payments.documenting;
-
+/*
 import de.dhbw.elinor2.controller.payments.PaymentController;
 import de.dhbw.elinor2.entities.VCRToUser;
 import de.dhbw.elinor2.services.payments.documenting.VCRToUserService;
@@ -21,3 +21,4 @@ public class VCRToUserController extends PaymentController<InputPayment, OutputP
         super(service);
     }
 }
+*/
