@@ -19,7 +19,8 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-
+    networks:
+      - balance-book-net
 
   backend:
     container_name: backend
@@ -32,8 +33,12 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/elinor2
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloakContainerName:8080/realms/elinor-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloakContainerName:8080/realms/elinor-realm/protocol/openid-connect/certs
     depends_on:
       - mariadb
+    networks:
+      - balance-book-net
 
   frontend:
     container_name: frontend
@@ -44,6 +49,11 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    networks:
+      - balance-book-net
 
 volumes:
   mariadb_data:
+
+networks:
+  balance-book-net:
