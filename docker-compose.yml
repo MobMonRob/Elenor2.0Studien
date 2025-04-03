@@ -33,8 +33,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/elinor2
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloakContainerName:8080/realms/elinor-realm
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloakContainerName:8080/realms/elinor-realm/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/master
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
     depends_on:
       - mariadb
     networks:
@@ -57,3 +57,5 @@ volumes:
 
 networks:
   balance-book-net:
+    name: balance-book-net
+    external: true
