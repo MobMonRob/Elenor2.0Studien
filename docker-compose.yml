@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    extra_hosts:
+      - "auth.local:host.docker.internal"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/elinor2
       - SPRING_DATASOURCE_USERNAME=myuser
