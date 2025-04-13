@@ -15,8 +15,6 @@ public class PaymentInfoTest extends GenericTest<PaymentInfo, PaymentInfo, Payme
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
-    private final String BASE_URL = "http://localhost:8080/api/paymentinfos";
-
     @Override
     public String getObjectAssertionIdentificationSavedEntity(PaymentInfo paymentInfo)
     {
@@ -39,8 +37,9 @@ public class PaymentInfoTest extends GenericTest<PaymentInfo, PaymentInfo, Payme
     @Override
     public TestObject<PaymentInfo, PaymentInfo, PaymentInfo, UUID> initTestObject()
     {
+        String baseUrl = "http://localhost:8080/api/paymentinfos";
         TestObject<PaymentInfo, PaymentInfo, PaymentInfo, UUID> testObject = new TestObject<>();
-        testObject.setBaseUrl(BASE_URL);
+        testObject.setBaseUrl(baseUrl);
         testObject.setRepository(paymentInfoRepository);
         testObject.setEntityClass(PaymentInfo.class);
         testObject.setEntityArrayClass(PaymentInfo[].class);

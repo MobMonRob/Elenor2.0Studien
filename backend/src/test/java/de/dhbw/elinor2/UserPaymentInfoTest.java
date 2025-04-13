@@ -39,7 +39,7 @@ class UserPaymentInfoTest
 
     private User_PaymentInfo existingUser_PaymentInfo;
 
-    private String BASE_URL;
+    private String baseUrl;
 
     @BeforeEach
     void addTestData()
@@ -56,7 +56,7 @@ class UserPaymentInfoTest
                 responsePaymentInfo.getId(),
                 "testPaymentAddress");
 
-        BASE_URL = "http://localhost:8080/api/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos";
+        baseUrl = "http://localhost:8080/api/users/" + existingUser_PaymentInfo.getUser().getId() + "/paymentinfos";
     }
 
     @AfterEach
@@ -72,7 +72,7 @@ class UserPaymentInfoTest
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User_PaymentInfo> response =
-                restTemplate.getForEntity(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
+                restTemplate.getForEntity(baseUrl + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(existingUser_PaymentInfo.getPaymentAddress(), response.getBody().getPaymentAddress());
@@ -83,7 +83,7 @@ class UserPaymentInfoTest
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User_PaymentInfo[]> response =
-                restTemplate.getForEntity(BASE_URL, User_PaymentInfo[].class);
+                restTemplate.getForEntity(baseUrl, User_PaymentInfo[].class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(1, response.getBody().length);
@@ -104,7 +104,7 @@ class UserPaymentInfoTest
 
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User_PaymentInfo> response =
-                restTemplate.postForEntity(BASE_URL + "/" + responsePaymentInfo.getId(), user_paymentInfo.getPaymentAddress(), User_PaymentInfo.class);
+                restTemplate.postForEntity(baseUrl + "/" + responsePaymentInfo.getId(), user_paymentInfo.getPaymentAddress(), User_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(user_paymentInfo.getPaymentAddress(), response.getBody().getPaymentAddress());
@@ -115,8 +115,8 @@ class UserPaymentInfoTest
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         String newPaymentAddress = "newTestPaymentAddress";
-        restTemplate.put(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
-        ResponseEntity<User_PaymentInfo> response = restTemplate.getForEntity(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
+        restTemplate.put(baseUrl + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
+        ResponseEntity<User_PaymentInfo> response = restTemplate.getForEntity(baseUrl + "/" + existingUser_PaymentInfo.getPaymentInfo().getId(), User_PaymentInfo.class);
 
         // Verify the response
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -128,7 +128,7 @@ class UserPaymentInfoTest
     void deleteRequest()
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
-        restTemplate.delete(BASE_URL + "/" + existingUser_PaymentInfo.getPaymentInfo().getId());
+        restTemplate.delete(baseUrl + "/" + existingUser_PaymentInfo.getPaymentInfo().getId());
         User_PaymentInfo_Id user_paymentInfo_id = new User_PaymentInfo_Id(
                 existingUser_PaymentInfo.getUser(),
                 existingUser_PaymentInfo.getPaymentInfo());

@@ -15,8 +15,6 @@ public class ExternTest extends GenericTest<Extern, Extern, Extern, UUID>
     @Autowired
     private ExternRepository externRepository;
 
-    private final String BASE_URL = "http://localhost:8080/api/externs";
-
 
     @Override
     public String getObjectAssertionIdentificationSavedEntity(Extern extern)
@@ -40,9 +38,10 @@ public class ExternTest extends GenericTest<Extern, Extern, Extern, UUID>
     @Override
     public TestObject<Extern, Extern, Extern, UUID> initTestObject()
     {
+        String baseUrl = "http://localhost:8080/api/externs";
         TestObject<Extern, Extern, Extern, UUID> testObject = new TestObject<>();
         testObject.setRepository(externRepository);
-        testObject.setBaseUrl(BASE_URL);
+        testObject.setBaseUrl(baseUrl);
         testObject.setEntityClass(Extern.class);
         testObject.setEntityArrayClass(Extern[].class);
 

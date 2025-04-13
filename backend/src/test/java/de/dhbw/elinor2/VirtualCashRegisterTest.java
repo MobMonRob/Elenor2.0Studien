@@ -15,9 +15,6 @@ public class VirtualCashRegisterTest extends GenericTest<VirtualCashRegister, Vi
     @Autowired
     private VirtualCashRegisterRepository virtualCashRegisterRepository;
 
-    private final String BASE_URL = "http://localhost:8080/api/virtualcashregisters";
-
-
     @Override
     public String getObjectAssertionIdentificationSavedEntity(VirtualCashRegister virtualCashRegister)
     {
@@ -39,9 +36,10 @@ public class VirtualCashRegisterTest extends GenericTest<VirtualCashRegister, Vi
     @Override
     public TestObject<VirtualCashRegister, VirtualCashRegister, VirtualCashRegister, UUID> initTestObject()
     {
+        String baseUrl = "http://localhost:8080/api/virtualcashregisters";
         TestObject<VirtualCashRegister, VirtualCashRegister, VirtualCashRegister, UUID> testObject = new TestObject<>();
         testObject.setRepository(virtualCashRegisterRepository);
-        testObject.setBaseUrl(BASE_URL);
+        testObject.setBaseUrl(baseUrl);
         testObject.setEntityClass(VirtualCashRegister.class);
         testObject.setEntityArrayClass(VirtualCashRegister[].class);
 

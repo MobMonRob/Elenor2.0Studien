@@ -16,9 +16,6 @@ public class UserTest extends GenericTest<User, User, User, UUID>
     @Autowired
     private UserRepository userRepository;
 
-    private final String BASE_URL = "http://localhost:8080/api/users";
-
-
     @Override
     public String getObjectAssertionIdentificationSavedEntity(User user)
     {
@@ -40,11 +37,12 @@ public class UserTest extends GenericTest<User, User, User, UUID>
     @Override
     public TestObject<User, User, User, UUID> initTestObject()
     {
+        String baseUrl = "http://localhost:8080/api/users";
         TestObject<User, User, User, UUID> testObject = new TestObject<>();
         testObject.setEntityClass(User.class);
         testObject.setEntityArrayClass(User[].class);
         testObject.setRepository(userRepository);
-        testObject.setBaseUrl(BASE_URL);
+        testObject.setBaseUrl(baseUrl);
 
         User user = DefaultUser.getDefaultUser();
         user = userRepository.save(user);

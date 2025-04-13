@@ -1,6 +1,5 @@
 package de.dhbw.elinor2.services;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

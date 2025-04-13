@@ -23,6 +23,7 @@ public class Extern
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "extern", cascade = CascadeType.ALL, orphanRemoval = true)

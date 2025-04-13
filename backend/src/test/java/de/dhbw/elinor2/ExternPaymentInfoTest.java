@@ -39,7 +39,7 @@ class ExternPaymentInfoTest
 
     private Extern_PaymentInfo existingExtern_PaymentInfo;
 
-    private String BASE_URL;
+    private String baseUrl;
 
     @BeforeEach
     void addTestData()
@@ -57,7 +57,7 @@ class ExternPaymentInfoTest
                 responsePaymentInfo.getId(),
                 "testPaymentAddress");
 
-        BASE_URL = "http://localhost:8080/api/externs/" + existingExtern_PaymentInfo.getExtern().getId() + "/paymentinfos";
+        baseUrl = "http://localhost:8080/api/externs/" + existingExtern_PaymentInfo.getExtern().getId() + "/paymentinfos";
     }
 
     @AfterEach
@@ -73,7 +73,7 @@ class ExternPaymentInfoTest
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<Extern_PaymentInfo> response =
-                restTemplate.getForEntity(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), Extern_PaymentInfo.class);
+                restTemplate.getForEntity(baseUrl + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), Extern_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(existingExtern_PaymentInfo.getPaymentAddress(), response.getBody().getPaymentAddress());
@@ -84,7 +84,7 @@ class ExternPaymentInfoTest
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<Extern_PaymentInfo[]> response =
-                restTemplate.getForEntity(BASE_URL, Extern_PaymentInfo[].class);
+                restTemplate.getForEntity(baseUrl, Extern_PaymentInfo[].class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(1, response.getBody().length);
@@ -105,7 +105,7 @@ class ExternPaymentInfoTest
 
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<Extern_PaymentInfo> response =
-                restTemplate.postForEntity(BASE_URL + "/" + responsePaymentInfo.getId(), extern_paymentInfo.getPaymentAddress(), Extern_PaymentInfo.class);
+                restTemplate.postForEntity(baseUrl + "/" + responsePaymentInfo.getId(), extern_paymentInfo.getPaymentAddress(), Extern_PaymentInfo.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(extern_paymentInfo.getPaymentAddress(), response.getBody().getPaymentAddress());
@@ -116,8 +116,8 @@ class ExternPaymentInfoTest
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         String newPaymentAddress = "newTestPaymentAddress";
-        restTemplate.put(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
-        ResponseEntity<Extern_PaymentInfo> response = restTemplate.getForEntity(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), Extern_PaymentInfo.class);
+        restTemplate.put(baseUrl + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), newPaymentAddress);
+        ResponseEntity<Extern_PaymentInfo> response = restTemplate.getForEntity(baseUrl + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId(), Extern_PaymentInfo.class);
 
         // Verify the response
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -129,7 +129,7 @@ class ExternPaymentInfoTest
     void deleteRequest()
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
-        restTemplate.delete(BASE_URL + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId());
+        restTemplate.delete(baseUrl + "/" + existingExtern_PaymentInfo.getPaymentInfo().getId());
         Extern_PaymentInfo_Id extern_paymentInfo_id = new Extern_PaymentInfo_Id(
                 existingExtern_PaymentInfo.getExtern(),
                 existingExtern_PaymentInfo.getPaymentInfo());

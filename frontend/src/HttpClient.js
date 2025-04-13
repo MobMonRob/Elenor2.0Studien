@@ -1,11 +1,10 @@
 import axios from "axios";
 import Keycloak from "keycloak-js";
 
-// Keycloak-Instanz erstellen
 const keycloak = new Keycloak({
     url: "http://localhost:8081/",
-    realm: "elinor-realm",
-    clientId: "elinor",
+    realm: "balancebook-realm",
+    clientId: "balancebook",
 });
 
 export const httpClient = axios.create({
