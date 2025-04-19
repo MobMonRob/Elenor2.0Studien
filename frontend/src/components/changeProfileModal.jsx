@@ -116,7 +116,7 @@ const ChangeProfileModal = ({
                             <input
                                 type="text"
                                 name="balance"
-                                value={user.balance}
+                                value={user.balance + " €"}
                                 className="form-control"
                                 disabled={true}
                             />
