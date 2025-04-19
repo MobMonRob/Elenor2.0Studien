@@ -30,13 +30,11 @@ services:
     ports:
       - "8080:8080"
     extra_hosts:
-      - "auth.local:host.docker.internal"
+      - "auth.local:172.18.176.1"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/elinor2
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/balancebook-realm
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/balancebook-realm/protocol/openid-connect/certs
     depends_on:
       - mariadb
     networks:

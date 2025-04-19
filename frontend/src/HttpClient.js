@@ -2,7 +2,7 @@ import axios from "axios";
 import Keycloak from "keycloak-js";
 
 const keycloak = new Keycloak({
-    url: "http://auth.local/",
+    url: "http://auth.local:8081/",
     realm: "balancebook-realm",
     clientId: "balancebook",
 });
