@@ -72,4 +72,20 @@ Für den Erhalt des Tokens ist ein Endpunkt über Keycloak verfügbar:
 Dafür muss aber manuell ein User in Keycloak im Client des BalanceBooks angelegt werden. Das geht entweder über die Admin-Konsole oder über das Testfrontend beim Registrieren.
 
 ### Generelle Informationen
-Die implementierte Anwendung ist auf den Testbetrieb ausgelegt. Das heißt, wenn ein Anwendungstest durchgeführt wurde, müssen die einzelnen Komponenten noch in Sicherheitsaspekten auf die Funktionstauglichkeit im Produktivbetrieb untersucht werden. Detaillierte Angaben sind im Ausblick der Studienarbeit zu finden.
+Die implementierte Anwendung ist ein Konzept zur Durchführung von Dokumentationen zu Gruppenüberweisungen. Das bedeutet das nach dem aktuellen Stand auf Basis des Programms Anwendertests durchgeführt werden können. Allerdings ist die Anwendung noch nicht für den produktiven Einsatz geeignet. Dazu müssen die einzelnen Komponenten noch in Sicherheitsaspekten auf die Funktionstauglichkeit im Produktivbetrieb untersucht werden. Detaillierte Angaben dazu sind im Ausblick der Studienarbeit zu finden.
+
+Die Anwendung wurde über Integrationstests und über die statische Codeanalyse getestet. Diese werden automatisch bei einem Push oder einen Pull-Request auf dem Branch 'main' ausgeführt.
+
+#### Integrationstests
+Die Integrationstests sind direkt über JUnit im Backend implementiert. Für die Ausführung muss allerdings parallel eine MariaDB-Instanz laufen, welche die Konfigurationen aus application.properties im Test-Ordner erfüllt. Über die Tests sind alle REST-Endpunkte abgedeckt und damit über 83% der gesmaten Codezeilen getestet. 
+
+#### Statische Codeanalyse
+Die Ergebnisse sind unter `https://sonarcloud.io/organizations/mobmonrob-elinor2/projects` abrufbar. Dabei sind ausführlichere Informationen nach der Anmeldung über den im Projekt verwendeten Account verfügbar.
+
+Die aktuellen Ergebnisse sind:
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=bugs)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
+
