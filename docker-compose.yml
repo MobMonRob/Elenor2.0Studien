@@ -6,7 +6,7 @@ services:
     container_name: database
     environment:
       MARIADB_ROOT_PASSWORD: my-secret-password
-      MARIADB_DATABASE: elinor2
+      MARIADB_DATABASE: balancebook
       MARIADB_USER: myuser
       MARIADB_PASSWORD: myuserpassword
     ports:
@@ -32,7 +32,7 @@ services:
     extra_hosts:
       - "auth.local:172.18.176.1"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/elinor2
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/balancebook
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
     depends_on:
