@@ -17,7 +17,7 @@ jobs:
           - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: my-secret-password
-          MYSQL_DATABASE: test-elinor2
+          MYSQL_DATABASE: test-balancebook
           MYSQL_USER: myuser
           MYSQL_PASSWORD: myuserpassword
 
