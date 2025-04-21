@@ -30,13 +30,14 @@ services:
     ports:
       - "8080:8080"
     extra_hosts:
-      - "auth.local:172.18.176.1"
+      - "auth.local:zuErsetzendeIpAdresse"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/balancebook
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
     depends_on:
-      - mariadb
+       mariadb:
+          condition: service_healthy
     networks:
       - balance-book-net
 
@@ -58,4 +59,3 @@ volumes:
 networks:
   balance-book-net:
     name: balance-book-net
-    external: true

@@ -1,11 +1,11 @@
 # BalanceBook
 
 BalanceBook ist eine Anwendung um eine gemeinsame Kasse in einer Gruppe zu führen. 
-Die Anwendung umfasst ein Backend und ein Frontend. Bei der Konfiguration und Einrichtung über DOcker ist zusätzlich eine MariaDB-Instanz und eine keycloak-Instanz eingeschlossen.
+Die Anwendung umfasst ein Backend und ein Frontend. Bei der Konfiguration und Einrichtung über Docker ist zusätzlich eine MariaDB-Instanz und eine keycloak-Instanz eingeschlossen.
 
 ## Inbetriebnahme
 ### 1. Repository klonen und Überprüfung auf die notwendige Software
-Damit die Anwendung ausgeführt werden kann, muss der Quellcode lokal auf dem Rechner zur Verfügung stehen. Dafür muss dieses Repository in einen beliebigen lokalenn Zielordner geklont werden.
+Damit die Anwendung ausgeführt werden kann, muss der Quellcode lokal auf dem Rechner zur Verfügung stehen. Dafür muss dieses Repository in einen beliebigen lokalen Zielordner geklont werden.
 
 Bevor die Anwendung gestartet werden kann, muss sichergestellt werden, dass Docker installiert ist.
 
@@ -32,15 +32,20 @@ Falls nicht das ganze Realm, sondern nur der Client importiert werden soll, müs
 
 Damit eine korrekte Weiterleitung der Aufrufe an die Keycloak-Instanz und die Backend-Instanz erfolgen kann, muss eine DNS-Weiterleitung eingerichtet werden. Dazu muss die Datei `/etc/hosts` (unter Windows `C:\Windows\System32\drivers\etc\hosts`) bearbeitet werden. Dort muss folgende Zeile hinzugefügt werden:
 `127.0.0.1 auth.local`
+
+Gegebenenfalls muss der Editor mit Administrator-Rechten geöffnet werden, um die Datei zu bearbeiten.
+
 Dadurch werden lokal alle Aufrufe an `auth.local` an die Keycloak-Instanz weitergeleitet. Dadurch können über die gleiche Adresse auch die Backend-Instanz und die Frontend-Instanz mit der Keycloak-Instanz kommunizieren.
 
 ### 5. Docker-Compose-Befehl ausführen
 Bevor die Anwendung ausgeführt wird, sollten die Datenbankpasswörter in der Docker-Compose-Datei beim MariaDB-Container und beim backend-Container neu gewählt werden.
 
+Zusätzlich muss für die DNS-Weiterleitung in der Docker-Compose-Datei die Zeile `extra_hosts: - "auth.local:zuErsetzendeIpAdresse"` angepasst werden. Die eigene IP-Adresse kann unter 'ipconfig' (Windows) bei der IPv4-Adresse beim Ethernet-Adapter abgelesen werden
+
 Um die Anwendung im Anschluss zu starten, muss der Docker-Compose-Befehl im Terminal ausgeführt werden. 
 Dabei muss sichergestellt werden, dass sich das Terminal im Verzeichnis des geklonten Repositories befindet. Der Befehl lautet:
 
-`docker-compose up --build`
+`docker compose up --build`
 
 ## Benutzung
 
@@ -63,8 +68,8 @@ Für den Erhalt des Tokens ist ein Endpunkt über Keycloak verfügbar:
 ```   
     POST http://localhost:8081/realms/balancebook-realm/protocol/openid-connect/token
 	
-    Body:
-	grant-type: password
+    Body (x-www-form-urlencoded):
+	grant_type: password
 	client_id: balancebook
 	username: angelegteruser_benutzername
 	password angelegteruser_passwort

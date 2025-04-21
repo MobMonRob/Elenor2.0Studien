@@ -1,7 +1,7 @@
 {
   "id": "71216563-2db0-47aa-8851-a7905df1ccd3",
   "realm": "balancebook-realm",
-  "displayName": "",
+  "displayName": "balancebook",
   "displayNameHtml": "",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
