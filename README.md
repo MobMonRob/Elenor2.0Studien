@@ -1,96 +1,123 @@
 # BalanceBook
 
-BalanceBook ist eine Anwendung um eine gemeinsame Kasse in einer Gruppe zu führen. 
-Die Anwendung umfasst ein Backend und ein Frontend. Bei der Konfiguration und Einrichtung über Docker ist zusätzlich eine MariaDB-Instanz und eine keycloak-Instanz eingeschlossen.
+BalanceBook ist eine Anwendung zur Verwaltung einer gemeinsamen Kasse innerhalb einer Gruppe.  
+Die Anwendung besteht aus einem Backend und einem Frontend. Für die Konfiguration und Einrichtung über Docker werden zusätzlich eine MariaDB-Instanz sowie eine Keycloak-Instanz verwendet.
 
 ## Inbetriebnahme
-### 1. Repository klonen und Überprüfung auf die notwendige Software
-Damit die Anwendung ausgeführt werden kann, muss der Quellcode lokal auf dem Rechner zur Verfügung stehen. Dafür muss dieses Repository in einen beliebigen lokalen Zielordner geklont werden.
 
-Bevor die Anwendung gestartet werden kann, muss sichergestellt werden, dass Docker installiert ist.
+### 1. Repository klonen und notwendige Software überprüfen
+
+Damit die Anwendung ausgeführt werden kann, muss der Quellcode lokal auf dem Rechner verfügbar sein. Dafür muss dieses Repository in ein beliebiges lokales Zielverzeichnis geklont werden.
+
+Bevor die Anwendung gestartet werden kann, muss sichergestellt sein, dass Docker installiert ist.
 
 ### 2. Keycloak-Container starten
 
-
-Um die Keycloak-Instanz zu starten, muss der Docker-Container mit dem folgenden Befehl gestartet werden:`
+Um die Keycloak-Instanz zu starten, muss der Docker-Container mit folgendem Befehl gestartet werden:
 
 ```
-docker run --name keycloak -p 8081:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=adminUser  -e KC_BOOTSTRAP_ADMIN_PASSWORD=adminUser --hostname auth.local quay.io/keycloak/keycloak:latest start-dev
+docker run --name keycloak -p 8081:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=adminUser -e KC_BOOTSTRAP_ADMIN_PASSWORD=adminUser --hostname auth.local quay.io/keycloak/keycloak:latest start-dev
 ```
-Dabei sollten die Umgebungsvariablen `KC_BOOTSTRAP_ADMIN_USERNAME` und `KC_BOOTSTRAP_ADMIN_PASSWORD` angepasst werden. Diese Variablen sind für die Authentifizierung des Administrators in der Keycloak-Instanz verantwortlich.
+
+Die Umgebungsvariablen `KC_BOOTSTRAP_ADMIN_USERNAME` und `KC_BOOTSTRAP_ADMIN_PASSWORD` sollten angepasst werden. Diese Variablen dienen der Authentifizierung des Administrators in der Keycloak-Instanz.
 
 ### 3. Keycloak-Instanz konfigurieren
-Um die Keycloak-Instanz zu konfigurieren, muss die URL http://localhost:8081 in einem Webbrowser aufgerufen werden. Dort kann der Administrator-Account mit den oben angegebenen Anmeldedaten eingeloggt werden.
-Für die Erstellung eines permanenten Admin-Accounts muss der Admin-Account in der Keycloak-Instanz konfiguriert werden. Dazu muss auf der linken Seite auf "Users" geklickt werden und dann auf "Add User". Es öffnet sich ein Fenster, in dem die Daten des neuen Benutzers eingegeben werden können. Nach dem Erstellen kann unter Confidentials das Passwort bestätigt werden und unter Roles die admin Rolle hinzugefügt werden. Daraufhin kann sich in Zukunft mit dem neuen Benutzer in dem Keycloak-Admin-Fenster angemeldet werden.
 
-Anschließend muss ein neues Realm erstellt werden. Dazu muss auf der linken Seite auf "Realms" geklickt werden und dann auf "Create Realm". Es öffnet sich eine Option ein bestehendes Realm zu importieren. Dabei kann das vorkonfigurierte Realm aus dem Ordner keycloak `realm-export.json` geladen werden. 
-Anschließend kann die Aktion bestätigt und das Fenster im Browser wieder geschlossen werden.
+Zur Konfiguration der Keycloak-Instanz muss die URL `http://localhost:8081` im Webbrowser geöffnet werden. Dort kann man sich mit den oben angegebenen Anmeldedaten in den Administrator-Account einloggen.
 
-Falls nicht das ganze Realm, sondern nur der Client importiert werden soll, müssen noch weitere Anpassungen welche sich am importierten Realm orientieren am bestehenden Realm angepasst werden. Daher wird dieser Import nur Personen empfohlen, die sich mit Keycloak auskennen. Dabei müssen dann auch die Realm-Namen im Backend (application.properties) und im Frontend (HttpClient.js) angepasst werden.
+Für die Erstellung eines dauerhaften Admin-Accounts muss dieser in Keycloak konfiguriert werden. Dazu auf der linken Seite auf **"Users"** klicken und dann auf **"Add User"**. Es öffnet sich ein Formular, in dem die Daten des neuen Benutzers eingegeben werden können. Nach dem Erstellen können unter **"Credentials"** das Passwort gesetzt und unter **"Role Mappings"** die Rolle `admin` hinzugefügt werden. Danach kann man sich mit diesem neuen Benutzer im Keycloak-Admin-Panel anmelden.
+
+Anschließend muss ein neues Realm erstellt werden. Dafür auf der linken Seite auf **"Realms"** klicken und **"Create Realm"** auswählen. Dort kann ein vorkonfiguriertes Realm aus dem Ordner `keycloak` (Datei `realm-export.json`) importiert werden. Die Aktion kann anschließend bestätigt und der Browser geschlossen werden.
+
+Falls nicht das gesamte Realm, sondern nur der Client (Datei `balancebook.json`) importiert werden soll, sind weitere Anpassungen erforderlich, die sich am importierten Realm orientieren. Dieser Vorgang wird nur Personen empfohlen, die mit Keycloak vertraut sind. In diesem Fall müssen auch die Realm-Namen im Backend (`application.properties`) und im Frontend (`HttpClient.js`) angepasst werden.
 
 ### 4. DNS-Weiterleitung einrichten
 
-Damit eine korrekte Weiterleitung der Aufrufe an die Keycloak-Instanz und die Backend-Instanz erfolgen kann, muss eine DNS-Weiterleitung eingerichtet werden. Dazu muss die Datei `/etc/hosts` (unter Windows `C:\Windows\System32\drivers\etc\hosts`) bearbeitet werden. Dort muss folgende Zeile hinzugefügt werden:
-`127.0.0.1 auth.local`
+Damit die Keycloak- und Backend-Instanz korrekt erreichbar sind, muss eine DNS-Weiterleitung eingerichtet werden. Dazu ist die Datei `/etc/hosts` (unter Windows `C:\Windows\System32\drivers\etc\hosts`) zu bearbeiten. Es muss folgende Zeile hinzugefügt werden:
 
-Gegebenenfalls muss der Editor mit Administrator-Rechten geöffnet werden, um die Datei zu bearbeiten.
+```
+127.0.0.1 auth.local
+```
 
-Dadurch werden lokal alle Aufrufe an `auth.local` an die Keycloak-Instanz weitergeleitet. Dadurch können über die gleiche Adresse auch die Backend-Instanz und die Frontend-Instanz mit der Keycloak-Instanz kommunizieren.
+Gegebenenfalls muss der Editor mit Administratorrechten gestartet werden, um die Datei bearbeiten zu können.
+
+Durch diese Weiterleitung werden lokale Aufrufe an `auth.local` an die Keycloak-Instanz geleitet. So können auch die Backend- und Frontend-Instanz unter dieser Adresse mit Keycloak kommunizieren.
 
 ### 5. Docker-Compose-Befehl ausführen
-Bevor die Anwendung ausgeführt wird, sollten die Datenbankpasswörter in der Docker-Compose-Datei beim MariaDB-Container und beim backend-Container neu gewählt werden.
 
-Zusätzlich muss für die DNS-Weiterleitung in der Docker-Compose-Datei die Zeile `extra_hosts: - "auth.local:zuErsetzendeIpAdresse"` angepasst werden. Die eigene IP-Adresse kann unter 'ipconfig' (Windows) bei der IPv4-Adresse beim Ethernet-Adapter abgelesen werden
+Vor dem Start der Anwendung sollten die Datenbankpasswörter in der Docker-Compose-Datei sowohl beim MariaDB-Container als auch beim Backend-Container angepasst werden.
 
-Um die Anwendung im Anschluss zu starten, muss der Docker-Compose-Befehl im Terminal ausgeführt werden. 
-Dabei muss sichergestellt werden, dass sich das Terminal im Verzeichnis des geklonten Repositories befindet. Der Befehl lautet:
+Außerdem muss für die DNS-Weiterleitung in der Docker-Compose-Datei die Zeile
 
-`docker compose up --build`
+```
+extra_hosts:
+  - "auth.local:zuErsetzendeIpAdresse"
+```
+
+angepasst werden. Die eigene IP-Adresse kann unter Windows mit dem Befehl `ipconfig` in der Eingabeaufforderung (IPv4-Adresse des Ethernet-Adapters) ermittelt werden.
+
+Zum Start der Anwendung im Terminal den folgenden Befehl ausführen:
+
+```
+docker compose up --build
+```
+
+Dabei muss sich das Terminal im Verzeichnis des geklonten Repositories befinden.
 
 ## Benutzung
 
 ### Frontend
-Das Frontend kann unter der Adresse http://localhost:3000 aufgerufen werden. Dort muss sich der Benutzer zuerst neu registrieren, weil die vorher angelegten Keycloak-Benutzerdaten isoliert von den BalanceBook-Nutzerdaten liegen. Nach der Registrierung wird er zu Hauptseite weitergeleitet. Dort sind folgende Funkzionen verfügbar:
-- **Mein Profil**: Bearbeiten, Zahlungsinformationen hinzufügen/löschen/bearbeiten
-- **Mitglieder**: Einsehen inklusive der Zahlungsinformationen
-- **Virtuelle Konten**: Einsehen, Erstellen, Bearbeiten, Löschen
-- **Externe Konten**: Einsehen, Erstellen, Bearbeiten, Löschen inklusive der Zahlungsinformationen
-- **Transaktionen**: Einsehen & Filtern (Alle), Erstellen & Bearbeiten & Löschen (nur die für mich bestimmten)
 
-Falls manchmal der Inhalt der Seite nicht angezeigt wird (vor allem nach der Anmeldung), muss die Seite neu geladen werden (F5). Das Problem ist analysiert worden und hängt eventuell an einer fehlenden HTTPS-Verbindung in Kombination mit den Browser-Standards.
+Das Frontend ist unter `http://localhost:3000` erreichbar. Dort muss sich der Benutzer zunächst registrieren, da die in Keycloak angelegten Benutzerdaten getrennt von den BalanceBook-Nutzerdaten gespeichert werden. Nach der Registrierung erfolgt eine Weiterleitung zur Hauptseite. Dort sind folgende Funktionen verfügbar:
+
+- **Mein Profil**: Bearbeiten, Zahlungsinformationen hinzufügen/löschen/bearbeiten
+- **Mitglieder**: Anzeigen, inklusive Zahlungsinformationen
+- **Virtuelle Konten**: Anzeigen, Erstellen, Bearbeiten, Löschen
+- **Externe Konten**: Anzeigen, Erstellen, Bearbeiten, Löschen, inklusive Zahlungsinformationen
+- **Transaktionen**: Anzeigen & Filtern (alle), Erstellen, Bearbeiten, Löschen (nur eigene Transaktionen)
+
+Falls der Seiteninhalt nach der Anmeldung nicht angezeigt wird, hilft oft ein Neuladen der Seite (F5). Dieses Problem hängt möglicherweise mit einer fehlenden HTTPS-Verbindung und Browser-Standards zusammen.
 
 ### Backend
-Das Backend ist unter der Adresse http://localhost:8080 erreichbar. 
 
-Die verfügbaren Endpunkte sind unter http://localhost:8080/swagger-ui/index.html über Swagger einsehbar.
+Das Backend ist unter `http://localhost:8080` erreichbar.
 
-Für den Erhalt des Tokens ist ein Endpunkt über Keycloak verfügbar:
-```   
-    POST http://localhost:8081/realms/balancebook-realm/protocol/openid-connect/token
-	
-    Body (x-www-form-urlencoded):
-	grant_type: password
-	client_id: balancebook
-	username: angelegteruser_benutzername
-	password angelegteruser_passwort
+Die verfügbaren Endpunkte sind über Swagger unter  
+`http://localhost:8080/swagger-ui/index.html` dokumentiert.
+
+Ein Token kann über folgenden Keycloak-Endpunkt angefordert werden:
+
 ```
-Dafür muss aber manuell ein User in Keycloak im Client des BalanceBooks angelegt werden. Das geht entweder über die Admin-Konsole oder über das Testfrontend beim Registrieren.
+POST http://localhost:8081/realms/balancebook-realm/protocol/openid-connect/token
 
-### Generelle Informationen
-Die implementierte Anwendung ist ein Konzept zur Durchführung von Dokumentationen zu Gruppenüberweisungen. Das bedeutet das nach dem aktuellen Stand auf Basis des Programms Anwendertests durchgeführt werden können. Allerdings ist die Anwendung noch nicht für den produktiven Einsatz geeignet. Dazu müssen die einzelnen Komponenten noch in Sicherheitsaspekten auf die Funktionstauglichkeit im Produktivbetrieb untersucht werden. Detaillierte Angaben dazu sind im Ausblick der Studienarbeit zu finden.
+Body (x-www-form-urlencoded):
+grant_type: password
+client_id: balancebook
+username: <angelegter Benutzername>
+password: <angelegtes Passwort>
+```
 
-Die Anwendung wurde über Integrationstests und über die statische Codeanalyse getestet. Diese werden automatisch bei einem Push oder einen Pull-Request auf dem Branch 'main' ausgeführt.
+Der Benutzer muss zuvor manuell in Keycloak im Client „balancebook“ angelegt worden sein – entweder über die Admin-Konsole oder über das Testfrontend bei der Registrierung.
+
+### Allgemeine Informationen
+
+Die Anwendung ist ein Konzept zur Dokumentation gemeinsamer Gruppenüberweisungen. Sie ist derzeit nicht für den produktiven Einsatz geeignet. Vor einem Einsatz müssen Sicherheitsaspekte aller Komponenten überprüft und angepasst werden. Detaillierte Informationen hierzu sind im Ausblick der Studienarbeit enthalten.
+
+Die Anwendung wurde durch Integrationstests und statische Codeanalyse überprüft. Diese Tests werden bei jedem Push oder Pull-Request auf den Branch `main` automatisch ausgeführt.
 
 #### Integrationstests
-Die Integrationstests sind direkt über JUnit im Backend implementiert. Für die Ausführung muss allerdings parallel eine MariaDB-Instanz laufen, welche die Konfigurationen aus application.properties im Test-Ordner erfüllt. Über die Tests sind alle REST-Endpunkte abgedeckt und damit über 83% der gesmaten Codezeilen getestet. 
+
+Die Integrationstests sind im Backend mittels JUnit implementiert. Zur Ausführung muss eine MariaDB-Instanz mit den Konfigurationen aus der `application.properties` im Testverzeichnis laufen. Über die Tests sind alle REST-Endpunkte abgedeckt, womit über 83 % des gesamten Codes getestet werden.
 
 #### Statische Codeanalyse
-Die Ergebnisse sind unter `https://sonarcloud.io/organizations/mobmonrob-elinor2/projects` abrufbar. Dabei sind ausführlichere Informationen nach der Anmeldung über den im Projekt verwendeten Account verfügbar.
 
-Die aktuellen Ergebnisse sind:
+Die Ergebnisse sind unter folgender Adresse einsehbar:  
+`https://sonarcloud.io/organizations/mobmonrob-elinor2/projects`  
+Nach der Anmeldung über einen GitHub-Account der Projektbearbeiter ist, stehen dort detaillierte Informationen zur Verfügung.
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=bugs)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
+Aktuelle Ergebnisse:
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)  
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=bugs)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)  
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)  
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mobmonrob-elinor2_mobmonrob-elinor2&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mobmonrob-elinor2_mobmonrob-elinor2)
-
