@@ -30,7 +30,7 @@ services:
     ports:
       - "8080:8080"
     extra_hosts:
-      - "auth.local:zuErsetzendeIpAdresse"
+      - "auth.local:host-gateway"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/balancebook
       - SPRING_DATASOURCE_USERNAME=myuser
