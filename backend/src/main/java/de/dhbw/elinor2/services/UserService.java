@@ -99,7 +99,7 @@ public class UserService extends GenericService<User, UUID>
         user.setLastName(jwt.getClaim("family_name"));
         user.setUsername(jwt.getClaim("preferred_username"));
 
-        create(user);
+        userRepository.save(user);
         return user;
     }
 
