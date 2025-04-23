@@ -36,8 +36,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=myuserpassword
     depends_on:
-       mariadb:
-          condition: service_healthy
+      - mariadb
     networks:
       - balance-book-net
 

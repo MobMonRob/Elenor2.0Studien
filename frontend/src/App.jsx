@@ -18,6 +18,7 @@ const App = () => {
                 if (auth) {
                     const token = keycloak.token;
                     httpClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+                    await httpClient.post("users/me")
                     const [usersRes, cashRes, externsRes] = await Promise.all([
                         httpClient.get("/users"),
                         httpClient.get("/virtualcashregisters"),

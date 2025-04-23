@@ -102,4 +102,10 @@ public class UserController
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/me")
+    public ResponseEntity<User> updateMe(@AuthenticationPrincipal Jwt jwt)
+    {
+        User user = userService.setupUpdateUser(jwt);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 }

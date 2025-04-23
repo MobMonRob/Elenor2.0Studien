@@ -76,8 +76,6 @@ Das Frontend ist unter `http://localhost:3000` erreichbar. Dort muss sich der Be
 - **Externe Konten**: Anzeigen, Erstellen, Bearbeiten, Löschen, inklusive Zahlungsinformationen
 - **Transaktionen**: Anzeigen & Filtern (alle), Erstellen, Bearbeiten, Löschen (nur eigene Transaktionen)
 
-Falls der Seiteninhalt nach der Anmeldung nicht angezeigt wird, hilft oft ein Neuladen der Seite (F5). Dieses Problem hängt möglicherweise mit einer fehlenden HTTPS-Verbindung und Browser-Standards zusammen.
-
 ### Backend
 
 Das Backend ist unter `http://localhost:8080` erreichbar.
@@ -98,6 +96,12 @@ password: <angelegtes Passwort>
 ```
 
 Der Benutzer muss zuvor manuell in Keycloak im Client „balancebook“ angelegt worden sein – entweder über die Admin-Konsole oder über das Testfrontend bei der Registrierung.
+
+### Keycloak
+
+Der Keycloak-Account für den Admin ist erreichbar unter `http://localhost:8081`. Dort kann der Admin den Keycloak-Account bearbeitet.
+
+Unter der URL `http://localhost:8081/realms/balancebook-realm/account/` kann sich der Benutzer von BalanceBook anmelden und sein Keycloak-Profil einsehen bzw. bearbeiten.
 
 ### Allgemeine Informationen
 

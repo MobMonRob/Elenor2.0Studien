@@ -81,7 +81,7 @@ public class UserService extends GenericService<User, UUID>
     }
 
     @Transactional
-    public void setupUpdateUser(Jwt jwt)
+    public User setupUpdateUser(Jwt jwt)
     {
         UUID jwtUserId = UUID.fromString(jwt.getSubject());
 
@@ -90,16 +90,17 @@ public class UserService extends GenericService<User, UUID>
         User existingUser = userRepository.findById(jwtUserId).orElse(null);
         if(existingUser != null){
             user = existingUser;
-            user.setBalance(existingUser.getBalance());
-        }else
-        {
+        } else {
             user = new User();
             user.setId(jwtUserId);
-            user.setFirstName(jwt.getClaim("given_name"));
-            user.setLastName(jwt.getClaim("family_name"));
-            user.setUsername(jwt.getClaim("preferred_username"));
         }
+
+        user.setFirstName(jwt.getClaim("given_name"));
+        user.setLastName(jwt.getClaim("family_name"));
+        user.setUsername(jwt.getClaim("preferred_username"));
+
         create(user);
+        return user;
     }
 
     public void checkUserAuthorization(UUID userId, Jwt jwt)

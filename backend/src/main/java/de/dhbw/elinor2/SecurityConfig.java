@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -16,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig
 {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUserSetupFilter jwtUserSetupFilter) throws Exception
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         http
                 .authorizeHttpRequests(auth ->  auth
@@ -33,8 +32,7 @@ public class SecurityConfig
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterAfter(jwtUserSetupFilter, BearerTokenAuthenticationFilter.class);
+                );
 
         return http.build();
     }
