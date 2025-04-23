@@ -106,7 +106,7 @@ Die Anwendung wurde durch Integrationstests und statische Codeanalyse überprüf
 
 #### Integrationstests
 
-Die Integrationstests sind im Backend mittels JUnit implementiert. Zur Ausführung muss eine MariaDB-Instanz mit den Konfigurationen aus der `application.properties` im Testverzeichnis laufen. Über die Tests sind alle REST-Endpunkte abgedeckt, womit über 83 % des gesamten Codes getestet werden.
+Die Integrationstests sind im Backend mittels JUnit implementiert. Zur Ausführung muss eine MariaDB-Instanz mit den Konfigurationen aus der `application.properties` im Testverzeichnis laufen. Über die Tests sind alle REST-Endpunkte abgedeckt, womit über 80% des gesamten Codes getestet werden.
 
 #### Statische Codeanalyse
 

@@ -5,8 +5,13 @@ import de.dhbw.elinor2.repositories.UserRepository;
 import de.dhbw.elinor2.utils.DefaultUser;
 import de.dhbw.elinor2.utils.GenericTest;
 import de.dhbw.elinor2.utils.TestObject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
@@ -77,5 +82,15 @@ public class UserTest extends GenericTest<User, User, User, UUID>
     public void postRequest()
     {
         throw new UnsupportedOperationException();
+    }
+
+    @Test
+    public void updateUserTest()
+    {
+        TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
+        ResponseEntity<User> response = restTemplate.postForEntity(testObject.getBaseUrl() + "/me", null, testObject.getEntityClass());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(getObjectAssertionIdentificationReceivedEntity(DefaultUser.getDefaultUser()), getObjectAssertionIdentificationSendEntity(response.getBody()));
     }
 }
