@@ -30,19 +30,19 @@ public class UserService extends GenericService<User, UUID>
         this.paymentInfoRepository = paymentInfoRepository;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Iterable<User_PaymentInfo> getUserPaymentInfoFields(UUID userId)
     {
         return userPaymentInfoRepository.findByUserId(userId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Iterable<User_PaymentInfo> getUserPaymentInfoFields()
     {
         return userPaymentInfoRepository.findAll();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<User_PaymentInfo> getUserPaymentInfoField(UUID userId, UUID paymentInfoId)
     {
         return userPaymentInfoRepository.findByUserIdAndPaymentInfoId(userId, paymentInfoId);
@@ -80,6 +80,7 @@ public class UserService extends GenericService<User, UUID>
         userPaymentInfoRepository.deleteByUserIdAndPaymentInfoId(userId, paymentInfoId);
     }
 
+    @Transactional
     public void setupUpdateUser(Jwt jwt)
     {
         UUID jwtUserId = UUID.fromString(jwt.getSubject());

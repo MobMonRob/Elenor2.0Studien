@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
 public abstract class PaymentService<IP extends InputPayment, OP extends OutputPayment, T, ID> implements IPaymentService<IP, OP, ID>
 {
     private final JpaRepository<T, ID> repository;
@@ -23,6 +22,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
+    @Transactional
     public OP create(IP paymentPattern, Jwt jwt)
     {
         checkInputPaymentPattern(paymentPattern);
@@ -32,6 +32,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OP findById(ID id)
     {
         Optional<T> result = repository.findById(id);
@@ -43,6 +44,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<OP> findAll()
     {
         List<OP> result = new ArrayList<>();
@@ -55,6 +57,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
+    @Transactional
     public OP update(ID id, IP paymentPattern, Jwt jwt)
     {
         checkInputPaymentPattern(paymentPattern);
@@ -76,6 +79,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
+    @Transactional
     public void deleteById(ID id, Jwt jwt)
     {
         T entity = repository.findById(id).orElseThrow(()
@@ -85,6 +89,7 @@ public abstract class PaymentService<IP extends InputPayment, OP extends OutputP
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(ID id)
     {
         return repository.existsById(id);

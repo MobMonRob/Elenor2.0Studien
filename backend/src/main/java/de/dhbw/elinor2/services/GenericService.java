@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Transactional
 public abstract class GenericService<T, ID> implements IGenericService<T, ID>
 {
 
@@ -17,24 +16,28 @@ public abstract class GenericService<T, ID> implements IGenericService<T, ID>
     }
 
     @Override
+    @Transactional
     public T create(T t)
     {
         return repository.save(t);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<T> findById(ID id)
     {
         return repository.findById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Iterable<T> findAll()
     {
         return repository.findAll();
     }
 
     @Override
+    @Transactional
     public Optional<T> update(ID id, T updatedEntity)
     {
         Optional<T> existing = repository.findById(id);
@@ -49,12 +52,14 @@ public abstract class GenericService<T, ID> implements IGenericService<T, ID>
     }
 
     @Override
+    @Transactional
     public void deleteById(ID id)
     {
         repository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(ID id)
     {
         return repository.existsById(id);
