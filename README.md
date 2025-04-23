@@ -47,12 +47,7 @@ Durch diese Weiterleitung werden lokale Aufrufe an `auth.local` an die Keycloak-
 
 Vor dem Start der Anwendung sollten die Datenbankpasswörter in der Docker-Compose-Datei sowohl beim MariaDB-Container als auch beim Backend-Container angepasst werden.
 
-Außerdem muss für die DNS-Weiterleitung in der Docker-Compose-Datei die Zeile
-
-```
-extra_hosts:
-  - "auth.local:zuErsetzendeIpAdresse"
-```
+Damit die DNS-Weiterleitung in der Docker-Compose-Date korrekt funktioniert, muss die Docker Version 20.10 oder höher installiert sein. Bei älteren Versionen kann es zu Problemen kommen, da die Container nicht auf die lokale DNS-Weiterleitung über host-gateway zugreifen können.
 
 angepasst werden. Die eigene IP-Adresse kann unter Windows mit dem Befehl `ipconfig` in der Eingabeaufforderung (IPv4-Adresse des Ethernet-Adapters) ermittelt werden.
 
