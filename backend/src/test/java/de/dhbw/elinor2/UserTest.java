@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserTest extends GenericTest<User, User, User, UUID>
+class UserTest extends GenericTest<User, User, User, UUID>
 {
     @Autowired
     private UserRepository userRepository;
@@ -85,7 +85,7 @@ public class UserTest extends GenericTest<User, User, User, UUID>
     }
 
     @Test
-    public void updateUserTest()
+    void updateUserTest()
     {
         TestRestTemplate restTemplate = DefaultUser.createTestRestTemplateWithJwt();
         ResponseEntity<User> response = restTemplate.postForEntity(testObject.getBaseUrl() + "/me", null, testObject.getEntityClass());
