@@ -16,7 +16,7 @@ Bevor die Anwendung gestartet werden kann, muss sichergestellt sein, dass Docker
 Um die Keycloak-Instanz zu starten, muss der Docker-Container mit folgendem Befehl gestartet werden:
 
 ```
-docker run --name keycloak -p 8081:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=adminUser -e KC_BOOTSTRAP_ADMIN_PASSWORD=adminUser --hostname auth.local quay.io/keycloak/keycloak:latest start-dev
+docker run --name keycloak -p 8081:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=adminUser -e KC_BOOTSTRAP_ADMIN_PASSWORD=adminUser --hostname auth.local quay.io/keycloak/keycloak:26.1.4 start-dev
 ```
 
 Die Umgebungsvariablen `KC_BOOTSTRAP_ADMIN_USERNAME` und `KC_BOOTSTRAP_ADMIN_PASSWORD` sollten angepasst werden. Diese Variablen dienen der Authentifizierung des Administrators in der Keycloak-Instanz.
